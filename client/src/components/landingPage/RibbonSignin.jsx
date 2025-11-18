@@ -1,0 +1,56 @@
+import React, { useState } from "react";
+import Step1 from "../auth/Step1";
+import Step2 from "../auth/Step2";
+import Step3 from "../auth/Step3";
+import Modal from "../common/Modal";
+import { useAuth } from "../../context/AuthContext";
+
+const RibbonSignin = () => {
+  const { isLoggedIn, login } = useAuth(); // ⬅️ use shared auth state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const handleLoginComplete = () => {
+    login(); // mark as logged in globally
+    setIsModalOpen(false);
+  };
+
+  if (isLoggedIn) return null; // hide entire ribbon if logged in ✅
+
+  return (
+    <div className="ribbon bg-darkBlue p-4 sm:p-6 rounded-2xl max-w-7xl mx-auto my-4 sm:my-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+      {/* Left Section */}
+      <div className="flex items-center gap-4 sm:gap-6 text-white">
+        <img
+          src="/assets/ribbon.svg"
+          alt="ribbon"
+          className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+        />
+        <h4 className="font-normal text-sm sm:text-base md:text-lg text-center sm:text-left">
+          Members save 10% or more on over 100,000 hotels worldwide when signed in
+        </h4>
+      </div>
+
+      {/* Right Section */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="sm:ml-auto flex items-center justify-center gap-2 bg-green px-4 py-2 sm:px-5 sm:py-3 md:px-6 md:py-3 rounded-md text-white cursor-pointer text-sm sm:text-base w-full sm:w-auto mt-4 sm:mt-0 hover:bg-green/90 transition-colors duration-200"
+      >
+        Sign In
+      </button>
+
+      {/* Modal for Sign In Steps */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {step === 1 ? (
+          <Step1 onNext={() => setStep(2)} />
+        ) : step === 2 ? (
+          <Step2 onBack={() => setStep(1)} onNext={() => setStep(3)} />
+        ) : (
+          <Step3 onBack={() => setStep(2)} onClose={handleLoginComplete} />
+        )}
+      </Modal>
+    </div>
+  );
+};
+
+export default RibbonSignin;
