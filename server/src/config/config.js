@@ -24,6 +24,13 @@ const config = {
     },
     client: {
         url: process.env.CLIENT_URL || 'http://localhost:5173'
+    },
+    google: {
+        apiKey: process.env.GOOGLE_API_KEY
+    },
+    jwt: {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '14d'
     }
 }
 

@@ -1,5 +1,7 @@
 import os from 'os';
 import config from '../config/config.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export default {
     getSystemHealth: () => {
@@ -19,4 +21,28 @@ export default {
             },
         };
     },
+    generateOtp: (length = 6) => {
+        let otp = '';
+        for (let i = 0; i < length; i++) {
+            otp += Math.floor(Math.random() * 10).toString();
+        }
+        return '000000';
+    },
+    hashOtp: (otp) => {
+        const hashedOtp = bcrypt.hashSync(otp, 8);
+        return hashedOtp;
+    },
+    compareOtp: (otp, hashedOtp) => {
+        return bcrypt.compareSync(otp, hashedOtp);
+    },
+    generateToken: (data) => {
+        const token =  jwt.sign(data, config.jwt.secret, {
+            expiresIn: config.jwt.expiresIn
+        });
+        return token;
+    },
+    verifyToken: (token) => {
+        const decoded = jwt.verify(token, config.jwt.secret);
+        return decoded;
+    }
 };

@@ -1,6 +1,6 @@
 import config from '../config/config.js';
 import { EApplicationEnvironment } from '../constant/application.js';
-import logger from './logger.js';
+// import logger from './logger.js';
 
 export default (req, res, responseStatusCode, responseMessage, data = null) => {
     const response = {
@@ -15,13 +15,13 @@ export default (req, res, responseStatusCode, responseMessage, data = null) => {
         data: data,
     };
 
-    logger.info('CONTROLLER_RESPONSE', {
-        meta: response,
-    });
+    // logger.info('CONTROLLER_RESPONSE', {
+    //     meta: response,
+    // });
 
-    if (config.ENV === EApplicationEnvironment.PRODUCTION) {
-        delete response.request.ip;
-    }
+    // if (config.ENV === EApplicationEnvironment.PRODUCTION) {
+    //     delete response.request.ip;
+    // }
 
     res.status(responseStatusCode).json(response);
 };

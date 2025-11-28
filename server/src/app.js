@@ -1,5 +1,5 @@
 import express from 'express';
-import router from './router/apiRouter.js';
+import router from './router/index.js';
 import globalErrorHandler from './middleware/globalErrorHandler.js';
 import responseMessage from './constant/responseMessage.js';
 import httpError from './util/httpError.js';
@@ -16,7 +16,7 @@ app.use('/v1', router);
 
 app.use((req, res, next) => {
     try {
-        throw new Error(responseMessage.NOT_FOUND('route'));
+        throw new Error(responseMessage.ERROR.NOT_FOUND('route'));
     } catch (err) {
         httpError(next, err, req, 404);
     }
