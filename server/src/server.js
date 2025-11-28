@@ -8,6 +8,7 @@ const server = app.listen(config.server.port);
 
 (async () => {
     try {
+
         const connection = await databaseService.connect();
         logger.info('DATABASE_CONNECTION', {
             meta: {

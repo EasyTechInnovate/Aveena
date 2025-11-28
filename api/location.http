@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /api/v1
+
+### Search Location - Delhi
+GET {{baseUrl}}{{apiPrefix}}/locations/search?query=deh
+
+### Search Location - Mumbai
+GET {{baseUrl}}{{apiPrefix}}/locations/search?query=mum
+
+### Search Location - Goa
+GET {{baseUrl}}{{apiPrefix}}/locations/search?query=goa
+
+### Search Location - Full Name
+GET {{baseUrl}}{{apiPrefix}}/locations/search?query=New Delhi
+
+### Search Location - International
+GET {{baseUrl}}{{apiPrefix}}/locations/search?query=paris

@@ -32,6 +32,11 @@ export default {
         SORT_INVALID: 'Invalid sort parameters',
         FILTER_INVALID: 'Invalid filter parameters'
     },
+    AUTH: {
+        NO_TOKEN_PROVIDED: 'No token provided',
+        TOKEN_INVALID: 'Invalid token',
+        PROFILE_NOT_COMPLETE: 'Profile not complete '
+    },
 
     customMessage: (message) => message
 }

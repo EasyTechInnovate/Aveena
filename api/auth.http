@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /api/v1
+
+### Send OTP with Email
+POST {{baseUrl}}{{apiPrefix}}/auth/send-otp
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+### Send OTP with Phone
+POST {{baseUrl}}{{apiPrefix}}/auth/send-otp
+Content-Type: application/json
+
+{
+  "phone": {
+    "countryCode": "+91",
+    "number": "1234567890"
+  }
+}
+
+### Verify OTP with Email
+POST {{baseUrl}}{{apiPrefix}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "verificationCode": "123456"
+}
+
+### Verify OTP with Phone
+POST {{baseUrl}}{{apiPrefix}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "phone": {
+    "countryCode": "+91",
+    "number": "1234567890"
+  },
+  "verificationCode": "123456"
+}
+
+### Complete Profile
+@accessToken = your_access_token_here
+
+POST {{baseUrl}}{{apiPrefix}}/auth/complete-profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": {
+    "countryCode": "+91",
+    "number": "1234567890"
+  }
+}
