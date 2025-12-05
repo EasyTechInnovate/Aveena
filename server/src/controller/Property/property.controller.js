@@ -251,9 +251,87 @@ export default {
                 }
             ];
 
-            const data = await propertyModel.aggregate(pipeline);
-            
-            return httpResponse(req, res, 200, responseMessage.SUCCESS, data);
+            const properties = await propertyModel.aggregate(pipeline);
+
+            const countPipeline = [
+                {
+                    $match: {
+                        locationId: {
+                            $in: locationIds
+                        },
+
+                    }
+                },
+                {
+                    $match: {
+                        "capacity.adults": {
+                            $gte: Number(adults)
+                        },
+                        "capacity.childrens": {
+                            $gte: Number(childrens)
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'bookeddates',
+                        let: { propertyId: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$entityId", "$propertyId"] },
+                                            { $eq: ["$entityType", "property"] },
+                                            { $gte: ["$date", new Date(checkIn)] },
+                                            { $lte: ["$date", new Date(checkOut)] }
+                                        ]
+                                    }
+                                }
+                            }
+
+                        ],
+                        as: 'bookings'
+                    }
+                },
+                {
+                    $addFields: {
+                        bookedUnits: {
+                            $sum: '$bookings.unitsBooked'
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        availableUnits: {
+                            $subtract: ["$totalUnits", "$bookedUnits"]
+                        }
+                    }
+                },
+                {
+                    $match: {
+                        $expr: {
+                            $gte: ["$availableUnits", Number(rooms) ?? 1]
+                        }
+                    }
+                },
+                {
+                    $count: "total"
+                }
+            ];
+
+            const countResult = await propertyModel.aggregate(countPipeline);
+            const total = countResult.length > 0 ? countResult[0].total : 0;
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                properties,
+                pagination: {
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(total / limit)
+                }
+            });
 
         } catch (error) {
             return httpError(next, error, req, 500);
