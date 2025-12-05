@@ -135,5 +135,23 @@ export default {
         } catch (error) {
             return httpError(next, error, req, 500);
         }
+    },
+    getProfile: async (req, res, next) => {
+        try {
+            const { userId } = req.user;
+
+            const user = await userModel.findById(userId)
+                .select('-verification -createdAt -updatedAt -__v')
+                .lean();
+
+            if (!user) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
+            }
+
+            return httpResponse(req, res, 200, responseMessage.customMessage('Profile fetched successfully'), user);
+
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
     }
 }

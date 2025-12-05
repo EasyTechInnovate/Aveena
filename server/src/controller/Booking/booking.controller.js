@@ -104,9 +104,9 @@ export default {
                 return httpError(next, new Error(responseMessage.AUTH.PROFILE_NOT_COMPLETE), req, 401);
             }
 
-            if(!user.isIdentityVerified) {
-                return httpError(next, new Error(responseMessage.AUTH.NO_IDENTITYFICATION_PROVIDED), req, 401);
-            }
+            // if(!user.isIdentityVerified) {
+            //     return httpError(next, new Error(responseMessage.AUTH.NO_IDENTITYFICATION_PROVIDED), req, 401);
+            // }
 
             const noOfNights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
             
