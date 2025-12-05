@@ -68,3 +68,7 @@ Authorization: Bearer {{accessToken}}
     "zipCode": "400053"
   }
 }
+
+### Get Profile
+GET {{baseUrl}}{{apiPrefix}}/auth/profile
+Authorization: Bearer {{accessToken}}

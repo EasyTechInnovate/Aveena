@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /api/v1
+@accessToken = your_access_token_here
+
+### Create Booking
+POST {{baseUrl}}{{apiPrefix}}/booking
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyId": "property_id_here",
+  "checkInDate": "2025-12-15",
+  "checkOutDate": "2025-12-20",
+  "adults": 2,
+  "childrens": 1,
+  "noOfRooms": 1
+}
+
+### Payment Success
+POST {{baseUrl}}{{apiPrefix}}/booking/payment-success
+Content-Type: application/json
+
+{
+  "txnid": "PAYU_1234567890",
+  "mode": "CC"
+}
+
+### Payment Failure
+POST {{baseUrl}}{{apiPrefix}}/booking/payment-failure
+Content-Type: application/json
+
+{
+  "txnid": "PAYU_1234567890"
+}
+
+### Get My Bookings
+GET {{baseUrl}}{{apiPrefix}}/booking/my-bookings?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Get My Bookings - Page 2
+GET {{baseUrl}}{{apiPrefix}}/booking/my-bookings?page=2&limit=10
+Authorization: Bearer {{accessToken}}
