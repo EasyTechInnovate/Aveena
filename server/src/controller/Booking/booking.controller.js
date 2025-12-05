@@ -334,7 +334,9 @@ export default {
                     total,
                     page: parseInt(page),
                     limit: parseInt(limit),
-                    totalPages: Math.ceil(total / limit)
+                    totalPages: Math.ceil(total / limit),
+                    hasNextPage: page < Math.ceil(total / limit),
+                    hasPrevPage: page > 1
                 }
             });
         } catch (error) {
