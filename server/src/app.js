@@ -63,7 +63,7 @@ app.use(express.json());
 
 
 
-app.use('/v1', router);
+app.use('/api/v1', router);
 
 app.use((req, res, next) => {
     try {
