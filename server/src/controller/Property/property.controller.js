@@ -1,5 +1,4 @@
 import responseMessage from "../../constant/responseMessage.js";
-import bookedDatesSchema from "../../models/bookedDates.schema.js";
 import propertyModel from "../../models/property.model.js";
 import propertyDetailsModel from "../../models/propertyDetails.model.js";
 import roomModel from "../../models/room.model.js";

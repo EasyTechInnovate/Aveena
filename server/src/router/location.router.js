@@ -6,5 +6,6 @@ import { searchLocationSchema } from "../schemas/location.schema.js";
 const router = Router();
 
 router.get('/search', validator(searchLocationSchema, "query"), locationController.search);
+router.get('/popular', locationController.getPopularLocations)
 
 export default router;

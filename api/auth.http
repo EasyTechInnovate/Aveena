@@ -55,5 +55,16 @@ Authorization: Bearer {{accessToken}}
   "phone": {
     "countryCode": "+91",
     "number": "1234567890"
+  },
+  "dateOfBirth": "1990-01-15",
+  "nationality": "Indian",
+  "gender": "male",
+  "address": {
+    "country": "India",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "aptorsuiteorfloor": "Apt 123",
+    "fullAddress": "123 Main Street, Andheri West",
+    "zipCode": "400053"
   }
 }

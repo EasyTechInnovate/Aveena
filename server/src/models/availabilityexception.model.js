@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 
 const availabilityExceptionSchema = new Schema({
@@ -13,3 +13,5 @@ const availabilityExceptionSchema = new Schema({
 
 }, { timestamps: true });
 
+
+export default model("AvailabilityException", availabilityExceptionSchema);
