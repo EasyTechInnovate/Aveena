@@ -53,6 +53,7 @@ import AdminOffer from "./pages/adminDashboard/Offer";
 import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
+import Test from "./pages/Test";
 // Wrapper to handle conditional nav
 const Layout = () => {
   const location = useLocation();
@@ -116,6 +117,12 @@ const Layout = () => {
         <Route path="/dashboard/admin/team" element={<AdminTeamManagement />} />
         <Route path="/dashboard/admin/profile" element={<AdminProfile />} />
         <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
+
+
+        <Route path="/test" element={<Test />} />
+
+
+
 
       </Routes>
 
