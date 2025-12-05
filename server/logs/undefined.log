@@ -5959,3 +5959,2140 @@
         "SERVER_URL": "http://localhost:5000"
     }
 }
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-03T13:02:10.757Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-03T13:02:10.766Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-03T13:02:10.766Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-03T13:07:18.599Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-03T13:07:18.607Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-03T13:07:18.607Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-03T13:10:53.284Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-03T13:10:53.288Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-03T13:10:53.289Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-03T13:11:14.592Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-03T13:11:14.596Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-03T13:11:14.596Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-03T13:11:28.752Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-03T13:11:28.756Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-03T13:11:28.756Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "ERROR",
+    "message": "APPLICATION_ERROR",
+    "timestamp": "2025-12-03T13:12:38.593Z",
+    "meta": {
+        "message": "Server selection timed out after 30000 ms",
+        "errorLabelSet": {},
+        "reason": {
+            "type": "ReplicaSetNoPrimary",
+            "servers": {
+                "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017",
+                    "type": "Unknown",
+                    "hosts": [],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {},
+                    "minWireVersion": 0,
+                    "maxWireVersion": 0,
+                    "roundTripTime": -1,
+                    "minRoundTripTime": 0,
+                    "lastUpdateTime": 32198531,
+                    "lastWriteDate": 0,
+                    "error": null,
+                    "topologyVersion": null,
+                    "setName": null,
+                    "setVersion": null,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": null,
+                    "maxMessageSizeBytes": null,
+                    "maxWriteBatchSize": null,
+                    "maxBsonObjectSize": null,
+                    "primary": null,
+                    "me": null,
+                    "$clusterTime": null,
+                    "iscryptd": false
+                },
+                "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                    "type": "Unknown",
+                    "hosts": [],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {},
+                    "minWireVersion": 0,
+                    "maxWireVersion": 0,
+                    "roundTripTime": -1,
+                    "minRoundTripTime": 0,
+                    "lastUpdateTime": 32198531,
+                    "lastWriteDate": 0,
+                    "error": null,
+                    "topologyVersion": null,
+                    "setName": null,
+                    "setVersion": null,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": null,
+                    "maxMessageSizeBytes": null,
+                    "maxWriteBatchSize": null,
+                    "maxBsonObjectSize": null,
+                    "primary": null,
+                    "me": null,
+                    "$clusterTime": null,
+                    "iscryptd": false
+                },
+                "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                    "type": "RSSecondary",
+                    "hosts": [
+                        "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017"
+                    ],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {
+                        "provider": "AWS",
+                        "region": "AP_SOUTH_1",
+                        "workloadType": "OPERATIONAL",
+                        "availabilityZone": "aps1-az3",
+                        "diskState": "READY",
+                        "nodeType": "ELECTABLE"
+                    },
+                    "minWireVersion": 0,
+                    "maxWireVersion": 25,
+                    "roundTripTime": 315,
+                    "minRoundTripTime": 315,
+                    "lastUpdateTime": 32228399,
+                    "lastWriteDate": {
+                        "$date": "2025-12-03T13:12:36Z"
+                    },
+                    "error": null,
+                    "topologyVersion": {
+                        "processId": {
+                            "$oid": "691cb25f641e95d3063b0062"
+                        },
+                        "counter": 3
+                    },
+                    "setName": "atlas-13h41i-shard-0",
+                    "setVersion": 370,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": 30,
+                    "maxMessageSizeBytes": 48000000,
+                    "maxWriteBatchSize": 100000,
+                    "maxBsonObjectSize": 16777216,
+                    "primary": "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017",
+                    "me": "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                    "$clusterTime": {
+                        "clusterTime": {
+                            "$timestamp": {
+                                "t": 1764767556,
+                                "i": 1
+                            }
+                        },
+                        "signature": {
+                            "hash": {
+                                "$binary": {
+                                    "base64": "e7Uz0lqYDMNT1rG3viF2GfSHXww=",
+                                    "subType": "00"
+                                }
+                            },
+                            "keyId": 7528459748648157000
+                        }
+                    },
+                    "iscryptd": false
+                }
+            },
+            "stale": false,
+            "compatible": true,
+            "heartbeatFrequencyMS": 10000,
+            "localThresholdMS": 15,
+            "setName": "atlas-13h41i-shard-0",
+            "maxElectionId": null,
+            "maxSetVersion": null,
+            "commonWireVersion": 0,
+            "logicalSessionTimeoutMinutes": 30
+        }
+    }
+}
+{
+    "level": "ERROR",
+    "message": "APPLICATION_ERROR",
+    "timestamp": "2025-12-03T13:22:48.712Z",
+    "meta": {
+        "message": "Server selection timed out after 30000 ms",
+        "errorLabelSet": {},
+        "reason": {
+            "type": "ReplicaSetNoPrimary",
+            "servers": {
+                "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                    "type": "RSSecondary",
+                    "hosts": [
+                        "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017"
+                    ],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {
+                        "provider": "AWS",
+                        "region": "AP_SOUTH_1",
+                        "workloadType": "OPERATIONAL",
+                        "availabilityZone": "aps1-az3",
+                        "diskState": "READY",
+                        "nodeType": "ELECTABLE"
+                    },
+                    "minWireVersion": 0,
+                    "maxWireVersion": 25,
+                    "roundTripTime": 1798,
+                    "minRoundTripTime": 365,
+                    "lastUpdateTime": 32830088,
+                    "lastWriteDate": {
+                        "$date": "2025-12-03T13:22:38Z"
+                    },
+                    "error": null,
+                    "topologyVersion": {
+                        "processId": {
+                            "$oid": "691cb25f641e95d3063b0062"
+                        },
+                        "counter": 3
+                    },
+                    "setName": "atlas-13h41i-shard-0",
+                    "setVersion": 370,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": 30,
+                    "maxMessageSizeBytes": 48000000,
+                    "maxWriteBatchSize": 100000,
+                    "maxBsonObjectSize": 16777216,
+                    "primary": "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017",
+                    "me": "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                    "$clusterTime": {
+                        "clusterTime": {
+                            "$timestamp": {
+                                "t": 1764768158,
+                                "i": 1
+                            }
+                        },
+                        "signature": {
+                            "hash": {
+                                "$binary": {
+                                    "base64": "zVusu+Fh/3qTpmmppe7nGSDQRY4=",
+                                    "subType": "00"
+                                }
+                            },
+                            "keyId": 7528459748648157000
+                        }
+                    },
+                    "iscryptd": false
+                },
+                "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017",
+                    "type": "Unknown",
+                    "hosts": [],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {},
+                    "minWireVersion": 0,
+                    "maxWireVersion": 0,
+                    "roundTripTime": -1,
+                    "minRoundTripTime": 0,
+                    "lastUpdateTime": 32808648,
+                    "lastWriteDate": 0,
+                    "error": null,
+                    "topologyVersion": null,
+                    "setName": null,
+                    "setVersion": null,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": null,
+                    "maxMessageSizeBytes": null,
+                    "maxWriteBatchSize": null,
+                    "maxBsonObjectSize": null,
+                    "primary": null,
+                    "me": null,
+                    "$clusterTime": null,
+                    "iscryptd": false
+                },
+                "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017": {
+                    "address": "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                    "type": "RSSecondary",
+                    "hosts": [
+                        "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-01.fbv8hdp.mongodb.net:27017",
+                        "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017"
+                    ],
+                    "passives": [],
+                    "arbiters": [],
+                    "tags": {
+                        "diskState": "READY",
+                        "workloadType": "OPERATIONAL",
+                        "availabilityZone": "aps1-az1",
+                        "provider": "AWS",
+                        "region": "AP_SOUTH_1",
+                        "nodeType": "ELECTABLE"
+                    },
+                    "minWireVersion": 0,
+                    "maxWireVersion": 25,
+                    "roundTripTime": 1623,
+                    "minRoundTripTime": 1623,
+                    "lastUpdateTime": 32837007,
+                    "lastWriteDate": {
+                        "$date": "2025-12-03T13:22:46Z"
+                    },
+                    "error": null,
+                    "topologyVersion": {
+                        "processId": {
+                            "$oid": "691cac1f4b04808fa90cd142"
+                        },
+                        "counter": 4
+                    },
+                    "setName": "atlas-13h41i-shard-0",
+                    "setVersion": 370,
+                    "electionId": null,
+                    "logicalSessionTimeoutMinutes": 30,
+                    "maxMessageSizeBytes": 48000000,
+                    "maxWriteBatchSize": 100000,
+                    "maxBsonObjectSize": 16777216,
+                    "primary": "ac-teeyowq-shard-00-02.fbv8hdp.mongodb.net:27017",
+                    "me": "ac-teeyowq-shard-00-00.fbv8hdp.mongodb.net:27017",
+                    "$clusterTime": {
+                        "clusterTime": {
+                            "$timestamp": {
+                                "t": 1764768166,
+                                "i": 2
+                            }
+                        },
+                        "signature": {
+                            "hash": {
+                                "$binary": {
+                                    "base64": "fMgms2zTyuiM3Ul/L8RanWp/mlU=",
+                                    "subType": "00"
+                                }
+                            },
+                            "keyId": 7528459748648157000
+                        }
+                    },
+                    "iscryptd": false
+                }
+            },
+            "stale": false,
+            "compatible": true,
+            "heartbeatFrequencyMS": 10000,
+            "localThresholdMS": 15,
+            "setName": "atlas-13h41i-shard-0",
+            "maxElectionId": null,
+            "maxSetVersion": null,
+            "commonWireVersion": 0,
+            "logicalSessionTimeoutMinutes": 30
+        }
+    }
+}
+{
+    "level": "ERROR",
+    "message": "APPLICATION_ERROR",
+    "timestamp": "2025-12-03T13:24:51.392Z",
+    "meta": {
+        "errorLabelSet": {},
+        "beforeHandshake": true,
+        "connectionGeneration": 0
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:37:03.073Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:37:03.077Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:37:03.077Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:41:52.374Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:41:52.385Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:41:52.385Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:43:18.836Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:43:18.843Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:43:18.844Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:45:55.779Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:45:55.788Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:45:55.788Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:46:32.744Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:46:32.749Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:46:32.750Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:53:54.576Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:53:54.584Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:53:54.584Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:55:11.184Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:55:11.191Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:55:11.191Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:58:28.738Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:58:28.743Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:58:28.743Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T08:58:39.134Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T08:58:39.138Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T08:58:39.138Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:03:52.873Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:03:52.877Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:03:52.877Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:05:00.020Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:05:00.023Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:05:00.024Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:10:42.302Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:10:42.305Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:10:42.305Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:11:14.374Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:11:14.378Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:11:14.378Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:13:58.129Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:13:58.136Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:13:58.136Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:14:35.434Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:14:35.437Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:14:35.437Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:17:08.718Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:17:08.721Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:17:08.721Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:17:43.115Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:17:43.123Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:17:43.123Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:18:09.727Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:18:09.734Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:18:09.734Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:19:15.319Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:19:15.323Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:19:15.323Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:19:59.025Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:19:59.028Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:19:59.028Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:20:37.804Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:20:37.808Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:20:37.809Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:22:58.731Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:22:58.735Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:22:58.735Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:23:12.281Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:23:12.290Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:23:12.290Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:25:13.787Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:25:13.795Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:25:13.795Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:27:41.884Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:27:41.891Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:27:41.892Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:27:56.449Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:27:56.453Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:27:56.453Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:29:54.201Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:29:54.209Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:29:54.209Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:30:12.395Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:30:12.402Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:30:12.402Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:30:54.972Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:30:54.978Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:30:54.978Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:32:11.539Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:32:11.547Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:32:11.547Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:33:33.094Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:33:33.098Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:33:33.098Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:35:40.195Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:35:40.198Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:35:40.199Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:39:54.364Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:39:54.368Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:39:54.368Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:40:29.302Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:40:29.309Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:40:29.309Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:41:38.897Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:41:38.906Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:41:38.906Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:41:49.181Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:41:49.184Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:41:49.185Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:42:08.611Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:42:08.619Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:42:08.619Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:42:20.975Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:42:20.984Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:42:20.984Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:44:51.519Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:44:51.522Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:44:51.522Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:45:25.798Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:45:25.803Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:45:25.804Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:45:44.793Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:45:44.797Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:45:44.797Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:47:49.292Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:47:49.295Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:47:49.295Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:48:09.009Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:48:09.012Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:48:09.012Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:48:34.857Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:48:34.863Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:48:34.863Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:49:46.676Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:49:46.682Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:49:46.682Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:57:59.839Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:57:59.846Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:57:59.847Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:58:55.807Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:58:55.812Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:58:55.813Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T09:59:05.325Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T09:59:05.331Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T09:59:05.332Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:18:20.728Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:18:20.732Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:18:20.732Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:19:15.385Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:19:15.389Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:19:15.389Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:21:55.497Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:21:55.504Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:21:55.505Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:22:47.811Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:22:47.819Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:22:47.819Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:24:49.950Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:24:49.954Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:24:49.954Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:26:02.134Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:26:02.138Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:26:02.138Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:26:51.729Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:26:51.736Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:26:51.736Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:28:02.829Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:28:02.838Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:28:02.838Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:29:08.608Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:29:08.612Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:29:08.612Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:29:27.728Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:29:27.732Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:29:27.732Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:32:00.191Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:32:00.196Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:32:00.196Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:32:28.372Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:32:28.380Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:32:28.380Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:34:20.977Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:34:20.984Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:34:20.984Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:35:20.692Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:35:20.700Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:35:20.700Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:36:19.327Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:36:19.332Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:36:19.332Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:41:53.406Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:41:53.409Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:41:53.409Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:43:12.617Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:43:12.620Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:43:12.621Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:48:01.484Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:48:01.492Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:48:01.492Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:48:51.432Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:48:51.442Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:48:51.442Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:49:37.102Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:49:37.108Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:49:37.108Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T10:50:35.392Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T10:50:35.401Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T10:50:35.401Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T11:01:06.888Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T11:01:06.891Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T11:01:06.891Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-04T11:01:34.388Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-04T11:01:34.392Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-04T11:01:34.392Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-05T07:09:41.697Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-05T07:09:41.705Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-05T07:09:41.706Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-05T07:10:24.803Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-05T07:10:24.808Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-05T07:10:24.808Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}
+{
+    "level": "INFO",
+    "message": "DATABASE_CONNECTION",
+    "timestamp": "2025-12-05T07:14:24.965Z",
+    "meta": {
+        "CONNECTION_NAME": "Aveena"
+    }
+}
+{
+    "level": "INFO",
+    "message": "RATE_LIMITER_INITIATED",
+    "timestamp": "2025-12-05T07:14:24.973Z",
+    "meta": {}
+}
+{
+    "level": "INFO",
+    "message": "APPLICATION_STARTED",
+    "timestamp": "2025-12-05T07:14:24.974Z",
+    "meta": {
+        "PORT": 5000,
+        "SERVER_URL": "http://localhost:5000"
+    }
+}

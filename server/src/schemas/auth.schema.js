@@ -86,5 +86,29 @@ export const completeProfileSchema = z.object({
       required_error: "Phone number is required.",
       invalid_type_error: "Phone number must be a string."
     }).regex(/^\d{7,15}$/, "Invalid phone number.")
-  })
+  }),
+
+  dateOfBirth: z.string({
+    required_error: "Date of birth is required.",
+    invalid_type_error: "Date of birth must be a string."
+  }).optional(),
+
+  nationality: z.string({
+    required_error: "Nationality is required.",
+    invalid_type_error: "Nationality must be a string."
+  }).optional(),
+
+  gender: z.enum(['male', 'female', 'other'], {
+    required_error: "Gender is required.",
+    invalid_type_error: "Gender must be one of male, female, or other."
+  }).optional(),
+
+  address: z.object({
+    country: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    aptorsuiteorfloor: z.string().optional(),
+    fullAddress: z.string().optional(),
+    zipCode: z.string().optional()
+  }).optional()
 });

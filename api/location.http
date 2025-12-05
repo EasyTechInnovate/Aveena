@@ -1,6 +1,9 @@
 @baseUrl = http://localhost:5000
 @apiPrefix = /api/v1
 
+### Get Popular Locations
+GET {{baseUrl}}{{apiPrefix}}/locations/popular
+
 ### Search Location - Delhi
 GET {{baseUrl}}{{apiPrefix}}/locations/search?query=deh
 

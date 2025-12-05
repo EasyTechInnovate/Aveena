@@ -31,6 +31,14 @@ const config = {
     jwt: {
         secret: process.env.JWT_SECRET,
         expiresIn: '14d'
+    },
+    payu: {
+        baseUrl: process.env.PAYU_URL, 
+        key: process.env.PAYU_KEY,
+        salt: process.env.PAYU_SALT,
+        successUrl: process.env.PAYU_SUCCESS_URL,
+        failureUrl: process.env.PAYU_FAILURE_URL,
+        verifyUrl: process.env.PAYU_VERIFY_URL
     }
 }
 

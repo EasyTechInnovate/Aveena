@@ -84,7 +84,7 @@ export default {
     completeProfile: async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const { firstName, lastName, email, phone } = req.body;
+            const { firstName, lastName, email, phone, dateOfBirth, nationality, gender, address } = req.body;
 
             const user = await userModel.findById(userId);
 
@@ -94,9 +94,31 @@ export default {
 
             user.firstName = firstName;
             user.lastName = lastName;
-            user.email = email;
-            user.phone.countryCode = phone.countryCode;
-            user.phone.number = phone.number;
+            user.email = user.email || email;
+            user.phone.countryCode = user.phone.countryCode || phone.countryCode;
+            user.phone.number = user.phone.number || phone.number;
+
+            if (dateOfBirth) {
+                user.dateOfBirth = new Date(dateOfBirth);
+            }
+
+            if (nationality) {
+                user.nationality = nationality;
+            }
+
+            if (gender) {
+                user.gender = gender;
+            }
+
+            if (address) {
+                if (address.country) user.address.country = address.country;
+                if (address.city) user.address.city = address.city;
+                if (address.state) user.address.state = address.state;
+                if (address.aptorsuiteorfloor) user.address.aptorsuiteorfloor = address.aptorsuiteorfloor;
+                if (address.fullAddress) user.address.fullAddress = address.fullAddress;
+                if (address.zipCode) user.address.zipCode = address.zipCode;
+            }
+
             user.isProfileComplete = true;
 
             await user.save();

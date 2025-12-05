@@ -12,7 +12,7 @@ const bookingSchema = new Schema({
 
   guests: {
     adults: Number,
-    children: Number
+    childrens: Number
   },
 
   priceBreakdown: {
@@ -24,13 +24,18 @@ const bookingSchema = new Schema({
 
   status: { 
     type: String, 
-    enum: ['pending','confirmed','cancelled'], 
+    enum: ['pending','confirmed','cancelled', 'failed'], 
     default: 'pending'
   },
 
   cancellation: {
     cancelledAt: Date,
-    refundAmount: Number
+    refundAmount: Number,
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
+    }
   },
 
 }, { timestamps: true });

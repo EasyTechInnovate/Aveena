@@ -84,7 +84,15 @@ const userSchema = new Schema({
         enum: ['customer', 'admin', 'property_owner'],
         default: 'customer'
     },
+    aadhaarCard: {
+        type: String,
+        default: null
+    },
     isProfileComplete: {
+        type: Boolean,
+        default: false
+    },
+    isIdentityVerified: {
         type: Boolean,
         default: false
     }
