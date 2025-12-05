@@ -11,6 +11,7 @@ import config from "../../config/config.js";
 import crypto from "crypto";
 import axios from "axios";
 import responseMessage from "../../constant/responseMessage.js";
+import { gst } from "../../constant/application.js";
 
 
 export default {
@@ -110,7 +111,10 @@ export default {
 
             const noOfNights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
             
-            const finalAmount = property.basePrice * noOfNights;
+            const base = property.basePrice * noOfNights;
+            const taxes = base * gst;
+            const discount = 0;
+            const finalAmount = base + taxes - discount;
 
             const session = await startSession();
             session.startTransaction();
@@ -126,10 +130,10 @@ export default {
                     childrens: childrens
                 },
                 priceBreakdown: {
-                    base: property.basePrice * noOfNights,
-                    taxes: 0,
-                    discount: 0,
-                    total: property.basePrice * noOfNights
+                    base,
+                    taxes,
+                    discount,
+                    total: finalAmount
                 }
             }], { session}).then(docs => docs[0]);
             const txnid = 'PAYU_' + Date.now();
@@ -339,6 +343,57 @@ export default {
                     hasPrevPage: page > 1
                 }
             });
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+    getBookedDatesForaProperty: async (req, res, next) => {
+        try {
+            const { propertyId } = req.params;
+            const { startDate, endDate } = req.query;
+
+            if (!propertyId) {
+                return httpError(next, new Error(responseMessage.customMessage('Property ID is required')), req, 400);
+            }
+
+            if (!startDate || !endDate) {
+                return httpError(next, new Error(responseMessage.customMessage('Start date and end date are required')), req, 400);
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                return httpError(next, new Error(responseMessage.customMessage('Invalid date format')), req, 400);
+            }
+
+            if (start < today) {
+                return httpError(next, new Error(responseMessage.customMessage('Start date cannot be in the past')), req, 400);
+            }
+
+            if (end < today) {
+                return httpError(next, new Error(responseMessage.customMessage('End date cannot be in the past')), req, 400);
+            }
+
+            if (end < start) {
+                return httpError(next, new Error(responseMessage.customMessage('End date must be after or equal to start date')), req, 400);
+            }
+
+            const property = await propertyModel.findById(propertyId).lean();
+
+            if (!property) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
+            }
+
+
+            const bookedDatesOnly = bookedDates.map(item => item.date);
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                bookedDates: bookedDatesOnly,
+            });
+
         } catch (error) {
             return httpError(next, error, req, 500);
         }

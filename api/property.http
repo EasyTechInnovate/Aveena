@@ -6,6 +6,22 @@
 GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
+### Get Properties - Sort by Price Low to High
+GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10&sortBy=price_low_to_high
+Authorization: Bearer {{accessToken}}
+
+### Get Properties - Sort by Price High to Low
+GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10&sortBy=price_high_to_low
+Authorization: Bearer {{accessToken}}
+
+### Get Properties - Search by Name
+GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10&search=luxury
+Authorization: Bearer {{accessToken}}
+
+### Get Properties - Search by Name with Sort
+GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10&search=villa&sortBy=price_low_to_high
+Authorization: Bearer {{accessToken}}
+
 ### Get Property by ID
 @propertyId = property_id_here
 

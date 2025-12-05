@@ -40,3 +40,7 @@ Authorization: Bearer {{accessToken}}
 ### Get My Bookings - Page 2
 GET {{baseUrl}}{{apiPrefix}}/booking/my-bookings?page=2&limit=10
 Authorization: Bearer {{accessToken}}
+
+### Get Already Booked Dates for a Property
+GET {{baseUrl}}{{apiPrefix}}/booking/already-booked-dates/property_id_here?startDate=2025-12-05&endDate=2025-12-31
+Content-Type: application/json
