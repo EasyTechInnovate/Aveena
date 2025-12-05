@@ -26,7 +26,7 @@ export default {
 
             const property = await propertyModel.create({
                 ownerId: userId,
-                propertyName,
+                name: propertyName,
                 type,
                 address: {
                     fullAddress: address.fullAddress,
@@ -132,7 +132,7 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             }
 
-            if (propertyName !== undefined) property.propertyName = propertyName;
+            if (propertyName !== undefined) property.name = propertyName;
             if (basePrice !== undefined) property.basePrice = basePrice;
             if (totalUnits !== undefined) property.totalUnits = totalUnits;
             if (amenties !== undefined) property.amenties = amenties;
@@ -168,25 +168,34 @@ export default {
     },
     getProperties: async (req, res, next) => {
         try {
-            const { whereTo, checkIn, checkOut, adults = 1, childrens = 0, rooms = 1, page = 1, limit = 10 } = req.query;
-            
+            const { whereTo, checkIn, checkOut, adults = 1, childrens = 0, rooms = 1, page = 1, limit = 10, sortBy, search } = req.query;
+
             const trimmedWhereTo = whereTo.split(",")[0].trim();
             const locationIds = await getLocationIds(trimmedWhereTo);
 
             if(locationIds.length === 0) {
                 return httpResponse(req, res, 200, responseMessage.SUCCESS, []);
             };
-            
+
             const skip = (Number(page) - 1) * Number(limit);
+
+            const matchFilter = {
+                locationId: {
+                    $in: locationIds
+                },
+                isActive: true
+            };
+
+            if (search && search.trim() !== '') {
+                matchFilter.name = {
+                    $regex: search.trim(),
+                    $options: 'i'
+                };
+            }
 
             const pipeline = [
                 {
-                    $match: {
-                        locationId: {
-                            $in: locationIds
-                        },
-                        
-                    }
+                    $match: matchFilter
                 },
                 {
                     $match: {
@@ -241,6 +250,13 @@ export default {
                         }
                     }
                 },
+                {
+                    $sort: sortBy === 'price_low_to_high'
+                        ? { basePrice: 1 }
+                        : sortBy === 'price_high_to_low'
+                        ? { basePrice: -1 }
+                        : { createdAt: -1 }
+                },
                 { $skip: skip },
                 { $limit: Number(limit) },
                 {
@@ -255,12 +271,7 @@ export default {
 
             const countPipeline = [
                 {
-                    $match: {
-                        locationId: {
-                            $in: locationIds
-                        },
-
-                    }
+                    $match: matchFilter
                 },
                 {
                     $match: {

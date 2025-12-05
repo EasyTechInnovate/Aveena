@@ -8,6 +8,7 @@ const router = Router();
 
 router.post('/payment-success', validator(paymentSuccessSchema, "body"), bookingController.paymentSuccess);
 router.post('/payment-failure', validator(paymentFailureSchema, "body"), bookingController.paymentFailure);
+router.get('/already-booked-dates/:propertyId', bookingController.getBookedDatesForaProperty);
 
 router.use(authentication);
 

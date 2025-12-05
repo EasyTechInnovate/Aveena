@@ -1,6 +1,7 @@
 import app from './app.js';
 import config from './config/config.js';
 import { initRateLimiter } from './config/rateLimiter.js';
+import userModel from './models/user.model.js';
 import databaseService from './service/databaseService.js';
 import logger from './util/logger.js';
 
