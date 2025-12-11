@@ -16,6 +16,21 @@ Authorization: Bearer {{accessToken}}
   "noOfRooms": 1
 }
 
+### Create Booking with Coupon
+POST {{baseUrl}}{{apiPrefix}}/booking
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyId": "property_id_here",
+  "checkInDate": "2025-12-15",
+  "checkOutDate": "2025-12-20",
+  "adults": 2,
+  "childrens": 1,
+  "noOfRooms": 1,
+  "couponCode": "SAVE20"
+}
+
 ### Payment Success
 POST {{baseUrl}}{{apiPrefix}}/booking/payment-success
 Content-Type: application/json

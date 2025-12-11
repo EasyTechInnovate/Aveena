@@ -22,9 +22,19 @@ const bookingSchema = new Schema({
     total: Number
   },
 
-  status: { 
-    type: String, 
-    enum: ['pending','confirmed','cancelled', 'failed'], 
+  couponCode: {
+    type: String,
+    uppercase: true
+  },
+
+  couponId: {
+    type: Types.ObjectId,
+    ref: 'Coupon'
+  },
+
+  status: {
+    type: String,
+    enum: ['pending','confirmed','cancelled', 'failed'],
     default: 'pending'
   },
 

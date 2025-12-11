@@ -22,6 +22,10 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10&search=villa&sortBy=price_low_to_high
 Authorization: Bearer {{accessToken}}
 
+### Get Random Properties
+GET {{baseUrl}}{{apiPrefix}}/properties/random?limit=5
+Authorization: Bearer {{accessToken}}
+
 ### Get Property by ID
 @propertyId = property_id_here
 
