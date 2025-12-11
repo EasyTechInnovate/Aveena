@@ -44,7 +44,12 @@ export const createBookingSchema = z.object({
       invalid_type_error: "Number of rooms must be a number."
     })
     .int("Number of rooms must be an integer.")
-    .positive("At least 1 room is required.")
+    .positive("At least 1 room is required."),
+  couponCode: z
+    .string({
+      invalid_type_error: "Coupon code must be a string."
+    })
+    .optional()
 });
 
 export const paymentSuccessSchema = z.object({

@@ -12,6 +12,8 @@ import crypto from "crypto";
 import axios from "axios";
 import responseMessage from "../../constant/responseMessage.js";
 import { gst } from "../../constant/application.js";
+import couponModel from "../../models/coupon.model.js";
+import couponUsageModel from "../../models/couponUsage.model.js";
 
 
 export default {
@@ -20,7 +22,7 @@ export default {
 
             const { userId } = req.user;
 
-            const { propertyId, checkInDate, checkOutDate, adults, childrens, noOfRooms } = req.body;
+            const { propertyId, checkInDate, checkOutDate, adults, childrens, noOfRooms, couponCode } = req.body;
 
             if (!propertyId || !checkInDate || !checkOutDate || !adults || !noOfRooms) {
                 return httpError(next, new Error(responseMessage.COMMON.INVALID_PARAMETERS()), req, 400);
@@ -110,10 +112,54 @@ export default {
             // }
 
             const noOfNights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-            
+
             const base = property.basePrice * noOfNights;
             const taxes = base * gst;
-            const discount = 0;
+            let discount = 0;
+            let appliedCoupon = null;
+
+            if (couponCode) {
+                const coupon = await couponModel.findOne({
+                    code: couponCode.toUpperCase(),
+                    isActive: true
+                }).lean();
+
+                if (coupon) {
+                    const now = new Date();
+                    const isValidDate = now >= new Date(coupon.validFrom) && now <= new Date(coupon.validUntil);
+                    const hasUsageLimit = coupon.usageLimit === null || coupon.usageCount < coupon.usageLimit;
+
+                    if (isValidDate && hasUsageLimit) {
+                        const userUsageCount = await couponUsageModel.countDocuments({
+                            couponId: coupon._id,
+                            userId
+                        });
+
+                        const canUserUse = userUsageCount < coupon.userUsageLimit;
+                        const meetsMinAmount = (base + taxes) >= coupon.minBookingAmount;
+                        const propertyTypeMatches = coupon.applicableFor === 'all' || coupon.applicableFor === property.type;
+
+                        if (canUserUse && meetsMinAmount && propertyTypeMatches) {
+                            if (coupon.discountType === 'percentage') {
+                                discount = ((base + taxes) * coupon.discountValue) / 100;
+                            } else if (coupon.discountType === 'fixed') {
+                                discount = coupon.discountValue;
+                            }
+
+                            if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
+                                discount = coupon.maxDiscountAmount;
+                            }
+
+                            if (discount > (base + taxes)) {
+                                discount = base + taxes;
+                            }
+
+                            appliedCoupon = coupon;
+                        }
+                    }
+                }
+            }
+
             const finalAmount = base + taxes - discount;
 
             const session = await startSession();
@@ -132,9 +178,11 @@ export default {
                 priceBreakdown: {
                     base,
                     taxes,
-                    discount,
-                    total: finalAmount
-                }
+                    discount: Math.round(discount * 100) / 100,
+                    total: Math.round(finalAmount * 100) / 100
+                },
+                couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+                couponId: appliedCoupon ? appliedCoupon._id : undefined
             }], { session}).then(docs => docs[0]);
             const txnid = 'PAYU_' + Date.now();
 
@@ -263,6 +311,21 @@ export default {
                 }], { session });
 
             };
+
+            if (booking.couponId) {
+                await couponUsageModel.create([{
+                    couponId: booking.couponId,
+                    userId: booking.userId,
+                    bookingId: booking._id,
+                    discountAmount: booking.priceBreakdown.discount
+                }], { session });
+
+                await couponModel.updateOne(
+                    { _id: booking.couponId },
+                    { $inc: { usageCount: 1 } },
+                    { session }
+                );
+            }
 
             await session.commitTransaction();
             await session.endSession();

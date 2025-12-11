@@ -1,0 +1,72 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /api/v1
+@accessToken = 
+
+### Create Coupon
+POST {{baseUrl}}{{apiPrefix}}/coupons
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "code": "SAVE20",
+  "description": "Get 20% off on your booking",
+  "discountType": "percentage",
+  "discountValue": 20,
+  "minBookingAmount": 1000,
+  "maxDiscountAmount": 500,
+  "validFrom": "2025-12-01",
+  "validUntil": "2025-12-31",
+  "usageLimit": 100,
+  "userUsageLimit": 1,
+  "applicableFor": "all"
+}
+
+### Create Fixed Discount Coupon
+POST {{baseUrl}}{{apiPrefix}}/coupons
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "code": "FLAT500",
+  "description": "Get flat 500 off on your booking",
+  "discountType": "fixed",
+  "discountValue": 500,
+  "minBookingAmount": 2000,
+  "validFrom": "2025-12-01",
+  "validUntil": "2025-12-31",
+  "usageLimit": 50,
+  "userUsageLimit": 2,
+  "applicableFor": "villa"
+}
+
+### Apply Coupon
+POST {{baseUrl}}{{apiPrefix}}/coupons/apply
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "code": "SAVE20",
+  "propertyId": "property_id_here",
+  "bookingAmount": 5000
+}
+
+### Get All Coupons
+GET {{baseUrl}}{{apiPrefix}}/coupons?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Get Active Coupons Only
+GET {{baseUrl}}{{apiPrefix}}/coupons?page=1&limit=10&isActive=true
+Authorization: Bearer {{accessToken}}
+
+### Get Inactive Coupons Only
+GET {{baseUrl}}{{apiPrefix}}/coupons?page=1&limit=10&isActive=false
+Authorization: Bearer {{accessToken}}
+
+### Toggle Coupon Status
+PATCH {{baseUrl}}{{apiPrefix}}/coupons/toggle-status
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "couponId": "coupon_id_here"
+}

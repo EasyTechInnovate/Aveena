@@ -408,5 +408,64 @@ export default {
         } catch (error) {
             return httpError(next, error, req, 500);
         }
+    },
+    getRandomProperties: async (req, res, next) => {
+        try {
+            const { page = 1, limit = 10 } = req.query;
+
+            const skip = (Number(page) - 1) * Number(limit);
+
+            const pipeline = [
+                {
+                    $match: {
+                        isActive: true
+                    }
+                },
+                {
+                    $addFields: {
+                        priorityScore: {
+                            $add: [
+                                { $cond: [{ $eq: ["$isPopular", true] }, 1000, 0] },
+                                { $multiply: ["$rating", 100] },
+                                { $multiply: [{ $rand: {} }, 50] }
+                            ]
+                        }
+                    }
+                },
+                {
+                    $sort: {
+                        priorityScore: -1
+                    }
+                },
+                {
+                    $skip: skip
+                },
+                {
+                    $limit: Number(limit)
+                },
+                {
+                    $project: {
+                        ownerId: 0,
+                        priorityScore: 0
+                    }
+                }
+            ];
+
+            const properties = await propertyModel.aggregate(pipeline);
+
+            const total = await propertyModel.countDocuments({ isActive: true });
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                properties,
+                pagination: {
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(total / limit)
+                }
+            });
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
     }
 }

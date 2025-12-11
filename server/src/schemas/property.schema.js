@@ -318,3 +318,18 @@ export const updatePropertySchema = z.object({
   coverImage: z.string().url("Cover image must be a valid URL.").optional(),
 });
 
+export const getRandomPropertiesSchema = z.object({
+  page: z.preprocess(
+    (val) => Number(val || 1),
+    z.number({
+      required_error: "Page is required.",
+      invalid_type_error: "Page must be a number."
+    }).default(1)
+  ),
+
+  limit: z.preprocess(
+    (val) => val ? Number(val) : 10,
+    z.number().default(10)
+  )
+});
+
