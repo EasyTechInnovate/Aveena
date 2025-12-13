@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TravelerSelector from "../common/TravelerSelector";
 import LocationSelector from "../common/LocationSelector";
 import DatePicker from "../common/DatePicker";
 import { motion, AnimatePresence } from "framer-motion";
+
 
 const tabs = [
   { name: "Stays", icon: "/assets/stays.svg" },
@@ -20,7 +21,7 @@ const Search = () => {
   });
   const [travelers, setTravelers] = useState({
     adults: 2,
-    children: 0,
+    childrens: 0,
     rooms: 1,
   });
   const navigate = useNavigate();
@@ -32,23 +33,24 @@ const Search = () => {
     }
   };
 
-  const handleSearch = () => {
-    // You can add search logic here
-    console.log("Search data:", {
-      location,
-      dates,
-      travelers,
-    });
-    
-    // For now, just navigate to search results page
-    navigate("/search", {
-      state: {
-        location,
-        dates,
-        travelers,
-      },
-    });
-  };
+const handleSearch = () => {
+  if (!location) {
+    alert("Please select a location.");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    location,
+    checkIn: dates.checkIn,
+    checkOut: dates.checkOut,
+    adults: travelers.adults,
+    childrens: travelers.childrens,
+    rooms: travelers.rooms,
+  }).toString();
+
+  navigate(`/search?${params}`);
+};
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 15 },

@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Utensils,
-  Sparkles,
-  Users,
-  Mountain,
-  Baby,
-  Building2,
-} from "lucide-react";
 import RulesAndSpaces from "./RefundPolicy";
 import GuestReviews from "./GuestReviews";
 
@@ -19,8 +11,6 @@ const items = [
   { icon: "/assets/booking/kids.svg", label: "Kids" },
   { icon: "/assets/booking/design.svg", label: "Design" },
 ];
-
-
 
 const TABS = [
   "Overview",
@@ -35,31 +25,28 @@ const TABS = [
   "FAQ's",
 ];
 
-export default function BookingOverview() {
+export default function BookingOverview({ property, bookingInfo, onBookingInfoChange }) {
   const [activeTab, setActiveTab] = useState("Overview");
   const [expanded, setExpanded] = useState(false);
 
-  // Booking form state
-  const [checkInDate, setCheckInDate] = useState("");
-  const [checkOutDate, setCheckOutDate] = useState("");
-  const [guests, setGuests] = useState({ adults: 2, children: 0 });
-  const [rooms, setRooms] = useState(3);
+  const propertyData = property?.property || {};
+  const propertyDetails = property?.propertyDetails || {};
+  const roomsData = property?.rooms || [];
+
+  const [checkInDate, setCheckInDate] = useState(bookingInfo?.checkIn || "");
+  const [checkOutDate, setCheckOutDate] = useState(bookingInfo?.checkOut || "");
+  const [guests, setGuests] = useState({ 
+    adults: bookingInfo?.adults || 2, 
+    children: bookingInfo?.childrens || 0 
+  });
+  const [rooms, setRooms] = useState(bookingInfo?.rooms || 3);
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
   const [showRoomPicker, setShowRoomPicker] = useState(false);
 
-  const fullText = `Nestled in the serene landscapes of Alibaug, Pranaam offers the perfect 
-  blend of comfort, luxury, and curated experiences. Whether you’re here to relax by 
-  the pool, enjoy alfresco dining, or simply soak in the premium interiors, every detail 
-  is designed to make your stay unforgettable. Guests can indulge in a four-course meal 
-  crafted by expert chefs, unwind in the private pool, or explore the thoughtfully designed 
-  interiors that blend modern elegance with traditional charm. Pranaam is not just a villa; 
-  it is an experience that combines tranquility, personalized service, and unforgettable 
-  moments for you and your loved ones.`;
-
+  const fullText = propertyData.description || propertyDetails.villaLocationDescription || `Nestled in the serene landscapes of Alibaug, Pranaam offers the perfect blend of comfort, luxury, and curated experiences.`;
   const previewText = fullText.slice(0, 250) + "...";
 
-  // Helper functions
   const formatDate = (date) => {
     if (!date) return "Add Date";
     return new Date(date).toLocaleDateString('en-US', {
@@ -68,13 +55,6 @@ export default function BookingOverview() {
       year: 'numeric'
     });
   };
-
-  const sectionVariants = {
- 
-  };
-
-
-
 
   const formatGuests = () => {
     const { adults, children } = guests;
@@ -93,7 +73,14 @@ export default function BookingOverview() {
     setRooms(Math.max(1, rooms + value));
   };
 
-  // Custom Date Range Picker Component
+  const getAmenities = () => {
+    return propertyData.amenities || propertyData.amenties || [];
+  };
+
+  const getBasePrice = () => {
+    return propertyData.basePrice || 37000;
+  };
+
   const CustomDateRangePicker = ({ isOpen, onClose }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [nextMonth, setNextMonth] = useState(new Date(new Date().setMonth(new Date().getMonth() + 1)));
@@ -113,16 +100,14 @@ export default function BookingOverview() {
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
       const daysInMonth = lastDay.getDate();
-      const startingDayOfWeek = (firstDay.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+      const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
 
       const days = [];
 
-      // Add empty cells for days before the first day of the month
       for (let i = 0; i < startingDayOfWeek; i++) {
         days.push(null);
       }
 
-      // Add days of the month
       for (let day = 1; day <= daysInMonth; day++) {
         days.push(new Date(year, month, day));
       }
@@ -166,24 +151,20 @@ export default function BookingOverview() {
     const isWeekend = (date) => {
       if (!date) return false;
       const day = date.getDay();
-      return day === 0 || day === 6; // Sunday or Saturday
+      return day === 0 || day === 6;
     };
 
     const handleDateClick = (date) => {
       if (!date || isDateDisabled(date)) return;
 
       if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-        // Start new selection
         setSelectedStartDate(date);
         setSelectedEndDate(null);
       } else if (selectedStartDate && !selectedEndDate) {
-        // Select end date
         if (date < selectedStartDate) {
-          // If clicked date is before start date, make it the new start date
           setSelectedStartDate(date);
           setSelectedEndDate(null);
         } else {
-          // Set as end date
           setSelectedEndDate(date);
         }
       }
@@ -225,7 +206,6 @@ export default function BookingOverview() {
         </div>
 
         <div className="flex space-x-4">
-          {/* First Month */}
           <div className="flex-1">
             <div className="grid grid-cols-7 gap-1 mb-2">
               {daysOfWeek.map((day) => (
@@ -260,7 +240,6 @@ export default function BookingOverview() {
             </div>
           </div>
 
-          {/* Second Month */}
           <div className="flex-1">
             <div className="grid grid-cols-7 gap-1 mb-2">
               {daysOfWeek.map((day) => (
@@ -296,7 +275,6 @@ export default function BookingOverview() {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
           <button
             onClick={onClose}
@@ -316,7 +294,6 @@ export default function BookingOverview() {
     );
   };
 
-  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.booking-form-container')) {
@@ -331,19 +308,6 @@ export default function BookingOverview() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const containerVariants = {
-   
-  };
-
-  const itemVariants = {
-    // hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      //  transition: { duration: 0.4, ease: "easeOut" },
-    },
-  };
 
   return (
     <section className="py-8">
@@ -387,10 +351,10 @@ export default function BookingOverview() {
       <div className="flex flex-col lg:flex-row gap-6 w-full max-w-full">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-semibold">
-            Pranaam
+            {propertyData.name || "Pranaam"}
           </h1>
           <p className="text-gray-500">
-            Alibaug, Maharashtra
+            {propertyData.address?.fullAddress || "Alibaug, Maharashtra"}
           </p>
 
           <div className="flex items-center gap-3 my-6 text-sm">
@@ -417,7 +381,7 @@ export default function BookingOverview() {
                 />
               </span>{" "}
               <span className="text-md font-semibold">
-                4.6
+                {propertyData.rating ? propertyData.rating.toFixed(1) : "4.6"}
                 <span className="text-gray-500 text-md font-semibold">/5</span>
               </span>
             </span>
@@ -433,15 +397,15 @@ export default function BookingOverview() {
           <div className="flex flex-wrap gap-3 mt-4">
             <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
               <img src="/assets/booking/user.svg" alt="user" className="w-4" />{" "}
-              Up to 15 Guests
+              Up to {propertyData.capacity?.adults || 15} Guests
             </span>
             <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
               <img src="/assets/booking/room.svg" alt="user" className="w-4" />{" "}
-              3 - 6 Rooms
+              {propertyData.noOfRooms || 3} Rooms
             </span>
             <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
               <img src="/assets/booking/bath.svg" alt="user" className="w-4" />{" "}
-              6 Baths
+              {propertyData.noOfBaths || 6} Baths
             </span>
             <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
               <img src="/assets/booking/meal.svg" alt="user" className="w-4" />{" "}
@@ -469,36 +433,29 @@ export default function BookingOverview() {
           </div>
 
           <div className="flex items-start gap-4 mt-4">
-            {[
-              { name: "Private Pool", icon: "/assets/booking/pool.svg" },
-              { name: "Lawn", icon: "/assets/booking/lawn.svg" },
-              { name: "WiFi", icon: "/assets/booking/wifi.svg" },
-              { name: "Bar", icon: "/assets/booking/bar.svg" },
-              { name: "Alfresco Dining", icon: "/assets/booking/dining.svg" },
-            ].map((item) => (
+            {getAmenities().slice(0, 5).map((amenity, index) => (
               <div
-                key={item.name}
+                key={index}
                 className="flex flex-col items-center justify-center text-center w-16"
               >
                 <div className="w-12 h-12 flex items-center justify-center border border-gray-300 rounded-lg">
-                  <img
-                    src={item.icon}
-                    alt={item.name}
-                    className="w-6 h-6 object-cover"
-                  />
+                  <div className="w-6 h-6 flex items-center justify-center text-gray-700">
+                    {typeof amenity === 'string' ? amenity.charAt(0).toUpperCase() : '✓'}
+                  </div>
                 </div>
-                <span className="mt-2 text-sm text-gray-800 leading-tight">
-                  {item.name}
+                <span className="mt-2 text-sm text-gray-800 leading-tight capitalize">
+                  {typeof amenity === 'string' ? amenity.split(' ')[0] : amenity}
                 </span>
               </div>
             ))}
-
-            <a
-              href="#"
-              className="text-blue-600 font-medium underline text-sm self-center"
-            >
-              +21 Amenities
-            </a>
+            {getAmenities().length > 5 && (
+              <a
+                href="#"
+                className="text-blue-600 font-medium underline text-sm self-center"
+              >
+                +{getAmenities().length - 5} Amenities
+              </a>
+            )}
           </div>
 
           <div className="mt-30">
@@ -546,7 +503,7 @@ export default function BookingOverview() {
 
           <div className="mt-10">
             <h2 className="text-xl font-semibold text-gray-900 border-l-4 border-[#F5959E] pl-3">
-              Pranaam – Villa in Alibaug
+              {propertyData.name || "Pranaam"} – {propertyData.type || "Villa"} in {propertyData.address?.fullAddress?.split(',')[0] || "Alibaug"}
             </h2>
 
             <p className="mt-2 text-gray-600 italic text-sm leading-relaxed">
@@ -560,7 +517,6 @@ export default function BookingOverview() {
               {expanded ? "Read Less" : "Read More"}
             </button>
 
-            {/* Bottom CTA buttons */}
             <div className="mt-6 flex gap-4">
               <button className="px-5 py-2 rounded-sm text-sm font-medium bg-light border border-gray-300 hover:bg-gray-50 transition-colors">
                 Explore Your Stay
@@ -579,33 +535,22 @@ export default function BookingOverview() {
           <div>
             <GuestReviews />
           </div>
-
-
-
-
-
-
-
         </div>
 
         <aside className="w-full lg:w-[384px] lg:shrink-0">
           <div className="lg:sticky lg:top-24 rounded-lg overflow-visible border border-gray-200 lg:border-0 bg-white lg:bg-transparent shadow-sm lg:shadow-none">
-            {/* Price Section */}
             <div className="bg-[linear-gradient(107.22deg,_rgba(23,255,82,0.11)_1.46%,_rgba(1,108,110,0.11)_99.96%)] px-6 py-4 rounded-t-lg lg:rounded-lg">
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-3xl font-bold text-darkGray">
-                  ₹37,000
+                  ₹{getBasePrice().toLocaleString('en-IN')}
                 </span>
                 <span className="text-sm text-[#959595]">
-                  (for 3 rooms) Per Night + Taxes
+                  (for {rooms} rooms) Per Night + Taxes
                 </span>
               </div>
 
-
               <div className="flex flex-col gap-2 mb-4 relative booking-form-container overflow-visible">
-
                 <div className="flex gap-2 w-full bg-white  rounded-lg p-3">
-                  {/* Check-in */}
                   <div className="bg-white flex-1 cursor-pointer transition-colors">
                     <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
                       Check-in
@@ -633,7 +578,6 @@ export default function BookingOverview() {
                     </div>
                   </div>
 
-                  {/* Check-out */}
                   <div className="bg-white flex-1 cursor-pointer transition-colors">
                     <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
                       Check-out
@@ -662,7 +606,6 @@ export default function BookingOverview() {
                   </div>
                 </div>
 
-                {/* Date Range Picker */}
                 <div className="relative">
                   <CustomDateRangePicker
                     isOpen={showDatePicker === 'dates'}
@@ -670,9 +613,7 @@ export default function BookingOverview() {
                   />
                 </div>
 
-                {/* Guests and Rooms Row */}
                 <div className="flex gap-2 w-full bg-white rounded-lg p-3">
-                  {/* Guests */}
                   <div className="bg-white flex-1 cursor-pointer transition-colors relative">
                     <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
                       Guests
@@ -737,7 +678,6 @@ export default function BookingOverview() {
                               </button>
                             </div>
                           </div>
-                          {/* Done Button */}
                           <div className="flex justify-end gap-2 pt-4 border-t">
                             <button
                               onClick={() => setShowGuestPicker(false)}
@@ -751,7 +691,6 @@ export default function BookingOverview() {
                     )}
                   </div>
 
-                  {/* No. of Rooms */}
                   <div className="bg-white flex-1 cursor-pointer transition-colors relative">
                     <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
                       No. of Rooms
@@ -798,7 +737,6 @@ export default function BookingOverview() {
                               </button>
                             </div>
                           </div>
-                          {/* Done Button */}
                           <div className="flex justify-end gap-2 pt-4 border-t">
                             <button
                               onClick={() => setShowRoomPicker(false)}
@@ -815,9 +753,6 @@ export default function BookingOverview() {
               </div>
             </div>
 
-
-
-            {/* Info Bars */}
             <div className="space-y-3 mb-4 mt-4 text-center">
               <div className="bg-[#2196531A] text-darkGreen text-sm px-4 py-2 ">
                 Select Dates for Best Price
@@ -836,13 +771,10 @@ export default function BookingOverview() {
               </div>
             </div>
 
-
-            {/* Select Dates Button */}
             <button className="w-full bg-green text-white text-xl font-medium py-4 px-4 rounded hover:bg-darkGreen transition-colors mb-4">
               Select Dates
             </button>
 
-            {/* Cancellation Policy */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
               <svg
                 className="w-4 h-4"
@@ -863,7 +795,6 @@ export default function BookingOverview() {
               </a>
             </div>
 
-            {/* Connect with Host */}
             <div className="bg-[linear-gradient(280.37deg,_rgba(156,205,251,0.2)_0%,_rgba(252,201,146,0.2)_100%),_linear-gradient(107.22deg,_rgba(23,255,82,0.11)_1.46%,_rgba(1,108,110,0.11)_99.96%)] rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -889,12 +820,8 @@ export default function BookingOverview() {
                 </button>
               </div>
             </div>
-
           </div>
         </aside>
-
-
-
       </div>
     </section>
   );

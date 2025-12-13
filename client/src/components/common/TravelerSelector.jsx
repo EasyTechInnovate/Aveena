@@ -4,7 +4,7 @@ const TravelerSelector = ({ value, onChange, className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [travelers, setTravelers] = useState({
     adults: 2,
-    children: 0,
+    childrens: 0,
     rooms: 1,
   });
   const dropdownRef = useRef(null);
@@ -49,7 +49,7 @@ const TravelerSelector = ({ value, onChange, className = "" }) => {
   };
 
   const getDisplayText = () => {
-    const totalTravelers = travelers.adults + travelers.children;
+    const totalTravelers = travelers.adults + travelers.childrens;
     const roomText = travelers.rooms === 1 ? "room" : "rooms";
     return `${totalTravelers} traveller${totalTravelers !== 1 ? "s" : ""}, ${travelers.rooms} ${roomText}`;
   };
@@ -126,13 +126,13 @@ const TravelerSelector = ({ value, onChange, className = "" }) => {
                 <button
                   type="button"
                   onClick={() => handleTravelerChange("children", -1)}
-                  disabled={travelers.children <= 0}
+                  disabled={travelers.childrens <= 0}
                   className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   -
                 </button>
                 <span className="w-8 text-center font-semibold text-darkBlue">
-                  {travelers.children}
+                  {travelers.childrens}
                 </span>
                 <button
                   type="button"
