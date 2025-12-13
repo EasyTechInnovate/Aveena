@@ -69,7 +69,7 @@ servicesAxiosInstance.interceptors.response.use(
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
         localStorage.clear();
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }
 

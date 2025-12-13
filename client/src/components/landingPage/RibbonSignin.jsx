@@ -9,10 +9,13 @@ const RibbonSignin = () => {
   const { isLoggedIn, login } = useAuth(); // ⬅️ use shared auth state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
+  const [phoneData, setPhoneData] = useState(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const handleLoginComplete = () => {
     login(); // mark as logged in globally
     setIsModalOpen(false);
+    setStep(1); // Reset for next time
   };
 
   if (isLoggedIn) return null; // hide entire ribbon if logged in ✅
@@ -40,13 +43,37 @@ const RibbonSignin = () => {
       </button>
 
       {/* Modal for Sign In Steps */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} onClose={() => {
+        setIsModalOpen(false);
+        setStep(1);
+      }}>
         {step === 1 ? (
-          <Step1 onNext={() => setStep(2)} />
+          <Step1
+            onNext={({ phone }) => {
+              setPhoneData(phone);
+              setStep(2);
+            }}
+            onClose={() => setIsModalOpen(false)}
+          />
         ) : step === 2 ? (
-          <Step2 onBack={() => setStep(1)} onNext={() => setStep(3)} />
+          <Step2
+            phone={phoneData}
+            onBack={() => setStep(1)}
+            onNext={({ isProfileComplete: profileComplete }) => {
+              setIsProfileComplete(profileComplete);
+              // Skip Step 3 if profile is already complete
+              if (profileComplete) {
+                handleLoginComplete();
+              } else {
+                setStep(3);
+              }
+            }}
+            onClose={() => setIsModalOpen(false)}
+          />
         ) : (
-          <Step3 onBack={() => setStep(2)} onClose={handleLoginComplete} />
+          <Step3
+            onClose={handleLoginComplete}
+          />
         )}
       </Modal>
     </div>

@@ -3,36 +3,61 @@ import { XCircle, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import LikeButton from "../common/LikeButton";
 
-function HomeSection() {
+function HomeSection({ property, bookingInfo }) {
   const [showGallery, setShowGallery] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
 
+  if (!property) return null;
+
+  const propertyData = property.property || {};
+  const propertyDetails = property.propertyDetails || {};
+  const propertyMedia = propertyDetails.propertyMedia || [];
+
   const photos = [
-    "/assets/Outdoors.png",
-    "/assets/chef.png",
-    // "https://images.unsplash.com/photo-1560347876-aeef00ee58a1",
-    // "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    // "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-    // "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+    propertyData.coverImage,
+    ...propertyMedia.filter(item => item.type === 'image').map(item => item.url),
+    "/assets/chef.png"
+  ].filter(Boolean);
+
+  const getLocationString = () => {
+    return propertyData.address?.fullAddress || "Alibaug, Maharashtra";
+  };
+
+  const getPropertyTitle = () => {
+    return propertyData.name || "Pranaam Villa";
+  };
+
+  const getPropertyType = () => {
+    return propertyData.type || "Villa";
+  };
+
+  const breadcrumb = [
+    { label: "Home", href: "/" },
+    { label: `${getPropertyType()}s in ${getLocationString().split(',')[0] || 'Location'}`, href: "#" },
+    { label: getPropertyTitle(), current: true }
   ];
 
   return (
     <>
       <div className="p-4 max-w-7xl mx-auto">
-        {/* Breadcrumb and Brochure Button */}
         <div className="flex justify-between items-center">
           <div className="flex items-center text-sm text-gray-500 space-x-2">
-            <a href="#" className="hover:underline">
-              Home
-            </a>
-            <ChevronRight size={16} />
-            <a href="#" className="hover:underline">
-              Villas in Alibaug
-            </a>
-            <ChevronRight size={16} />
-            <span className="text-gray-700 font-medium">
-              Pranaam Villa in Alibaug
-            </span>
+            {breadcrumb.map((item, index) => (
+              <React.Fragment key={index}>
+                {item.current ? (
+                  <span className="text-gray-700 font-medium">
+                    {item.label}
+                  </span>
+                ) : (
+                  <a href={item.href} className="hover:underline">
+                    {item.label}
+                  </a>
+                )}
+                {index < breadcrumb.length - 1 && (
+                  <ChevronRight size={16} />
+                )}
+              </React.Fragment>
+            ))}
           </div>
 
           <button className="flex items-center gap-2 border border-red-400 hover:bg-red-200 text-red-600 font-medium px-3 py-2 rounded-sm text-sm transition-colors duration-200">
@@ -41,13 +66,15 @@ function HomeSection() {
           </button>
         </div>
 
-        {/* Main Image Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start mt-4 gap-4">
           <div className="relative w-full lg:w-2/3 rounded-md overflow-hidden">
             <img
-              src="/assets/Outdoors.png"
-              alt="Villa view"
+              src={photos[0] || "/assets/Outdoors.png"}
+              alt={getPropertyTitle()}
               className="w-full h-[300px] lg:h-[450px] object-cover"
+              onError={(e) => {
+                e.target.src = "/assets/Outdoors.png";
+              }}
             />
 
             <span className="absolute top-3 left-3 bg-white/90 flex items-center gap-2 text-xs px-3 py-2 rounded-md shadow font-medium">
@@ -59,7 +86,6 @@ function HomeSection() {
               Best Rated
             </span>
 
-            {/* View Photos Button */}
             <button
               onClick={() => setShowGallery(true)}
               className="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-black/50 backdrop-blur-md rounded-sm hover:bg-black/70 transition border border-gray-400"
@@ -69,17 +95,19 @@ function HomeSection() {
                 alt="View"
                 className="w-5 h-5"
               />
-              View Photos
+              View Photos ({photos.length})
             </button>
           </div>
 
-          {/* Right side images */}
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
             <div className="relative rounded-md overflow-hidden h-[200px] lg:h-[215px]">
               <img
-                src="/assets/chef.png"
+                src={photos[1] || "/assets/chef.png"}
                 alt="Chef"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = "/assets/chef.png";
+                }}
               />
 
               <button className="absolute top-3 right-15 flex items-center justify-center w-11 h-10 rounded-full transition">
@@ -91,8 +119,8 @@ function HomeSection() {
 
             <div className="relative rounded-md overflow-hidden h-[200px] lg:h-[215px]">
               <img
-                src="https://images.unsplash.com/photo-1560347876-aeef00ee58a1"
-                alt="Poolside"
+                src={photos[2] || "https://images.unsplash.com/photo-1560347876-aeef00ee58a1"}
+                alt="Property"
                 className="w-full h-full object-cover"
               />
               <motion.div 
@@ -102,14 +130,15 @@ function HomeSection() {
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className="text-white font-semibold text-lg">+40 More</span>
+                <span className="text-white font-semibold text-lg">
+                  +{photos.length > 2 ? photos.length - 2 : 0} More
+                </span>
               </motion.div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Gallery Modal */}
       <AnimatePresence mode="wait">
         {showGallery && (
           <motion.div
@@ -151,7 +180,6 @@ function HomeSection() {
                 transform: "translate3d(0, 0, 0)"
               }}
             >
-              {/* Left — Big Image */}
               <div className="flex-1 bg-black flex items-center justify-center">
                 <motion.img
                   key={selectedImg}
@@ -165,7 +193,6 @@ function HomeSection() {
                 />
               </div>
 
-              {/* Right — Thumbnails */}
               <div className="w-1/3 bg-gray-50 border-l overflow-y-auto p-3">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-lg font-semibold">Gallery</h2>
