@@ -1,5 +1,5 @@
 # Base node image for all client environments
-FROM node:18-alpine AS client-base
+FROM node:20-alpine AS client-base
 WORKDIR /app
 
 COPY client/package*.json ./
