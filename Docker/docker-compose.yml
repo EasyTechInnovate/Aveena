@@ -103,8 +103,8 @@ services:
       - '443:443'
     volumes:
       - ../nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt/live/<your-domain-url>/fullchain.pem:/etc/letsencrypt/live/<your-domain-url>/fullchain.pem:ro
-      - /etc/letsencrypt/live/<your-domain-url>/privkey.pem:/etc/letsencrypt/live/<your-domain-url>/privkey.pem:ro
+      - /etc/letsencrypt/live/avenaa.co.in/fullchain.pem:/etc/letsencrypt/live/avenaa.co.in/fullchain.pem:ro
+      - /etc/letsencrypt/live/avenaa.co.in/privkey.pem:/etc/letsencrypt/live/avenaa.co.in/privkey.pem:ro
     restart: always
     networks:
       - prod-net
