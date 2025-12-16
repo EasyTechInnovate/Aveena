@@ -67,6 +67,8 @@ services:
       dockerfile: ./Docker/Dockerfile.client
       target: client-production
     restart: always
+    ports:
+      - '80:3000'
     env_file:
       - ../.env.production
     networks:
