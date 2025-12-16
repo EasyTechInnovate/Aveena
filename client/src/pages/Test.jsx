@@ -3,11 +3,11 @@ import {
   sendOtp,
   verifyOtp,
   completeProfile
-} from "../services/authService";
+} from "../services";
 
 const Test = () => {
   const [otp, setOtp] = useState("");
-  const email = "user@example.com";
+  const email = "swera7827@gmail.com";
 
   // ---------------- SEND OTP ----------------
   const handleSendOtp = async () => {
@@ -59,7 +59,7 @@ const Test = () => {
       const res = await completeProfile({
         firstName: "John",
         lastName: "Doe",
-        email: "john.doe@example.com",
+        email: "swera7827@gmail.com",
         phone: {
           countryCode: "+91",
           number: "1234567890",

@@ -3,6 +3,8 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default [
+
+  // Server (Node)
   {
     files: ['server/**/*.js'],
     languageOptions: {
@@ -12,27 +14,31 @@ export default [
         sourceType: 'module',
       },
     },
-    ...eslint.configs.recommended,
-    ...eslintConfigPrettier,
+    rules: {
+      ...eslint.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
+    }
   },
+
+  // Client (React)
   {
-    files: ['client/**/*.js', 'client/**/*.jsx'],
+    files: ['client/**/*.{js,jsx}'],
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true, // Enable JSX support
-        },
+        ecmaFeatures: { jsx: true },
       },
     },
-    ...eslint.configs.recommended,
-    ...eslintConfigPrettier,
     rules: {
+      ...eslint.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
+
+      // Custom rules
       'no-console': 'warn',
       'no-useless-catch': 0,
       quotes: ['error', 'single', { allowTemplateLiterals: true }],
-    },
-  },
+    }
+  }
 ];

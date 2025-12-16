@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback  } from "react";
 
 /* Generic FilterSection (keeps previous behavior) */
 const FilterSection = ({ title, options, showMore, filterKey, onFilterChange, selectedFilters }) => {
@@ -318,43 +318,44 @@ const Filter = ({ onFiltersChange }) => {
               className="absolute inset-0 w-full h-6 appearance-none bg-transparent pointer-events-none"
             />
 
-            <style jsx>{`
-              input[type="range"]::-webkit-slider-runnable-track {
-                height: 2px;
-                background: transparent;
-                border: none;
-              }
-              input[type="range"]::-moz-range-track {
-                height: 2px;
-                background: transparent;
-                border: none;
-              }
-              input[type="range"]::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                height: 20px;
-                width: 20px;
-                border-radius: 50%;
-                background: #15803d;
-                cursor: pointer;
-                pointer-events: auto;
-                transform: translateY(-50%);
-                box-shadow: 0 0 0 6px rgba(21, 128, 61, 0.07);
-              }
-              input[type="range"]::-moz-range-thumb {
-                height: 20px;
-                width: 20px;
-                border-radius: 50%;
-                background: #15803d;
-                cursor: pointer;
-                pointer-events: auto;
-                transform: translateY(-50%);
-                box-shadow: 0 0 0 6px rgba(21, 128, 61, 0.07);
-              }
-              input[type="range"]:focus {
-                outline: none;
-              }
-            `}</style>
+    <style>{`
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    background: transparent;
+    border: none;
+  }
+  input[type="range"]::-moz-range-track {
+    height: 2px;
+    background: transparent;
+    border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #15803d;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 6px rgba(21, 128, 61, 0.07);
+  }
+  input[type="range"]::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #15803d;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 6px rgba(21, 128, 61, 0.07);
+  }
+  input[type="range"]:focus {
+    outline: none;
+  }
+`}</style>
+
           </div>
         </div>
 
