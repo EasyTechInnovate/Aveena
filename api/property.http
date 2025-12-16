@@ -3,7 +3,7 @@
 @accessToken = your_access_token_here
 
 ### Get Properties
-GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Delhi&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10
+GET {{baseUrl}}{{apiPrefix}}/properties?whereTo=Mumbai&checkIn=2025-12-01&checkOut=2025-12-05&adults=2&childrens=1&rooms=1&page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
 ### Get Properties - Sort by Price Low to High
