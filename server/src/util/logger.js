@@ -5,12 +5,13 @@ import config from '../config/config.js';
 import { EApplicationEnvironment } from '../constant/application.js';
 import path from 'path';
 import { red, blue, yellow, green, magenta } from 'colorette';
+import { fileURLToPath } from 'url';
 import * as sourceMapSupport from 'source-map-support';
 
 // Linking Trace Support
 sourceMapSupport.install();
 
-const __filename = new URL(import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const colorizeLevel = (level) => {

@@ -53,6 +53,7 @@ import AdminOffer from "./pages/adminDashboard/Offer";
 import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Test from "./pages/Test";
 // Wrapper to handle conditional nav
 const Layout = () => {
@@ -74,7 +75,8 @@ const Layout = () => {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/cancellation" element={<Cancellation />} />
         <Route path="/about" element={<About />} />
-        <Route path="/booking" element={<BookingPage />} />
+        {/* <Route path="/booking" element={<BookingPage />} /> */}
+        <Route path="/booking/:id" element={<BookingPage />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetails />} />
@@ -93,8 +95,14 @@ const Layout = () => {
         <Route path="/my-reviews" element={<MyReviews />} />
 
 
-        
-        <Route path="/dashboard/partner" element={<Dashboard />} />
+
+        <Route path="/dashboard/partner" element={
+          
+          <ProtectedRoute>
+          <Dashboard />
+       </ProtectedRoute>
+      } />
+       
         <Route path="/dashboard/property" element={<MyProperty />} />
         <Route path="/dashboard/partner/view-property/:id" element={<ViewProperty />} />
         <Route path="/dashboard/partner/booking-details/:id" element={<BookingDetailsPage />} />

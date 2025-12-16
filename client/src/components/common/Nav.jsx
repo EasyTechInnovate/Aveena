@@ -5,15 +5,18 @@ import Step3 from "../auth/Step3";
 import Modal from "../common/Modal";
 import UserMenu from "./UserMenu";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; // ⬅️ use context
+import { useAuth } from "../../context/AuthContext";
 
 const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const [phoneData, setPhoneData] = useState(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-  const { isLoggedIn, login, logout } = useAuth(); // ⬅️ shared state
+
+const { isAuth: isLoggedIn, login, logout } = useAuth();
 
   const menuLinks = [
     { name: "Home", href: "/" },
@@ -170,13 +173,37 @@ const Nav = () => {
           setStep(1); // Reset to step 1 when closing
         }}
       >
-        {step === 1 ? (
-          <Step1 onNext={() => setStep(2)} />
-        ) : step === 2 ? (
-          <Step2 onBack={() => setStep(1)} onNext={() => setStep(3)} />
-        ) : (
-          <Step3 onBack={() => setStep(2)} onClose={handleLoginComplete} />
-        )}
+    {step === 1 ? (
+  <Step1
+    onNext={({ phone }) => {
+      setPhoneData(phone);
+      setStep(2);
+    }}
+    onClose={() => setIsModalOpen(false)}
+  />
+) : step === 2 ? (
+  <Step2
+    phone={phoneData}
+    onBack={() => setStep(1)}
+    onNext={({ isProfileComplete: profileComplete }) => {
+      setIsProfileComplete(profileComplete);
+      // Skip Step 3 if profile is already complete
+      if (profileComplete) {
+        handleLoginComplete();
+      } else {
+        setStep(3);
+      }
+    }}
+    onClose={() => setIsModalOpen(false)}
+  />
+) : (
+  <Step3
+   phone={phoneData}
+    onClose={handleLoginComplete}
+  />
+)}
+
+
       </Modal>
     </div>
   );
