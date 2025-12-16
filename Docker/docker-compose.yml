@@ -68,7 +68,7 @@ services:
       target: client-production
     restart: always
     ports:
-      - '80:3000'
+      - '80:80'
     env_file:
       - ../.env.production
     networks:
