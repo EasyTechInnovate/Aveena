@@ -52,7 +52,7 @@ res.send(`<!DOCTYPE html>
 })
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ["http://localhost:5173", "https://avenaa.co.in"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -68,7 +68,7 @@ app.use(express.json());
 
 
 
-app.use('/api/v1', router);
+app.use('/v1', router);
 
 app.use((req, res, next) => {
     try {
