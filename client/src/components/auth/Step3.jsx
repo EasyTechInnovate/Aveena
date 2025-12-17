@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { completeProfile } from "../../services";
+import { useAuth } from "../../context/AuthContext";
 
 const Step3 = ({ phone, onClose }) => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -43,7 +45,7 @@ const Step3 = ({ phone, onClose }) => {
       setIsSubmitting(true);
 
       // ✅ Fixed: Include phone object in the request
-      await completeProfile({
+      const response = await completeProfile({
         firstName,
         lastName,
         email,
@@ -52,6 +54,11 @@ const Step3 = ({ phone, onClose }) => {
           number: phone.number,
         },
       });
+
+      // ✅ Update token if a new one is returned
+      if (response.data?.success && response.data?.data?.accessToken) {
+        login(response.data.data.accessToken);
+      }
 
       setIsSuccess(true);
 

@@ -15,8 +15,7 @@ const Nav = () => {
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-
-const { isAuth: isLoggedIn, login, logout } = useAuth();
+  const { isAuth: isLoggedIn, login, logout, refreshProfile } = useAuth();
 
   const menuLinks = [
     { name: "Home", href: "/" },
@@ -26,9 +25,11 @@ const { isAuth: isLoggedIn, login, logout } = useAuth();
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const handleLoginComplete = () => {
-    login(); // ⬅️ mark as logged in globally
+  
+  const handleLoginComplete = async () => {
+    // Token is already set from Step2, just refresh the profile
+    // This handles both cases: profile already complete or just completed
+    await refreshProfile();
     setIsModalOpen(false);
     setStep(1); // Reset to step 1 for next time
   };

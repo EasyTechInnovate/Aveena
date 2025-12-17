@@ -107,14 +107,25 @@ const PropertyCard = ({ property, checkIn, checkOut, adults, childrens, rooms })
 
 
   const handleCardClick = () => {
-    navigate(`/booking/${property._id}`, {
+    // Build URL with query parameters
+    const params = new URLSearchParams();
+    if (checkIn) params.set('checkIn', checkIn);
+    if (checkOut) params.set('checkOut', checkOut);
+    if (adults) params.set('adults', adults.toString());
+    if (childrens) params.set('childrens', childrens.toString());
+    if (rooms) params.set('rooms', rooms.toString());
+    
+    const queryString = params.toString();
+    const url = `/booking/${property._id}${queryString ? `?${queryString}` : ''}`;
+    
+    navigate(url, {
       state: {
         property,
-        checkIn,
-        checkOut,
-        adults,
-        childrens,
-        rooms
+        checkIn: checkIn || "",
+        checkOut: checkOut || "",
+        adults: adults || 2,
+        childrens: childrens || 0,
+        rooms: rooms || 1
       }
     });
   };

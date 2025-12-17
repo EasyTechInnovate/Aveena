@@ -1,6 +1,6 @@
 import Result from "../components/search/Result";
 import Filter from "../components/search/Filter";
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LocationSelector from "../components/common/LocationSelector";
 import DatePicker from "../components/common/DatePicker";
@@ -83,9 +83,6 @@ const Search = () => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sortBy, setSortBy] = useState("recommended");
   const [activeTab, setActiveTab] = useState("all-stay");
-  
-  // Ref to track initial load
-  const isInitialLoad = useRef(true);
 
   // Parse URL parameters on mount and when URL changes
   useEffect(() => {
@@ -99,24 +96,19 @@ const Search = () => {
 
   // Fetch properties when dependencies change
   useEffect(() => {
-    // Skip initial fetch if it's the first load (handled by the next effect)
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-    
     // Only fetch if we have required parameters
     if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
       fetchProperties();
     }
-  }, [searchParams, currentPage, sortBy, filters, activeTab]);
+  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters, activeTab]);
 
-  // Initial fetch when URL params are loaded
+  // Fetch properties when dependencies change
   useEffect(() => {
+    // Only fetch if we have required parameters
     if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
       fetchProperties();
     }
-  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut]);
+  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters, activeTab]);
 
   // Fetch properties with current parameters
   const fetchProperties = useCallback(async () => {
@@ -162,14 +154,7 @@ const Search = () => {
               additionalFilters.amenities = values.join(",");
               break;
             case "propertyType":
-              // Apply tab filtering if active
-              if (activeTab === "hotels") {
-                additionalFilters.propertyType = "hotel";
-              } else if (activeTab === "homes") {
-                additionalFilters.propertyType = "home,villa,apartment";
-              } else {
-                additionalFilters.propertyType = values.join(",");
-              }
+              additionalFilters.propertyType = values.join(",");
               break;
             case "starRating":
               if (values.length > 0) {
@@ -182,11 +167,13 @@ const Search = () => {
         }
       });
       
-      // Apply tab-based filtering
-      if (activeTab === "hotels") {
-        additionalFilters.propertyType = "hotel";
-      } else if (activeTab === "homes") {
-        additionalFilters.propertyType = "villa,apartment,home";
+      // Apply tab-based filtering (only if not already set)
+      if (!additionalFilters.propertyType) {
+        if (activeTab === "hotels") {
+          additionalFilters.propertyType = "hotel";
+        } else if (activeTab === "homes") {
+          additionalFilters.propertyType = "villa,apartment,home";
+        }
       }
       
       // Make API call
@@ -509,7 +496,14 @@ const Search = () => {
                     <div className="mt-6">
                       <Result 
                         properties={properties}
-                        filters={filters}
+                        filters={{
+                          ...filters,
+                          checkIn: searchParams.checkIn,
+                          checkOut: searchParams.checkOut,
+                          adults: searchParams.adults,
+                          childrens: searchParams.childrens,
+                          rooms: searchParams.rooms
+                        }}
                         sortBy={sortBy}
                       />
                     </div>

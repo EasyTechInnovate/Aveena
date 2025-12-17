@@ -1,11 +1,7 @@
 import axios from "axios";
 
 export const baseURL =
-  import.meta.env.VITE_API_URL 
-
-if (!baseURL) {
-  throw new Error("VITE_API_URL environment variable is not defined.");
-}
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 const servicesAxiosInstance = axios.create({
   baseURL,
@@ -32,43 +28,29 @@ servicesAxiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor (refresh token flow)
+// ✅ Response interceptor (handle 401 errors and JWT malformed errors)
 servicesAxiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-
-    if (error?.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken =
-          localStorage.getItem("refreshToken");
-
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        const response = await axios.post(
-          `${baseURL}/auth/refresh-token`,
-          { refreshToken }
-        );
-
-        const { accessToken } = response.data.data;
-
-        localStorage.setItem("accessToken", accessToken);
-
-        originalRequest.headers =
-          originalRequest.headers || {};
-
-        originalRequest.headers.Authorization =
-          `Bearer ${accessToken}`;
-
-        return servicesAxiosInstance(originalRequest);
-
-      } catch (refreshError) {
-        console.error("Refresh token failed:", refreshError);
-        localStorage.clear();
+    // Handle 401 Unauthorized - token expired or invalid
+    if (error?.response?.status === 401) {
+      // Clear tokens and redirect to home
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      // Only redirect if not already on home/login page
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
+        window.location.href = "/";
+      }
+    }
+    
+    // Handle 500 errors with "jwt malformed" message - clear invalid token
+    if (error?.response?.status === 500 && 
+        error?.response?.data?.message?.toLowerCase().includes('jwt malformed')) {
+      console.warn("Invalid JWT token detected, clearing authentication");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      // Only redirect if not already on home/login page
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
         window.location.href = "/";
       }
     }
