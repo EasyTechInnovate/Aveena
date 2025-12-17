@@ -43,7 +43,7 @@ const Home = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="mt-30"
+      className="mt-30 px-4"
     >
       <motion.div variants={sectionVariants}>
         <Search />
