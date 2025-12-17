@@ -4,11 +4,7 @@ import { completeProfile } from "../../services";
 import { useAuth } from "../../context/AuthContext";
 
 const Step3 = ({ phone, onClose }) => {
-<<<<<<< HEAD
   const { login } = useAuth();
-=======
-  const { login, refreshProfile } = useAuth();
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -58,17 +54,8 @@ const Step3 = ({ phone, onClose }) => {
         },
       });
 
-<<<<<<< HEAD
       if (response.data?.success && response.data?.data?.accessToken) {
         login(response.data.data.accessToken);
-=======
-      if (response.data?.success) {
-        if (response.data?.data?.accessToken) {
-          await login(response.data.data.accessToken);
-        } else {
-          await refreshProfile();
-        }
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
       }
 
       setIsSuccess(true);

@@ -2,28 +2,19 @@ import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { motion } from "framer-motion";
-<<<<<<< HEAD
 import { useGoogleLogin } from "@react-oauth/google";
 import { sendOtp, googleLogin } from "../../services";
 import { useAuth } from "../../context/AuthContext";
-=======
-import { sendOtp } from "../../services";
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
 
 function Step1({ onNext, onClose }) {
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-<<<<<<< HEAD
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const { login: authLogin } = useAuth();
 
-=======
-
-  // ---------------- SEND OTP ----------------
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
   const handleSendOtp = async () => {
     setError("");
 
@@ -60,7 +51,6 @@ function Step1({ onNext, onClose }) {
     }
   };
 
-<<<<<<< HEAD
   const handleGoogleSuccess = async (tokenResponse) => {
     try {
       setGoogleLoading(true);
@@ -100,8 +90,6 @@ function Step1({ onNext, onClose }) {
     flow: 'auth-code',
   });
 
-=======
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
   // ---------------- ANIMATION VARIANTS ----------------
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -218,16 +206,11 @@ function Step1({ onNext, onClose }) {
             {loading ? "Sending OTP..." : "Get OTP"}
           </motion.button>
 
-<<<<<<< HEAD
-=======
-          {/* SOCIAL BUTTONS */}
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
           <motion.div
             className="flex justify-center gap-4 mb-4"
             variants={itemVariants}
           >
             <motion.button
-<<<<<<< HEAD
               onClick={() => login()}
               disabled={googleLoading || loading}
               className={`flex gap-2 border rounded-lg px-4 py-3 w-full justify-center ${
@@ -240,13 +223,6 @@ function Step1({ onNext, onClose }) {
             >
               <FaGoogle className="text-lg" />
               <span>{googleLoading ? "Loading..." : "Google"}</span>
-=======
-              disabled
-              className="flex gap-2 border rounded-lg px-4 py-3 w-full justify-center bg-gray-100 opacity-50 cursor-not-allowed"
-            >
-              <FaGoogle className="text-lg" />
-              <span>Google</span>
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
             </motion.button>
 
             <motion.button

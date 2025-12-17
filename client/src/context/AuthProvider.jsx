@@ -45,24 +45,16 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-<<<<<<< HEAD
   const login = (token, refreshToken = null) => {
     if (!token) {
       console.error("Login called without token");
       return;
-=======
-  const login = async (token, refreshToken = null) => {
-    if (!token) {
-      console.error("Login called without token");
-      return false;
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
     }
     
     localStorage.setItem("accessToken", token);
     if (refreshToken) {
       localStorage.setItem("refreshToken", refreshToken);
     }
-<<<<<<< HEAD
     setIsAuth(true);
     
     getProfile().then(response => {
@@ -70,23 +62,6 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.data);
       }
     }).catch(err => {
-=======
-    
-    try {
-      const response = await getProfile();
-      if (response.data?.success) {
-        setUser(response.data.data);
-        setIsAuth(true);
-        return true;
-      } else {
-        setIsAuth(false);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        setUser(null);
-        return false;
-      }
-    } catch (err) {
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
       if (err.response?.status === 401 || 
           (err.response?.status === 500 && 
            err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
@@ -94,20 +69,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         setUser(null);
-<<<<<<< HEAD
       } else {
         console.warn("Profile fetch failed after login:", err.response?.status || err.message);
       }
     });
-=======
-        return false;
-      } else {
-        console.warn("Profile fetch failed after login:", err.response?.status || err.message);
-        setIsAuth(true);
-        return false;
-      }
-    }
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
   };
   
   const refreshProfile = async () => {
@@ -115,37 +80,12 @@ export const AuthProvider = ({ children }) => {
       const response = await getProfile();
       if (response.data?.success) {
         setUser(response.data.data);
-<<<<<<< HEAD
         return true;
       }
       return false;
     } catch (err) {
       console.error("Failed to refresh profile:", err);
       return false;
-=======
-        setIsAuth(true);
-        return true;
-      } else {
-        setIsAuth(false);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        setUser(null);
-        return false;
-      }
-    } catch (err) {
-      if (err.response?.status === 401 || 
-          (err.response?.status === 500 && 
-           err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
-        setIsAuth(false);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        setUser(null);
-        return false;
-      } else {
-        console.error("Failed to refresh profile:", err.response?.status || err.message);
-        return false;
-      }
->>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
     }
   };
 
