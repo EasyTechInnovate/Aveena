@@ -9,8 +9,10 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 
-export default function RulesAndSpaces() {
-  const spaces = [
+export default function RulesAndSpaces({ propertyDetails = {} }) {
+  // Use spaces from API if available, otherwise use default
+  const apiSpaces = propertyDetails.spaces || [];
+  const defaultSpaces = [
     {
       id: 1,
       title: "Bedroom 1",
@@ -66,6 +68,17 @@ export default function RulesAndSpaces() {
       ],
     },
   ];
+
+  // Map API spaces to component format, or use default
+  const spaces = apiSpaces.length > 0 
+    ? apiSpaces.map((space, index) => ({
+        id: space._id || index + 1,
+        title: space.title || `Space ${index + 1}`,
+        img: space.image || "/assets/booking/room.png",
+        label: space.header || space.title || "",
+        desc: space.pointers || []
+      }))
+    : defaultSpaces;
 
   const itemVariants = {
     // hidden: { opacity: 0, y: 30 },

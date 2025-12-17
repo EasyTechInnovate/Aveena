@@ -6,14 +6,15 @@ import Modal from "../common/Modal";
 import { useAuth } from "../../context/AuthContext";
 
 const RibbonSignin = () => {
-  const { isLoggedIn, login } = useAuth(); // ⬅️ use shared auth state
+  const { isLoggedIn, refreshProfile } = useAuth(); // ⬅️ use shared auth state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-  const handleLoginComplete = () => {
-    login(); // mark as logged in globally
+  const handleLoginComplete = async () => {
+    // Token is already set from Step2, just refresh the profile
+    await refreshProfile();
     setIsModalOpen(false);
     setStep(1); // Reset for next time
   };
@@ -72,6 +73,7 @@ const RibbonSignin = () => {
           />
         ) : (
           <Step3
+            phone={phoneData}
             onClose={handleLoginComplete}
           />
         )}

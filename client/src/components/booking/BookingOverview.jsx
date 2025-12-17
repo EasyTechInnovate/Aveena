@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import RulesAndSpaces from "./RefundPolicy";
 import GuestReviews from "./GuestReviews";
 
@@ -26,6 +28,8 @@ const TABS = [
 ];
 
 export default function BookingOverview({ property, bookingInfo, onBookingInfoChange }) {
+  const navigate = useNavigate();
+  const { isAuth } = useAuth();
   const [activeTab, setActiveTab] = useState("Overview");
   const [expanded, setExpanded] = useState(false);
 
@@ -33,19 +37,29 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
   const propertyDetails = property?.propertyDetails || {};
   const roomsData = property?.rooms || [];
 
+  // Sync with bookingInfo from URL/state
   const [checkInDate, setCheckInDate] = useState(bookingInfo?.checkIn || "");
   const [checkOutDate, setCheckOutDate] = useState(bookingInfo?.checkOut || "");
   const [guests, setGuests] = useState({ 
     adults: bookingInfo?.adults || 2, 
     children: bookingInfo?.childrens || 0 
   });
-  const [rooms, setRooms] = useState(bookingInfo?.rooms || 3);
+  const [rooms, setRooms] = useState(bookingInfo?.rooms || 1);
+
+  // Sync state when bookingInfo changes (from URL params)
+  useEffect(() => {
+    if (bookingInfo?.checkIn) setCheckInDate(bookingInfo.checkIn);
+    if (bookingInfo?.checkOut) setCheckOutDate(bookingInfo.checkOut);
+    if (bookingInfo?.adults !== undefined) setGuests(prev => ({ ...prev, adults: bookingInfo.adults }));
+    if (bookingInfo?.childrens !== undefined) setGuests(prev => ({ ...prev, children: bookingInfo.childrens }));
+    if (bookingInfo?.rooms !== undefined) setRooms(bookingInfo.rooms);
+  }, [bookingInfo]);
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
   const [showRoomPicker, setShowRoomPicker] = useState(false);
 
-  const fullText = propertyData.description || propertyDetails.villaLocationDescription || `Nestled in the serene landscapes of Alibaug, Pranaam offers the perfect blend of comfort, luxury, and curated experiences.`;
-  const previewText = fullText.slice(0, 250) + "...";
+  const fullText = propertyData.description || propertyDetails.villaLocationDescription || propertyDetails.villaLocationDescription || `Nestled in the serene landscapes, this property offers the perfect blend of comfort, luxury, and curated experiences.`;
+  const previewText = fullText.length > 250 ? fullText.slice(0, 250) + "..." : fullText;
 
   const formatDate = (date) => {
     if (!date) return "Add Date";
@@ -84,8 +98,37 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
   const CustomDateRangePicker = ({ isOpen, onClose }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [nextMonth, setNextMonth] = useState(new Date(new Date().setMonth(new Date().getMonth() + 1)));
+    // Initialize with existing dates from URL/state
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
+
+    // Helper function to safely parse date
+    const parseDate = (dateString) => {
+      if (!dateString || dateString.trim() === "") return null;
+      const date = new Date(dateString);
+      return !isNaN(date.getTime()) ? date : null;
+    };
+
+    // Initialize and sync with checkInDate/checkOutDate when picker opens or dates change
+    useEffect(() => {
+      if (isOpen) {
+        const startDate = parseDate(checkInDate);
+        const endDate = parseDate(checkOutDate);
+        setSelectedStartDate(startDate);
+        setSelectedEndDate(endDate);
+        
+        // Navigate to the month of check-in date if available, or current month
+        if (startDate) {
+          setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+          setNextMonth(new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1));
+        } else {
+          // Reset to current month if no dates
+          const now = new Date();
+          setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+          setNextMonth(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+        }
+      }
+    }, [isOpen, checkInDate, checkOutDate]);
 
     const monthNames = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -131,13 +174,25 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
 
     const isDateInRange = (date) => {
       if (!selectedStartDate || !selectedEndDate || !date) return false;
-      return date >= selectedStartDate && date <= selectedEndDate;
+      // Compare dates without time components
+      const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const startOnly = new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
+      const endOnly = new Date(selectedEndDate.getFullYear(), selectedEndDate.getMonth(), selectedEndDate.getDate());
+      return dateOnly >= startOnly && dateOnly <= endOnly;
     };
 
     const isDateSelected = (date) => {
       if (!date) return false;
-      if (selectedStartDate && date.toDateString() === selectedStartDate.toDateString()) return true;
-      if (selectedEndDate && date.toDateString() === selectedEndDate.toDateString()) return true;
+      // Compare dates without time components
+      const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (selectedStartDate) {
+        const startOnly = new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
+        if (dateOnly.getTime() === startOnly.getTime()) return true;
+      }
+      if (selectedEndDate) {
+        const endOnly = new Date(selectedEndDate.getFullYear(), selectedEndDate.getMonth(), selectedEndDate.getDate());
+        if (dateOnly.getTime() === endOnly.getTime()) return true;
+      }
       return false;
     };
 
@@ -172,9 +227,21 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
 
     const applyDateRange = () => {
       if (selectedStartDate && selectedEndDate) {
-        setCheckInDate(selectedStartDate.toISOString().split('T')[0]);
-        setCheckOutDate(selectedEndDate.toISOString().split('T')[0]);
+        const checkIn = selectedStartDate.toISOString().split('T')[0];
+        const checkOut = selectedEndDate.toISOString().split('T')[0];
+        setCheckInDate(checkIn);
+        setCheckOutDate(checkOut);
         setShowDatePicker(null);
+        // Update parent component immediately
+        if (onBookingInfoChange) {
+          onBookingInfoChange({
+            checkIn,
+            checkOut,
+            adults: guests.adults,
+            childrens: guests.children,
+            rooms: rooms
+          });
+        }
       }
     };
 
@@ -309,6 +376,61 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
     };
   }, []);
 
+  // Update parent component when booking info changes (but not on every render)
+  useEffect(() => {
+    if (onBookingInfoChange) {
+      const newInfo = {
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        adults: guests.adults,
+        childrens: guests.children,
+        rooms: rooms
+      };
+      onBookingInfoChange(newInfo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkInDate, checkOutDate, guests.adults, guests.children, rooms]);
+
+  const handleReserve = () => {
+    if (!isAuth) {
+      alert('Please login or sign up first to proceed with booking');
+      return;
+    }
+
+    if (!checkInDate || !checkOutDate) {
+      alert('Please select check-in and check-out dates');
+      return;
+    }
+
+    const propertyData = property?.property || property || {};
+    const propertyId = propertyData._id || property?._id;
+    const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
+
+    const params = new URLSearchParams();
+    params.set('propertyId', propertyId);
+    params.set('checkIn', checkInDate);
+    params.set('checkOut', checkOutDate);
+    params.set('adults', guests.adults.toString());
+    params.set('childrens', guests.children.toString());
+    params.set('rooms', rooms.toString());
+
+    navigate(`/checkout?${params.toString()}`, {
+      state: {
+        propertyId,
+        property: propertyData,
+        propertyName: propertyData.name || 'Property',
+        propertyLocation: propertyData.address?.fullAddress || propertyData.address || 'Location',
+        propertyImage: propertyData.coverImage || propertyData.images?.[0] || propertyData.image || '/assets/checkout/Outdoors.png',
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        adults: guests.adults,
+        childrens: guests.children,
+        rooms: rooms,
+        nights: nights
+      }
+    });
+  };
+
   return (
     <section className="py-8">
       <div className="mb-6">
@@ -387,10 +509,10 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
             </span>
             <span className="w-0.5 h-6 bg-gray-400"></span>
             <a
-              href="#"
+              href="#reviews"
               className="text-blue underline font-semibold text-sm"
             >
-              63 Reviews
+              {propertyDetails.reviews?.length || 0} Review{(propertyDetails.reviews?.length || 0) !== 1 ? 's' : ''}
             </a>
           </div>
 
@@ -405,32 +527,40 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
             </span>
             <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
               <img src="/assets/booking/bath.svg" alt="user" className="w-4" />{" "}
-              {propertyData.noOfBaths || 6} Baths
+              {propertyData.noOfBaths || propertyData.noOfRooms || 1} Bath{propertyData.noOfBaths !== 1 ? 's' : ''}
             </span>
-            <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
-              <img src="/assets/booking/meal.svg" alt="user" className="w-4" />{" "}
-              Meals Available
-            </span>
+            {propertyDetails.meals?.options && propertyDetails.meals.options.length > 0 && (
+              <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
+                <img src="/assets/booking/meal.svg" alt="user" className="w-4" />{" "}
+                Meals Available
+              </span>
+            )}
             <button className="flex items-center gap-2 font-semibold text-darkGray text-sm border border-red-200 px-3 py-1 rounded-sm hover:bg-red-50">
               <img src="/assets/booking/pdf.svg" alt="user" className="w-4" />{" "}
               View Brochure
             </button>
           </div>
 
-          <div className="flex items-center flex-wrap gap-3 my-6 text-sm text-gray-700">
-            <span className="font-semibold text-base text-gray-800 mr-1">
-              Great for:
-            </span>
-            {items.map(({ icon, label }) => (
-              <div
-                key={label}
-                className="flex items-center gap-1.5 text-gray-700"
-              >
-                <img src={icon} alt="icon" className="w-5" />
-                <span className="font-medium">{label}</span>
-              </div>
-            ))}
-          </div>
+          {(propertyDetails.experiences || items.length > 0) && (
+            <div className="flex items-center flex-wrap gap-3 my-6 text-sm text-gray-700">
+              <span className="font-semibold text-base text-gray-800 mr-1">
+                Great for:
+              </span>
+              {propertyDetails.experiences?.description ? (
+                <span className="text-gray-700">{propertyDetails.experiences.description}</span>
+              ) : (
+                items.map(({ icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-1.5 text-gray-700"
+                  >
+                    <img src={icon} alt="icon" className="w-5" />
+                    <span className="font-medium">{label}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
 
           <div className="flex items-start gap-4 mt-4">
             {getAmenities().slice(0, 5).map((amenity, index) => (
@@ -503,7 +633,7 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
 
           <div className="mt-10">
             <h2 className="text-xl font-semibold text-gray-900 border-l-4 border-[#F5959E] pl-3">
-              {propertyData.name || "Pranaam"} – {propertyData.type || "Villa"} in {propertyData.address?.fullAddress?.split(',')[0] || "Alibaug"}
+              {propertyData.name || "Property"} – {(propertyData.type || "villa").charAt(0).toUpperCase() + (propertyData.type || "villa").slice(1)} in {propertyData.address?.fullAddress?.split(',')[0] || propertyData.address?.city || "Location"}
             </h2>
 
             <p className="mt-2 text-gray-600 italic text-sm leading-relaxed">
@@ -529,11 +659,11 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
           </div>
 
           <div>
-            <RulesAndSpaces />
+            <RulesAndSpaces propertyDetails={propertyDetails} />
           </div>
 
           <div>
-            <GuestReviews />
+            <GuestReviews propertyDetails={propertyDetails} />
           </div>
         </div>
 
@@ -771,8 +901,11 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
               </div>
             </div>
 
-            <button className="w-full bg-green text-white text-xl font-medium py-4 px-4 rounded hover:bg-darkGreen transition-colors mb-4">
-              Select Dates
+            <button 
+              onClick={handleReserve}
+              className="w-full bg-green text-white text-xl font-medium py-4 px-4 rounded hover:bg-darkGreen transition-colors mb-4"
+            >
+              {checkInDate && checkOutDate ? 'Reserve' : 'Select Dates'}
             </button>
 
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">

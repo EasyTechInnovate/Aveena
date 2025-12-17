@@ -1,9 +1,17 @@
 import React from 'react'
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 
 const Hotels = ({ hotels }) => {
+  const navigate = useNavigate();
+
+  const handleHotelClick = (hotel) => {
+    if (hotel._id) {
+      navigate(`/booking/${hotel._id}`);
+    }
+  };
   const hotelVariants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
@@ -26,7 +34,10 @@ const Hotels = ({ hotels }) => {
             key={index}
             className="pl-4 max-w-[320px] md:max-w-[350px] lg:max-w-[400px]"
           >
-            <a href="/booking" className="block">
+            <div 
+              className="block"
+              onClick={() => handleHotelClick(hotel)}
+            >
               <motion.div 
                 className="hotel rounded-2xl overflow-hidden shadow bg-white flex flex-col cursor-pointer"
                 variants={hotelVariants}
@@ -102,11 +113,11 @@ const Hotels = ({ hotels }) => {
                   </span>
 
                   <div className="flex items-center gap-1 text-[#4F4F4F]/80 flex-wrap mt-2 text-xs">
-                    <span>Upto</span> {hotel.maxGuests} <span>Guests</span>
+                    <span>Upto</span> {typeof hotel.maxGuests === 'number' ? hotel.maxGuests : hotel.maxGuests} <span>Guests</span>
                     <img src="/assets/start4.svg" alt="star" className="w-3" />
-                    {hotel.rooms} <span>Rooms</span>
+                    {typeof hotel.rooms === 'number' ? hotel.rooms : hotel.rooms} <span>Rooms</span>
                     <img src="/assets/start4.svg" alt="star" className="w-3" />
-                    {hotel.baths} <span>Baths</span>
+                    {typeof hotel.baths === 'number' ? hotel.baths : hotel.baths} <span>Baths</span>
                   </div>
                 </motion.div>
 
@@ -142,7 +153,7 @@ const Hotels = ({ hotels }) => {
                 </motion.div>
               </div>
               </motion.div>
-            </a>
+            </div>
           </CarouselItem>
         ))}
       </CarouselContent>

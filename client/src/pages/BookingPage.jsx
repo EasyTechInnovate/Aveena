@@ -16,15 +16,38 @@ function BookingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initialize booking info from navigation state
+  // Parse URL parameters
+  const urlParams = new URLSearchParams(location.search);
   const bookingState = location.state || {};
+  
+  // Initialize booking info from URL params (priority) or navigation state
   const [bookingInfo, setBookingInfo] = useState({
-    checkIn: bookingState.checkIn || "",
-    checkOut: bookingState.checkOut || "",
-    adults: bookingState.adults || 2,
-    childrens: bookingState.childrens || 0,
-    rooms: bookingState.rooms || 1,
+    checkIn: urlParams.get('checkIn') || bookingState.checkIn || "",
+    checkOut: urlParams.get('checkOut') || bookingState.checkOut || "",
+    adults: parseInt(urlParams.get('adults')) || bookingState.adults || 2,
+    childrens: parseInt(urlParams.get('childrens')) || bookingState.childrens || 0,
+    rooms: parseInt(urlParams.get('rooms')) || bookingState.rooms || 1,
   });
+
+  // Update URL when booking info changes (debounced to avoid excessive updates)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (bookingInfo.checkIn) params.set('checkIn', bookingInfo.checkIn);
+      if (bookingInfo.checkOut) params.set('checkOut', bookingInfo.checkOut);
+      if (bookingInfo.adults) params.set('adults', bookingInfo.adults.toString());
+      if (bookingInfo.childrens) params.set('childrens', bookingInfo.childrens.toString());
+      if (bookingInfo.rooms) params.set('rooms', bookingInfo.rooms.toString());
+      
+      const queryString = params.toString();
+      const newUrl = `/booking/${id}${queryString ? `?${queryString}` : ''}`;
+      
+      // Update URL without triggering navigation
+      window.history.replaceState({}, '', newUrl);
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(timeoutId);
+  }, [bookingInfo.checkIn, bookingInfo.checkOut, bookingInfo.adults, bookingInfo.childrens, bookingInfo.rooms, id]);
 
   // Fetch property details
   useEffect(() => {
@@ -42,7 +65,6 @@ function BookingPage() {
         
         if (response.data?.success) {
           setProperty(response.data.data);
-          console.log(response.data.data)
         } else {
           throw new Error("Failed to fetch property details");
         }

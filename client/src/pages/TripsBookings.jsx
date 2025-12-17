@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import UserSidebar from "../components/account/UserSidebar";
+import { getMyBookings, cancelBooking } from "../services";
+import { useAuth } from "../context/AuthContext";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
-const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => {
+const BookingCard = ({ booking, actionLabel = 'Pay Now', actionVariant = 'primary', onCancel }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -23,7 +27,13 @@ const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => 
   };
 
   const handleCancelConfirm = () => {
-    console.log('Booking cancelled:', { reason: cancelReason, note: cancelNote });
+    if (!cancelReason) {
+      alert('Please select a cancellation reason');
+      return;
+    }
+    if (onCancel && booking?._id) {
+      onCancel(booking._id, cancelReason, cancelNote);
+    }
     setShowCancelModal(false);
     setCancelReason('');
     setCancelNote('');
@@ -55,7 +65,11 @@ const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => 
   return (
     <div className="rounded-2xl border flex gap-4 overflow-hidden">
       <div className="relative">
-        <img src="/assets/booking/room.png" alt="room" className="w-[300px] h-full object-cover" />
+        <img 
+          src={booking?.property?.images?.[0] || booking?.property?.image || "/assets/booking/room.png"} 
+          alt="room" 
+          className="w-[300px] h-full object-cover" 
+        />
         <button className="absolute top-2 right-2 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow">
           <img src="/assets/account/likered.svg" alt="like" className="w-full h-full" />
         </button>
@@ -63,8 +77,8 @@ const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => 
       <div className="flex-1 p-3">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-lg">UDS Villa - Next to VFS, Walking to Connaught Place</h3>
-            <div className="text-sm text-darkGray">New Delhi</div>
+            <h3 className="font-semibold text-lg">{booking?.property?.name || 'UDS Villa - Next to VFS, Walking to Connaught Place'}</h3>
+            <div className="text-sm text-darkGray">{booking?.property?.address || 'New Delhi'}</div>
           </div>
           <div className="relative" ref={menuRef}>
             <button 
@@ -110,40 +124,55 @@ const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => 
       <div className="mt-2 flex items-center gap-3 text-sm">
         <div className="flex items-center gap-1">
           <span className="text-yellow-500"><img src="/assets/booking/star.svg" className="w-4 h-4" /></span>
-          <span className="font-semibold">4.6</span>
+          <span className="font-semibold">{booking?.property?.rating?.toFixed(1) || '4.6'}</span>
           <span className="text-darkGray">/5</span>
         </div>
-        <a className="text-blue underline" href="#">63 Reviews</a>
+        <a className="text-blue underline" href="#">{booking?.property?.reviews?.length || 63} Reviews</a>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-5 text-[13px] text-darkGray">
-        <div className="flex items-center gap-2"><img src="/assets/booking/meal.svg" className="w-4 h-4" /><span>Breakfast included</span></div>
-        <div className="flex items-center gap-2"><img src="/assets/booking/pool.svg" className="w-4 h-4" /><span>Private Pool</span></div>
-        <div className="flex items-center gap-2"><img src="/assets/booking/lawn.svg" className="w-4 h-4" /><span>Lawn</span></div>
-        <div className="flex items-center gap-2"><img src="/assets/booking/wifi.svg" className="w-4 h-4" /><span>WiFi</span></div>
-        <div className="flex items-center gap-2"><img src="/assets/booking/bar.svg" className="w-4 h-4" /><span>Bar</span></div>
-        <div className="flex items-center gap-2"><img src="/assets/booking/dining.svg" className="w-4 h-4" /><span>Alfresco Dining</span></div>
-        <a className="text-blue underline" href="#">+21 Amenities</a>
+        {booking?.property?.amenities?.slice(0, 6).map((amenity, idx) => (
+          <div key={idx} className="flex items-center gap-2">
+            <img src="/assets/booking/meal.svg" className="w-4 h-4" />
+            <span>{typeof amenity === 'string' ? amenity : 'Amenity'}</span>
+          </div>
+        ))}
+        {booking?.property?.amenities?.length > 6 && (
+          <a className="text-blue underline" href="#">+{booking.property.amenities.length - 6} Amenities</a>
+        )}
       </div>
 
  <div className="mt-3 flex items-center justify-between">
  <div className="flex flex-col gap-2">
-        <div className="bg-green text-white px-3 py-2 rounded-md text-sm">We have 5 left at 21% off at</div>
-        <div className="text-green text-sm">Fully refundable</div>
+        {booking?.status === 'pending' && (
+          <div className="bg-green text-white px-3 py-2 rounded-md text-sm">Payment Pending</div>
+        )}
+        <div className="text-green text-sm">
+          {new Date(booking?.checkInDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(booking?.checkOutDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-end gap-3">
-            <div className="text-2xl md:text-3xl font-bold">₹6,688</div>
-            <div className="text-darkGray line-through">₹7200</div>
+            <div className="text-2xl md:text-3xl font-bold">₹{booking?.totalAmount?.toLocaleString('en-IN') || '0'}</div>
           </div>
-          <div className="text-darkGray text-sm">₹12,471 Total includes taxes & fees</div>
+          <div className="text-darkGray text-sm">Booking ID: {booking?.bookingId || booking?._id?.slice(-8)}</div>
         </div>
         {actionVariant === 'primary' ? (
-          <button className="text-green border border-green min-w-40 px-5 py-2 rounded-md">{actionLabel}</button>
+          <button 
+            onClick={() => booking?.status === 'pending' && navigate(`/checkout`, { state: { bookingId: booking._id } })}
+            className="text-green border border-green min-w-40 px-5 py-2 rounded-md"
+          >
+            {actionLabel}
+          </button>
         ) : (
-          <button className="border border-red-400 text-red-500 min-w-40 px-5 py-2 rounded-md">{actionLabel}</button>
+          <button 
+            onClick={() => setShowCancelModal(true)}
+            className="border border-red-400 text-red-500 min-w-40 px-5 py-2 rounded-md"
+          >
+            {actionLabel}
+          </button>
         )}
       </div>
  </div>
@@ -264,6 +293,94 @@ const BookingCard = ({ actionLabel = 'Pay Now', actionVariant = 'primary' }) => 
 };
 
 const TripsBookings = () => {
+  const navigate = useNavigate();
+  const { isAuth } = useAuth();
+  const [bookings, setBookings] = useState([]);
+  const [upcomingBookings, setUpcomingBookings] = useState([]);
+  const [pastBookings, setPastBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (!isAuth) {
+      navigate('/');
+      return;
+    }
+    fetchBookings();
+  }, [isAuth, navigate]);
+
+  const fetchBookings = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await getMyBookings({ page: 1, limit: 100 });
+      if (response.data?.success) {
+        const allBookings = response.data.data.bookings || [];
+        setBookings(allBookings);
+        
+        const now = new Date();
+        const upcoming = allBookings.filter(booking => {
+          const checkIn = new Date(booking.checkInDate);
+          return checkIn >= now;
+        });
+        const past = allBookings.filter(booking => {
+          const checkIn = new Date(booking.checkInDate);
+          return checkIn < now;
+        });
+        
+        setUpcomingBookings(upcoming);
+        setPastBookings(past);
+      }
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+      setError(err.response?.data?.message || "Failed to load bookings");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId, reason, note) => {
+    try {
+      await cancelBooking(bookingId);
+      fetchBookings();
+    } catch (err) {
+      console.error("Error canceling booking:", err);
+      alert(err.response?.data?.message || "Failed to cancel booking");
+    }
+  };
+
+  const filteredUpcoming = upcomingBookings.filter(booking => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      booking.property?.name?.toLowerCase().includes(query) ||
+      booking.property?.address?.toLowerCase().includes(query) ||
+      booking.bookingId?.toLowerCase().includes(query)
+    );
+  });
+
+  const filteredPast = pastBookings.filter(booking => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      booking.property?.name?.toLowerCase().includes(query) ||
+      booking.property?.address?.toLowerCase().includes(query) ||
+      booking.bookingId?.toLowerCase().includes(query)
+    );
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
+        <UserSidebar />
+        <div className="flex-1 flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
       <UserSidebar />
@@ -275,75 +392,80 @@ const TripsBookings = () => {
           <div className="mt-4 flex items-center gap-4">
             <div className="flex items-center flex-1 border rounded-xl px-3 py-3 text-darkGray">
               <img src="/assets/account/search-normal.svg" className="w-5 h-5 mr-2" />
-              <input className="w-full outline-none" placeholder="Search My Booking" />
+              <input 
+                className="w-full outline-none" 
+                placeholder="Search My Booking"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
             <button className="border rounded-xl px-4 py-3">Apply Filter</button>
           </div>
         </div>
 
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="mt-4">
           <h2 className="font-semibold mb-3">My Upcoming Booking</h2>
-          <div className="space-y-4">
-            <BookingCard actionLabel="Pay Now" actionVariant="primary" />
-            <BookingCard actionLabel="Cancel Booking" actionVariant="danger" />
-          </div>
+          {filteredUpcoming.length === 0 ? (
+            <p className="text-gray-500">No upcoming bookings</p>
+          ) : (
+            <div className="space-y-4">
+              {filteredUpcoming.map((booking) => (
+                <BookingCard 
+                  key={booking._id} 
+                  booking={booking}
+                  actionLabel={booking.status === 'pending' ? "Pay Now" : "View Details"}
+                  actionVariant="primary"
+                  onCancel={handleCancelBooking}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-6">
           <h2 className="font-semibold mb-3">My Bookings</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border overflow-hidden">
-              <div className="relative">
-                <img src="/assets/booking/room.png" className="w-full h-40 object-cover" />
-                <div className="absolute top-3 left-3 bg-green text-white text-xs px-2 py-1 rounded-md">Booking Pending</div>
-                <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">
-                  <img src="/assets/account/3dot.svg" alt="" className="w-full h-full" />
-                </button>
-              </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-sm">UDS Villa - Next to VFS, Walking to Connaught Place</h3>
-                <div className="text-xs text-darkGray mt-1">New Delhi</div>
-                <div className="border-t border-gray-200 mt-2 pt-2">
-                  <div className="text-xs text-darkGray">Hosted By</div>
-                  <div className="text-xs text-darkGray">Property Owner Name</div>
+          {filteredPast.length === 0 ? (
+            <p className="text-gray-500">No past bookings</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {filteredPast.map((booking) => (
+                <div key={booking._id} className="rounded-2xl border overflow-hidden">
+                  <div className="relative">
+                    <img 
+                      src={booking.property?.images?.[0] || booking.property?.image || "/assets/booking/room.png"} 
+                      className="w-full h-40 object-cover" 
+                      alt={booking.property?.name}
+                    />
+                    <div className={`absolute top-3 left-3 text-white text-xs px-2 py-1 rounded-md ${
+                      booking.status === 'confirmed' ? 'bg-green' : 
+                      booking.status === 'cancelled' ? 'bg-red-500' : 
+                      'bg-yellow-500'
+                    }`}>
+                      {booking.status || 'Booking Pending'}
+                    </div>
+                    <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">
+                      <img src="/assets/account/3dot.svg" alt="" className="w-full h-full" />
+                    </button>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm">{booking.property?.name || 'Property Name'}</h3>
+                    <div className="text-xs text-darkGray mt-1">{booking.property?.address || 'Location'}</div>
+                    <div className="border-t border-gray-200 mt-2 pt-2">
+                      <div className="text-xs text-darkGray">
+                        {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-            <div className="rounded-2xl border overflow-hidden">
-              <div className="relative">
-                <img src="/assets/booking/room.png" className="w-full h-40 object-cover" />
-                <div className="absolute top-3 left-3 bg-green text-white text-xs px-2 py-1 rounded-md">Booking Pending</div>
-                <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">
-                  <img src="/assets/account/3dot.svg" alt="" className="w-full h-full" />
-                </button>
-              </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-sm">UDS Villa - Next to VFS, Walking to Connaught Place</h3>
-                <div className="text-xs text-darkGray mt-1">New Delhi</div>
-                <div className="border-t border-gray-200 mt-2 pt-2">
-                  <div className="text-xs text-darkGray">Hosted By</div>
-                  <div className="text-xs text-darkGray">Property Owner Name</div>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-2xl border overflow-hidden">
-              <div className="relative">
-                <img src="/assets/booking/room.png" className="w-full h-40 object-cover" />
-                <div className="absolute top-3 left-3 bg-green text-white text-xs px-2 py-1 rounded-md">Booking Pending</div>
-                <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">
-                  <img src="/assets/account/3dot.svg" alt="" className="w-full h-full" />
-                </button>
-              </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-sm">UDS Villa - Next to VFS, Walking to Connaught Place</h3>
-                <div className="text-xs text-darkGray mt-1">New Delhi</div>
-                <div className="border-t border-gray-200 mt-2 pt-2">
-                  <div className="text-xs text-darkGray">Hosted By</div>
-                  <div className="text-xs text-darkGray">Property Owner Name</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

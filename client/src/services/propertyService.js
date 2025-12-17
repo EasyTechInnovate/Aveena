@@ -30,6 +30,16 @@ export const getProperties = async (params = {}) => {
 };
 
 /**
+ * Get random properties for recommendations
+ * @param {Object} params - Query parameters
+ * @param {number} params.limit - Number of properties to return (default: 5)
+ * @returns {Promise} - Axios response with random properties
+ */
+export const getRandomProperties = async (params = { limit: 5 }) => {
+  return servicesAxiosInstance.get("/properties/random", { params });
+};
+
+/**
  * Get property details by ID
  * @param {string} propertyId - Property ID
  * @returns {Promise} - Axios response with property details
@@ -57,6 +67,7 @@ export const getFilteredProperties = async (params, filters = {}) => {
 
 export default {
   getProperties,
+  getRandomProperties,
   getPropertyById,
   getFilteredProperties
 };
