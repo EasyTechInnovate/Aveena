@@ -44,7 +44,6 @@ const Step3 = ({ phone, onClose }) => {
     try {
       setIsSubmitting(true);
 
-      // ✅ Fixed: Include phone object in the request
       const response = await completeProfile({
         firstName,
         lastName,
@@ -55,14 +54,12 @@ const Step3 = ({ phone, onClose }) => {
         },
       });
 
-      // ✅ Update token if a new one is returned
       if (response.data?.success && response.data?.data?.accessToken) {
         login(response.data.data.accessToken);
       }
 
       setIsSuccess(true);
 
-      // ✅ close modal after success animation
       setTimeout(() => {
         onClose();
       }, 1500);

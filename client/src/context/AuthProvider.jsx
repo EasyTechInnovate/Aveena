@@ -19,24 +19,20 @@ export const AuthProvider = ({ children }) => {
             setUser(response.data.data);
             setIsAuth(true);
           } else {
-            // If profile fetch fails, clear auth
             setIsAuth(false);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
           }
         } catch (err) {
-          // Handle auth errors - clear tokens if invalid
           if (err.response?.status === 401 || 
               (err.response?.status === 500 && 
                err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
-            // Token is invalid, clear auth
             setIsAuth(false);
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
           } else {
-            // Other errors - log but keep auth state
             console.warn("Profile fetch failed:", err.response?.status || err.message);
-            setIsAuth(true); // Keep auth state for network errors
+            setIsAuth(true);
           }
         }
       } else {
@@ -61,32 +57,24 @@ export const AuthProvider = ({ children }) => {
     }
     setIsAuth(true);
     
-    // Fetch user profile after login
     getProfile().then(response => {
       if (response.data?.success) {
         setUser(response.data.data);
-      } else {
-        // Profile fetch failed, but token is valid
-        console.warn("Profile fetch returned unsuccessful response");
       }
     }).catch(err => {
-      // Handle profile fetch errors
       if (err.response?.status === 401 || 
           (err.response?.status === 500 && 
            err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
-        // Token is invalid, clear auth
         setIsAuth(false);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         setUser(null);
       } else {
-        // Other errors - log but keep auth state
         console.warn("Profile fetch failed after login:", err.response?.status || err.message);
       }
     });
   };
   
-  // Function to refresh user profile (useful after profile completion)
   const refreshProfile = async () => {
     try {
       const response = await getProfile();
@@ -113,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         isAuth,
-        isLoggedIn: isAuth, // Add this alias for compatibility
+        isLoggedIn: isAuth,
         loading,
         user,
         login,
