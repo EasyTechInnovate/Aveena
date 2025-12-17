@@ -15,7 +15,7 @@ const Nav = () => {
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-  const { isAuth: isLoggedIn, login, logout, refreshProfile } = useAuth();
+  const { isAuth: isLoggedIn, logout } = useAuth();
 
   const menuLinks = [
     { name: "Home", href: "/" },
@@ -26,8 +26,7 @@ const Nav = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
-  const handleLoginComplete = async () => {
-    await refreshProfile();
+  const handleLoginComplete = () => {
     setIsModalOpen(false);
     setStep(1);
   };

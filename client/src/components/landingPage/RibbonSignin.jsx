@@ -6,14 +6,13 @@ import Modal from "../common/Modal";
 import { useAuth } from "../../context/AuthContext";
 
 const RibbonSignin = () => {
-  const { isLoggedIn, refreshProfile } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-  const handleLoginComplete = async () => {
-    await refreshProfile();
+  const handleLoginComplete = () => {
     setIsModalOpen(false);
     setStep(1);
   };

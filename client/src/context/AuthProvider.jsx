@@ -45,23 +45,31 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = (token, refreshToken = null) => {
+  const login = async (token, refreshToken = null) => {
     if (!token) {
       console.error("Login called without token");
-      return;
+      return false;
     }
     
     localStorage.setItem("accessToken", token);
     if (refreshToken) {
       localStorage.setItem("refreshToken", refreshToken);
     }
-    setIsAuth(true);
     
-    getProfile().then(response => {
+    try {
+      const response = await getProfile();
       if (response.data?.success) {
         setUser(response.data.data);
+        setIsAuth(true);
+        return true;
+      } else {
+        setIsAuth(false);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        setUser(null);
+        return false;
       }
-    }).catch(err => {
+    } catch (err) {
       if (err.response?.status === 401 || 
           (err.response?.status === 500 && 
            err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
@@ -69,10 +77,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         setUser(null);
+        return false;
       } else {
         console.warn("Profile fetch failed after login:", err.response?.status || err.message);
+        setIsAuth(true);
+        return false;
       }
-    });
+    }
   };
   
   const refreshProfile = async () => {
@@ -80,12 +91,28 @@ export const AuthProvider = ({ children }) => {
       const response = await getProfile();
       if (response.data?.success) {
         setUser(response.data.data);
+        setIsAuth(true);
         return true;
+      } else {
+        setIsAuth(false);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        setUser(null);
+        return false;
       }
-      return false;
     } catch (err) {
-      console.error("Failed to refresh profile:", err);
-      return false;
+      if (err.response?.status === 401 || 
+          (err.response?.status === 500 && 
+           err.response?.data?.message?.toLowerCase().includes('jwt malformed'))) {
+        setIsAuth(false);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        setUser(null);
+        return false;
+      } else {
+        console.error("Failed to refresh profile:", err.response?.status || err.message);
+        return false;
+      }
     }
   };
 
