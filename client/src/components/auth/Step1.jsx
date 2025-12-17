@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { motion } from "framer-motion";
-import { sendOtp } from "../../services";
+import { useGoogleLogin } from "@react-oauth/google";
+import { sendOtp, googleLogin } from "../../services";
+import { useAuth } from "../../context/AuthContext";
 
 function Step1({ onNext, onClose }) {
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  // ---------------- SEND OTP ----------------
+  const { login: authLogin } = useAuth();
+
   const handleSendOtp = async () => {
     setError("");
 
@@ -29,7 +33,6 @@ function Step1({ onNext, onClose }) {
         },
       });
 
-      // ✅ Go to OTP step
       onNext({
         phone: {
           countryCode,
@@ -47,6 +50,45 @@ function Step1({ onNext, onClose }) {
       setLoading(false);
     }
   };
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    try {
+      setGoogleLoading(true);
+      setError("");
+
+      const authResponse = await googleLogin({ code: tokenResponse.code });
+
+      if (authResponse.data?.data?.accessToken) {
+        authLogin(authResponse.data.data.accessToken);
+
+        onNext({
+          googleAuth: true,
+          isProfileComplete: authResponse.data.data.isProfileComplete
+        });
+      }
+
+    } catch (err) {
+      console.error('Google Login Error:', err);
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to login with Google. Please try again."
+      );
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = (error) => {
+    console.error('Google Login Failed:', error);
+    setError("Google login failed. Please try again.");
+  };
+
+  const login = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: handleGoogleError,
+    flow: 'auth-code',
+  });
 
   // ---------------- ANIMATION VARIANTS ----------------
   const containerVariants = {
@@ -164,17 +206,23 @@ function Step1({ onNext, onClose }) {
             {loading ? "Sending OTP..." : "Get OTP"}
           </motion.button>
 
-          {/* SOCIAL BUTTONS */}
           <motion.div
             className="flex justify-center gap-4 mb-4"
             variants={itemVariants}
           >
             <motion.button
-              disabled
-              className="flex gap-2 border rounded-lg px-4 py-3 w-full justify-center bg-gray-100 opacity-50 cursor-not-allowed"
+              onClick={() => login()}
+              disabled={googleLoading || loading}
+              className={`flex gap-2 border rounded-lg px-4 py-3 w-full justify-center ${
+                googleLoading || loading
+                  ? "bg-gray-100 opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-50 transition"
+              }`}
+              whileHover={!googleLoading && !loading && { scale: 1.02 }}
+              whileTap={!googleLoading && !loading && { scale: 0.98 }}
             >
               <FaGoogle className="text-lg" />
-              <span>Google</span>
+              <span>{googleLoading ? "Loading..." : "Google"}</span>
             </motion.button>
 
             <motion.button

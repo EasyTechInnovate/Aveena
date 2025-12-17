@@ -175,9 +175,17 @@ const { isAuth: isLoggedIn, login, logout } = useAuth();
       >
     {step === 1 ? (
   <Step1
-    onNext={({ phone }) => {
-      setPhoneData(phone);
-      setStep(2);
+    onNext={({ phone, googleAuth, isProfileComplete: profileComplete }) => {
+      if (googleAuth) {
+        if (profileComplete) {
+          handleLoginComplete();
+        } else {
+          setStep(3);
+        }
+      } else {
+        setPhoneData(phone);
+        setStep(2);
+      }
     }}
     onClose={() => setIsModalOpen(false)}
   />
@@ -187,7 +195,6 @@ const { isAuth: isLoggedIn, login, logout } = useAuth();
     onBack={() => setStep(1)}
     onNext={({ isProfileComplete: profileComplete }) => {
       setIsProfileComplete(profileComplete);
-      // Skip Step 3 if profile is already complete
       if (profileComplete) {
         handleLoginComplete();
       } else {

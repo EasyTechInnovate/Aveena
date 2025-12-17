@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import Nav from "./components/common/Nav";
 // import PartnerNav from "./components/common/PartnerNav";
 import Footer from "./components/common/Footer";
@@ -142,11 +143,13 @@ const Layout = () => {
 
 const App = () => {
   return (
-    <div id="main" className="bg-white w-full h-full">
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    </div>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <div id="main" className="bg-white w-full h-full">
+        <BrowserRouter>
+          <Layout />
+        </BrowserRouter>
+      </div>
+    </GoogleOAuthProvider>
   );
 };
 

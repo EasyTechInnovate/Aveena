@@ -29,3 +29,13 @@ export const completeProfile = async (payload) => {
     payload
   );
 };
+
+/**
+ * Google OAuth Login
+ */
+export const googleLogin = async (payload) => {
+  return servicesAxiosInstance.post(
+    "/auth/google/login",
+    payload
+  );
+};

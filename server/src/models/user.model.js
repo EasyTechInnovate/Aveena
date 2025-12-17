@@ -95,6 +95,20 @@ const userSchema = new Schema({
     isIdentityVerified: {
         type: Boolean,
         default: false
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    profilePicture: {
+        type: String,
+        required: false
+    },
+    authProvider: {
+        type: String,
+        enum: ['email', 'phone', 'google'],
+        default: 'email'
     }
 }, { timestamps: true });
 

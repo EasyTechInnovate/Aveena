@@ -26,7 +26,10 @@ const config = {
         url: process.env.CLIENT_URL || 'http://localhost:5173'
     },
     google: {
-        apiKey: process.env.GOOGLE_API_KEY
+        apiKey: process.env.GOOGLE_API_KEY,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        redirectUri: process.env.GOOGLE_REDIRECT_URI
     },
     jwt: {
         secret: process.env.JWT_SECRET,
