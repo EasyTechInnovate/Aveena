@@ -450,6 +450,14 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             }
 
+            const bookedDates = await bookedDatesModel.find({
+                entityType: 'property',
+                entityId: propertyId,
+                date: {
+                    $gte: start,
+                    $lte: end
+                }
+            }).lean();
 
             const bookedDatesOnly = bookedDates.map(item => item.date);
 
