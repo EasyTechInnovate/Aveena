@@ -44,47 +44,41 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
     setOtp([...newOtp, ...Array(OTP_LENGTH - newOtp.length).fill("")]);
   };
 
-  // -----------------------------------
-  // VERIFY OTP
-  // -----------------------------------
- // In Step2 component, update handleVerify function:
-const handleVerify = async () => {
-  setError("");
+  const handleVerify = async () => {
+    setError("");
 
-  const code = otp.join("");
+    const code = otp.join("");
 
-  if (code.length !== OTP_LENGTH) {
-    setError(`Please enter the ${OTP_LENGTH}-digit OTP.`);
-    return;
-  }
+    if (code.length !== OTP_LENGTH) {
+      setError(`Please enter the ${OTP_LENGTH}-digit OTP.`);
+      return;
+    }
 
-  if (!phone || !phone.countryCode || !phone.number) {
-    setError("Phone data is missing. Please go back and re-enter.");
-    return;
-  }
+    if (!phone || !phone.countryCode || !phone.number) {
+      setError("Phone data is missing. Please go back and re-enter.");
+      return;
+    }
 
-  const payload = {
-    phone: {
-      countryCode: phone.countryCode,
-      number: phone.number,
-    },
-    verificationCode: code,
-  };
+    const payload = {
+      phone: {
+        countryCode: phone.countryCode,
+        number: phone.number,
+      },
+      verificationCode: code,
+    };
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await verifyOtp(payload);
-    const { accessToken, isProfileComplete } = res.data.data;
+      const res = await verifyOtp(payload);
+      const { accessToken, isProfileComplete } = res.data.data;
 
-    // ✅ Pass the accessToken to login function
-    login(accessToken);
+      login(accessToken);
 
-    // ✅ Pass phone data back to parent
-    onNext({ 
-      isProfileComplete, 
-      phone: payload.phone // Make sure to include phone here
-    });
+      onNext({ 
+        isProfileComplete, 
+        phone: payload.phone
+      });
 
   } catch (err) {
     console.error(err);
@@ -94,11 +88,7 @@ const handleVerify = async () => {
   } finally {
     setLoading(false);
   }
-};
-
-  // -----------------------------------
-  // Animations
-  // -----------------------------------
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },

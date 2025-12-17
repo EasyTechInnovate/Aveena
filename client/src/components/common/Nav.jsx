@@ -15,8 +15,7 @@ const Nav = () => {
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-
-const { isAuth: isLoggedIn, login, logout } = useAuth();
+  const { isAuth: isLoggedIn, login, logout, refreshProfile } = useAuth();
 
   const menuLinks = [
     { name: "Home", href: "/" },
@@ -26,11 +25,11 @@ const { isAuth: isLoggedIn, login, logout } = useAuth();
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const handleLoginComplete = () => {
-    login(); // ⬅️ mark as logged in globally
+  
+  const handleLoginComplete = async () => {
+    await refreshProfile();
     setIsModalOpen(false);
-    setStep(1); // Reset to step 1 for next time
+    setStep(1);
   };
 
   return (

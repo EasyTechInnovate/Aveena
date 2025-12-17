@@ -15,8 +15,7 @@ function HomeSection({ property, bookingInfo }) {
 
   const photos = [
     propertyData.coverImage,
-    ...propertyMedia.filter(item => item.type === 'image').map(item => item.url),
-    "/assets/chef.png"
+    ...propertyMedia.map(item => item.url)
   ].filter(Boolean);
 
   const getLocationString = () => {

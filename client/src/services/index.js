@@ -14,3 +14,6 @@ export * from './locationService';
 
 // Property services
 export * from './propertyService';
+
+// Coupon services
+export * from './couponService';

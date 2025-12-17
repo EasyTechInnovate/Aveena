@@ -39,3 +39,12 @@ export const googleLogin = async (payload) => {
     payload
   );
 };
+
+
+
+/**
+ * Get User Profile
+ */
+export const getProfile = async () => {
+  return servicesAxiosInstance.get("/auth/profile");
+};

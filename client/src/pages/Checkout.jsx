@@ -1,9 +1,188 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { createBooking, getPropertyById } from '../services';
+import { useAuth } from '../context/AuthContext';
 
 const Checkout = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuth } = useAuth();
+  
+  const urlParams = new URLSearchParams(location.search);
+  const bookingState = location.state || {};
+  
+  const bookingData = useMemo(() => {
+    const checkIn = urlParams.get('checkIn') || bookingState.checkIn || '';
+    const checkOut = urlParams.get('checkOut') || bookingState.checkOut || '';
+    const adults = parseInt(urlParams.get('adults')) || bookingState.adults || 2;
+    const childrens = parseInt(urlParams.get('childrens')) || bookingState.childrens || 0;
+    const rooms = parseInt(urlParams.get('rooms')) || bookingState.rooms || 1;
+    const propertyId = urlParams.get('propertyId') || bookingState.propertyId || '';
+    
+    let nights = bookingState.nights;
+    if (!nights && checkIn && checkOut) {
+      nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+    } else if (!nights) {
+      nights = 1;
+    }
+    
+    return {
+      propertyId,
+      property: bookingState.property || null,
+      propertyName: bookingState.propertyName || '',
+      propertyLocation: bookingState.propertyLocation || '',
+      propertyImage: bookingState.propertyImage || '',
+      checkIn,
+      checkOut,
+      adults,
+      childrens,
+      rooms,
+      nights
+    };
+  }, [location.search, location.state]);
+  
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [specialRequests, setSpecialRequests] = useState('');
+  const [pricing, setPricing] = useState({
+    base: 0,
+    taxes: 0,
+    discount: 0,
+    total: 0
+  });
+  const [property, setProperty] = useState(null);
+
+  useEffect(() => {
+    if (!isAuth) {
+      navigate('/');
+      return;
+    }
+    if (!bookingData.propertyId || !bookingData.checkIn || !bookingData.checkOut) {
+      navigate('/search');
+      return;
+    }
+    
+    const calculatePricing = (prop) => {
+      if (!prop || !bookingData.nights) return;
+      
+      const basePrice = prop.basePrice || 0;
+      const base = basePrice * bookingData.nights * (bookingData.rooms || 1);
+      const taxes = base * 0.18;
+      const total = base + taxes;
+      
+      setPricing({
+        base,
+        taxes,
+        discount: 0,
+        total
+      });
+    };
+
+    if (bookingData.property) {
+      const fullPropertyData = bookingData.property;
+      const prop = fullPropertyData.property || fullPropertyData;
+      setProperty(fullPropertyData);
+      calculatePricing(prop);
+    } else if (bookingData.propertyId) {
+      getPropertyById(bookingData.propertyId)
+        .then(response => {
+          if (response.data?.success) {
+            const fullData = response.data.data;
+            setProperty(fullData);
+            const prop = fullData.property || fullData;
+            calculatePricing(prop);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching property:', err);
+          setCouponError('Failed to load property details');
+        });
+    }
+  }, [isAuth, bookingData, navigate]);
+
+  const handleContinue = async () => {
+    if (!termsAccepted) return;
+
+    setIsProcessing(true);
+    setCouponError('');
+    
+    try {
+      const bookingPayload = {
+        propertyId: bookingData.propertyId,
+        checkInDate: bookingData.checkIn,
+        checkOutDate: bookingData.checkOut,
+        adults: bookingData.adults || 2,
+        childrens: bookingData.childrens || 0,
+        noOfRooms: bookingData.rooms || 1
+      };
+
+      // Include coupon code if provided
+      if (couponCode.trim()) {
+        bookingPayload.couponCode = couponCode.trim().toUpperCase();
+      }
+
+      let response;
+      try {
+        response = await createBooking(bookingPayload);
+      } catch (err) {
+        // Handle 404 - booking endpoint not found (server might be down or route doesn't exist)
+        if (err.response?.status === 404) {
+          throw new Error('Booking service is currently unavailable. Please try again later.');
+        }
+        
+        // If error is related to coupon and coupon was provided, retry without coupon
+        if (couponCode.trim() && (err.response?.data?.message?.toLowerCase().includes('route') || 
+            err.response?.data?.message?.toLowerCase().includes('coupon') ||
+            err.response?.data?.message?.toLowerCase().includes('not found') ||
+            err.response?.status === 404)) {
+          // Remove coupon and retry
+          delete bookingPayload.couponCode;
+          setCouponError('Coupon code could not be applied. Proceeding without coupon.');
+          try {
+            response = await createBooking(bookingPayload);
+          } catch (retryErr) {
+            // If retry also fails with 404, it's a server issue
+            if (retryErr.response?.status === 404) {
+              throw new Error('Booking service is currently unavailable. Please try again later.');
+            }
+            throw retryErr;
+          }
+        } else {
+          throw err;
+        }
+      }
+      
+      if (response.data?.success) {
+        const { payuUrl, params } = response.data.data;
+        
+        // Create and submit form to PayU payment gateway
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = payuUrl;
+        
+        Object.keys(params).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = params[key];
+          form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        throw new Error(response.data?.message || 'Failed to create booking');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to complete booking';
+      setCouponError(errorMessage);
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -33,9 +212,9 @@ const Checkout = () => {
                 <div>
                   <div className="flex-1 border-b-2 h-fit">
                     <h1 className="text-xl font-semibold mb-2">
-                      UDS Villa - Next to VFS, Walking to Connaught Place
+                      {bookingData.propertyName || 'UDS Villa - Next to VFS, Walking to Connaught Place'}
                     </h1>
-                    <p className="text-gray-600 text-sm mb-4">New Delhi</p>
+                    <p className="text-gray-600 text-sm mb-4">{bookingData.propertyLocation || 'New Delhi'}</p>
 
 
                   </div>
@@ -47,14 +226,14 @@ const Checkout = () => {
                         <div className='flex items-center gap-2'>
                           <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
                           <div className='flex flex-col'>
-                            <h3>Wed 3 Sep 2025</h3>
+                            <h3>{bookingData.checkIn ? new Date(bookingData.checkIn).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
                             <h5>(From 02:00 PM)</h5>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center bg-darkGreen px-4 py-2 rounded-xl text-sm text-white">
-                        <h5>For 1 Night</h5>
+                        <h5>{bookingData.nights ? `For ${bookingData.nights} Night${bookingData.nights > 1 ? 's' : ''}` : 'For 1 Night'}</h5>
                       </div>
 
                       <div className='flex flex-col gap-2'>
@@ -62,7 +241,7 @@ const Checkout = () => {
                         <div className='flex items-center gap-2'>
                           <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
                           <div className='flex flex-col'>
-                            <h3>Thu 4 Sep 2025</h3>
+                            <h3>{bookingData.checkOut ? new Date(bookingData.checkOut).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
                             <h5>(Until 11:00 AM)</h5>
                           </div>
                         </div>
@@ -80,7 +259,7 @@ const Checkout = () => {
                       </h4>
                       <div className='flex items-center gap-2'>
                         <img src="/assets/checkout/rooms.svg" alt="room" className="w-10" />
-                        <h3 className='font-semibold'>2 Rooms</h3>
+                        <h3 className='font-semibold'>{bookingData.rooms || 1} Room{(bookingData.rooms || 1) > 1 ? 's' : ''}</h3>
                       </div>
                     </div>
                     <div className='flex flex-col gap-2'>
@@ -90,8 +269,8 @@ const Checkout = () => {
                       <div className='flex items-center gap-2'>
                         <img src="/assets/checkout/guests.svg" alt="room" className="w-10" />
                         <div>
-                          <h3 className='font-semibold'>2 Guests</h3>
-                          <p className='text-sm text-darkGray'>(2 Adults )</p>
+                          <h3 className='font-semibold'>{((bookingData.adults || 2) + (bookingData.childrens || 0))} Guest{((bookingData.adults || 2) + (bookingData.childrens || 0)) > 1 ? 's' : ''}</h3>
+                          <p className='text-sm text-darkGray'>({bookingData.adults || 2} Adult{(bookingData.adults || 2) > 1 ? 's' : ''}{bookingData.childrens ? `, ${bookingData.childrens} Child${bookingData.childrens > 1 ? 'ren' : ''}` : ''})</p>
                         </div>
                       </div>
                     </div>
@@ -117,7 +296,7 @@ const Checkout = () => {
                     </a>
                   </div>
                   <img
-                    src="/assets/checkout/Outdoors.png"
+                    src={bookingData.propertyImage || "/assets/checkout/Outdoors.png"}
                     alt="Villa"
                     className="w-[210px] ml-auto object-cover rounded-lg"
                   />
@@ -174,6 +353,8 @@ const Checkout = () => {
               <h2 className="text-lg font-semibold mb-4">Any special requests?</h2>
               <textarea
                 placeholder="Write here......"
+                value={specialRequests}
+                onChange={(e) => setSpecialRequests(e.target.value)}
                 className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
@@ -200,27 +381,43 @@ const Checkout = () => {
                 <div className="space-y-3 mb-6 px-4">
                   <div className="flex justify-between">
                     <span>Rental Charges</span>
-                    <span className="font-medium">₹16,800</span>
+                    <span className="font-medium">₹{pricing.base.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>GST <span className="text-sm text-darkGray">(As per government guidelines)</span></span>
-                    <span className="font-medium">₹3,024</span>
+                    <span className="font-medium">₹{pricing.taxes.toLocaleString('en-IN')}</span>
                   </div>
+                  {pricing.discount > 0 && (
+                    <div className="flex justify-between text-green">
+                      <span>Discount {couponCode && `(${couponCode})`}</span>
+                      <span className="font-medium">-₹{pricing.discount.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Coupon Section */}
-                <div className="border flex justify-between mx-4 rounded-lg p-4">
-                  <div className="flex items-center gap-2">
-                    <img src="/assets/checkout/offer.svg" alt="coupon" className="w-10" />
-                    <div>
-                      <span className="font-semibold">ESCAPE5</span>
-                      <p className="text-sm text-green">Apply to save upto ₹1,500</p>
+                <div className="border mx-4 rounded-lg p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <img src="/assets/checkout/offer.svg" alt="coupon" className="w-10" />
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          placeholder="Enter coupon code"
+                          disabled={isProcessing}
+                          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green disabled:opacity-50"
+                        />
+                        {couponError && (
+                          <p className="text-red-500 text-xs mt-1">{couponError}</p>
+                        )}
+                      </div>
                     </div>
+                    {couponCode && (
+                      <p className="text-xs text-gray-600">Coupon will be applied during booking</p>
+                    )}
                   </div>
-                  <button className="text-blue text-sm cursor-pointer">
-                    Apply
-                  </button>
-
                 </div>
                 <a href="#" className="block text-center mx-4 mb-6 text-blue text-sm mt-2 hover:underline">
                   View more coupons/ Apply Future Stay Voucher
@@ -229,8 +426,9 @@ const Checkout = () => {
                 <div className="bg-[#2F80ED1A] rounded-br-xl rounded-bl-xl p-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">Total Payable</span>
-                    <span className="text-2xl font-bold">₹19,824</span>
+                    <span className="text-2xl font-bold">₹{(Math.round((pricing.base + pricing.taxes - pricing.discount) * 100) / 100).toLocaleString('en-IN')}</span>
                   </div>
+                  <p className="text-xs text-gray-600 mt-1">Final amount will be calculated by server</p>
                 </div>
               </div>
 
@@ -256,16 +454,16 @@ const Checkout = () => {
 
               {/* Continue Button */}
               <motion.button
-                disabled={!termsAccepted}
-                onClick={() => setShowConfirmation(true)}
-                className={`w-full py-4 px-6 rounded-xl font-semibold cursor-pointer text-lg transition-colors ${termsAccepted
+                disabled={!termsAccepted || isProcessing}
+                onClick={handleContinue}
+                className={`w-full py-4 px-6 rounded-xl font-semibold cursor-pointer text-lg transition-colors ${termsAccepted && !isProcessing
                   ? 'bg-green hover:bg-darkGreen text-white'
                   : 'bg-gray-300 cursor-not-allowed'
                   }`}
-                whileHover={termsAccepted ? { scale: 1.02 } : {}}
-                whileTap={termsAccepted ? { scale: 0.98 } : {}}
+                whileHover={termsAccepted && !isProcessing ? { scale: 1.02 } : {}}
+                whileTap={termsAccepted && !isProcessing ? { scale: 0.98 } : {}}
               >
-                Continue
+                {isProcessing ? 'Processing...' : 'Continue'}
               </motion.button>
             </div>
           </div>
@@ -312,7 +510,7 @@ const Checkout = () => {
                   {/* Property Image */}
                   <div className="w-48 aspect-video  flex-shrink-0">
                     <img
-                      src="/assets/checkout/Outdoors.png"
+                      src={bookingData.propertyImage || "/assets/checkout/Outdoors.png"}
                       alt="Villa"
                       className="w-full h-full object-cover rounded-lg"
                     />
@@ -321,9 +519,9 @@ const Checkout = () => {
                   {/* Property Info */}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-1">
-                      UDS Villa - Next to VFS, Walking to Connaught Place
+                      {bookingData.propertyName || 'UDS Villa - Next to VFS, Walking to Connaught Place'}
                     </h3>
-                    <p className="text-sm text-darkGray mb-4">New Delhi</p>
+                    <p className="text-sm text-darkGray mb-4">{bookingData.propertyLocation || 'New Delhi'}</p>
 
 
                   </div>
@@ -336,14 +534,14 @@ const Checkout = () => {
                         <div className='flex items-center gap-2'>
                           <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
                           <div className='flex flex-col'>
-                            <h3>Wed 3 Sep 2025</h3>
+                            <h3>{bookingData.checkIn ? new Date(bookingData.checkIn).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
                             <h5>(From 02:00 PM)</h5>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center bg-darkGreen px-4 py-2 rounded-xl text-sm text-white">
-                        <h5>For 1 Night</h5>
+                        <h5>{bookingData.nights ? `For ${bookingData.nights} Night${bookingData.nights > 1 ? 's' : ''}` : 'For 1 Night'}</h5>
                       </div>
 
                       <div className='flex flex-col gap-2'>
@@ -351,7 +549,7 @@ const Checkout = () => {
                         <div className='flex items-center gap-2'>
                           <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
                           <div className='flex flex-col'>
-                            <h3>Thu 4 Sep 2025</h3>
+                            <h3>{bookingData.checkOut ? new Date(bookingData.checkOut).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
                             <h5>(Until 11:00 AM)</h5>
                           </div>
                         </div>
@@ -367,7 +565,7 @@ const Checkout = () => {
                       </h4>
                       <div className='flex items-center gap-2'>
                         <img src="/assets/checkout/rooms.svg" alt="room" className="w-10" />
-                        <h3 className='font-semibold'>2 Rooms</h3>
+                        <h3 className='font-semibold'>{bookingData.rooms || 1} Room{(bookingData.rooms || 1) > 1 ? 's' : ''}</h3>
                       </div>
                     </div>
                     <div className='flex flex-col gap-2'>
@@ -377,8 +575,8 @@ const Checkout = () => {
                       <div className='flex items-center gap-2'>
                         <img src="/assets/checkout/guests.svg" alt="room" className="w-10" />
                         <div>
-                          <h3 className='font-semibold'>2 Guests</h3>
-                          <p className='text-sm text-darkGray'>(2 Adults )</p>
+                          <h3 className='font-semibold'>{((bookingData.adults || 2) + (bookingData.childrens || 0))} Guest{((bookingData.adults || 2) + (bookingData.childrens || 0)) > 1 ? 's' : ''}</h3>
+                          <p className='text-sm text-darkGray'>({bookingData.adults || 2} Adult{(bookingData.adults || 2) > 1 ? 's' : ''}{bookingData.childrens ? `, ${bookingData.childrens} Child${bookingData.childrens > 1 ? 'ren' : ''}` : ''})</p>
                         </div>
                       </div>
                     </div>
@@ -393,7 +591,10 @@ const Checkout = () => {
               {/* Action Buttons */}
               <div className="flex gap-4">
                 <motion.button
-                  onClick={() => setShowConfirmation(false)}
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    navigate('/trips-bookings');
+                  }}
                   className="flex-1 py-3 px-6 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -401,7 +602,10 @@ const Checkout = () => {
                   View Booking
                 </motion.button>
                 <motion.button
-                  onClick={() => setShowConfirmation(false)}
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    navigate('/');
+                  }}
                   className="flex-1 py-3 px-6 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

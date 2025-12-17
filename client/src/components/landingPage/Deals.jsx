@@ -1,54 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Hotels from "../common/Hotels";
-
-const hotels = [
-  {
-    name: "Pranaam",
-    address: "Alibaug, Maharashtra",
-    image: "/assets/hotels/Pranaam.png",
-    maxGuests: "15",
-    category: "Lonavala",
-    rooms: "6",
-    baths: "6",
-    perNight: "43,660",
-    rating: "4.6",
-  },
-  {
-    name: "Gardenéa",
-    address: "Alibaug, Maharashtra",
-    image: "/assets/hotels/Gardenea.png",
-    maxGuests: "26",
-    category: "Alibaug",
-    rooms: "7",
-    baths: "6",
-    perNight: "45,701",
-    rating: "4.7",
-  },
-  {
-    name: "Vista Serene",
-    address: "Karjat, Maharashtra",
-    image: "/assets/hotels/VistaSerene.png",
-    maxGuests: "10",
-    category: "Karjat",
-    rooms: "3",
-    baths: "3",
-    perNight: "11,276",
-    rating: "4.5",
-  },
-  {
-    name: "Princess Vista - Pawna",
-    address: "Lonavala, Maharashtra",
-    image: "/assets/hotels/PrincessVista.png",
-    maxGuests: "9",
-    category: "Lonavala",
-    rooms: "3",
-    baths: "4",
-    perNight: "50,740",
-    rating: "4.8",
-  },
-];
+import { getRandomProperties } from "../../services";
 
 const Deals = () => {
+  const [hotels, setHotels] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDealProperties();
+  }, []);
+
+  const fetchDealProperties = async () => {
+    setIsLoading(true);
+    try {
+      // Get top 5 random properties for last-minute weekend deals
+      const response = await getRandomProperties({ limit: 5 });
+      
+      if (response.data?.success) {
+        const properties = response.data.data.properties || response.data.data || [];
+        const formattedHotels = properties.map(prop => ({
+          _id: prop._id,
+          name: prop.name || "Property",
+          address: prop.address?.fullAddress || prop.address?.city || prop.address || "Location",
+          image: prop.coverImage || prop.images?.[0] || "/assets/hotels/Pranaam.png",
+          maxGuests: prop.capacity?.adults || 15,
+          category: prop.address?.city || prop.address?.fullAddress?.split(',')[0] || "Location",
+          rooms: prop.noOfRooms || 1,
+          baths: prop.noOfBaths || prop.noOfRooms || 1,
+          perNight: (prop.basePrice || 0).toLocaleString('en-IN'),
+          rating: prop.rating ? prop.rating.toFixed(1) : "0.0",
+        }));
+        setHotels(formattedHotels);
+      }
+    } catch (err) {
+      console.error("Error fetching deal properties:", err);
+      setHotels([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto rounded-3xl relative overflow-hidden">
       <div className="absolute w-full h-full top-0 left-0 z-0">
@@ -66,7 +56,17 @@ const Deals = () => {
 >
   <h2 className="text-4xl font-semibold text-white">Last-minute weekend deals</h2>
   <p className="text-xl font-normal text-white mt-2 mb-10">Based on your most recently viewed property</p>
-  <Hotels hotels={hotels} />
+  {isLoading ? (
+    <div className="flex justify-center items-center py-10">
+      <div className="text-white">Loading deals...</div>
+    </div>
+  ) : hotels.length > 0 ? (
+    <Hotels hotels={hotels} />
+  ) : (
+    <div className="flex justify-center items-center py-10">
+      <div className="text-white">No deals available at the moment</div>
+    </div>
+  )}
 </div>
 
     </div>

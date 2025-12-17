@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { completeProfile } from "../../services";
+import { useAuth } from "../../context/AuthContext";
 
 const Step3 = ({ phone, onClose }) => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -42,8 +44,7 @@ const Step3 = ({ phone, onClose }) => {
     try {
       setIsSubmitting(true);
 
-      // ✅ Fixed: Include phone object in the request
-      await completeProfile({
+      const response = await completeProfile({
         firstName,
         lastName,
         email,
@@ -53,9 +54,12 @@ const Step3 = ({ phone, onClose }) => {
         },
       });
 
+      if (response.data?.success && response.data?.data?.accessToken) {
+        login(response.data.data.accessToken);
+      }
+
       setIsSuccess(true);
 
-      // ✅ close modal after success animation
       setTimeout(() => {
         onClose();
       }, 1500);

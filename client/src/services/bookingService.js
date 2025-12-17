@@ -18,7 +18,7 @@ import { servicesAxiosInstance } from "./config";
  * @returns {Promise} - Axios response
  */
 export const createBooking = async (bookingData) => {
-  return servicesAxiosInstance.post("/booking", bookingData);
+  return servicesAxiosInstance.post("/bookings", bookingData);
 };
 
 /**
@@ -29,7 +29,7 @@ export const createBooking = async (bookingData) => {
  * @returns {Promise} - Axios response
  */
 export const handlePaymentSuccess = async (paymentData) => {
-  return servicesAxiosInstance.post("/booking/payment-success", paymentData);
+  return servicesAxiosInstance.post("/bookings/payment-success", paymentData);
 };
 
 /**
@@ -39,7 +39,7 @@ export const handlePaymentSuccess = async (paymentData) => {
  * @returns {Promise} - Axios response
  */
 export const handlePaymentFailure = async (paymentData) => {
-  return servicesAxiosInstance.post("/booking/payment-failure", paymentData);
+  return servicesAxiosInstance.post("/bookings/payment-failure", paymentData);
 };
 
 /**
@@ -50,7 +50,7 @@ export const handlePaymentFailure = async (paymentData) => {
  * @returns {Promise} - Axios response
  */
 export const getMyBookings = async (params = { page: 1, limit: 10 }) => {
-  return servicesAxiosInstance.get("/booking/my-bookings", { params });
+  return servicesAxiosInstance.get("/bookings/my-bookings", { params });
 };
 
 /**
@@ -63,7 +63,7 @@ export const getMyBookings = async (params = { page: 1, limit: 10 }) => {
  */
 export const getAlreadyBookedDates = async (propertyId, dateRange) => {
   return servicesAxiosInstance.get(
-    `/booking/already-booked-dates/${propertyId}`,
+    `/bookings/already-booked-dates/${propertyId}`,
     { params: dateRange }
   );
 };
@@ -75,7 +75,7 @@ export const getAlreadyBookedDates = async (propertyId, dateRange) => {
  * @returns {Promise} - Axios response
  */
 export const cancelBooking = async (bookingId) => {
-  return servicesAxiosInstance.put(`/booking/${bookingId}/cancel`);
+  return servicesAxiosInstance.put(`/bookings/${bookingId}/cancel`);
 };
 
 /**
@@ -85,7 +85,7 @@ export const cancelBooking = async (bookingId) => {
  * @returns {Promise} - Axios response
  */
 export const getBookingDetails = async (bookingId) => {
-  return servicesAxiosInstance.get(`/booking/${bookingId}`);
+  return servicesAxiosInstance.get(`/bookings/${bookingId}`);
 };
 
 export default {
