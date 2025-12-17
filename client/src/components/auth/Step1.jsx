@@ -29,7 +29,6 @@ function Step1({ onNext, onClose }) {
         },
       });
 
-      // ✅ Go to OTP step
       onNext({
         phone: {
           countryCode,

@@ -6,20 +6,19 @@ import Modal from "../common/Modal";
 import { useAuth } from "../../context/AuthContext";
 
 const RibbonSignin = () => {
-  const { isLoggedIn, refreshProfile } = useAuth(); // ⬅️ use shared auth state
+  const { isLoggedIn, refreshProfile } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const handleLoginComplete = async () => {
-    // Token is already set from Step2, just refresh the profile
     await refreshProfile();
     setIsModalOpen(false);
-    setStep(1); // Reset for next time
+    setStep(1);
   };
 
-  if (isLoggedIn) return null; // hide entire ribbon if logged in ✅
+  if (isLoggedIn) return null;
 
   return (
     <div className="ribbon bg-darkBlue p-4 sm:p-6 rounded-2xl max-w-7xl mx-auto my-4 sm:my-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">

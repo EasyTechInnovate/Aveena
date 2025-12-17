@@ -27,11 +27,9 @@ const Nav = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
   const handleLoginComplete = async () => {
-    // Token is already set from Step2, just refresh the profile
-    // This handles both cases: profile already complete or just completed
     await refreshProfile();
     setIsModalOpen(false);
-    setStep(1); // Reset to step 1 for next time
+    setStep(1);
   };
 
   return (
