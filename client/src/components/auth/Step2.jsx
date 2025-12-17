@@ -73,7 +73,11 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
       const res = await verifyOtp(payload);
       const { accessToken, isProfileComplete } = res.data.data;
 
+<<<<<<< HEAD
       login(accessToken);
+=======
+      await login(accessToken);
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
 
       onNext({ 
         isProfileComplete, 
