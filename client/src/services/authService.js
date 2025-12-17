@@ -31,6 +31,21 @@ export const completeProfile = async (payload) => {
 };
 
 /**
+<<<<<<< HEAD
+ * Google OAuth Login
+ */
+export const googleLogin = async (payload) => {
+  return servicesAxiosInstance.post(
+    "/auth/google/login",
+    payload
+  );
+};
+
+
+
+/**
+=======
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
  * Get User Profile
  */
 export const getProfile = async () => {

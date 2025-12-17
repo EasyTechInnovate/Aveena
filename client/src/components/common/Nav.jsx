@@ -15,7 +15,11 @@ const Nav = () => {
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
+<<<<<<< HEAD
+  const { isAuth: isLoggedIn, login, logout, refreshProfile } = useAuth();
+=======
   const { isAuth: isLoggedIn, logout } = useAuth();
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
 
   const menuLinks = [
     { name: "Home", href: "/" },
@@ -26,7 +30,12 @@ const Nav = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
+<<<<<<< HEAD
+  const handleLoginComplete = async () => {
+    await refreshProfile();
+=======
   const handleLoginComplete = () => {
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
     setIsModalOpen(false);
     setStep(1);
   };
@@ -173,9 +182,23 @@ const Nav = () => {
       >
     {step === 1 ? (
   <Step1
+<<<<<<< HEAD
+    onNext={({ phone, googleAuth, isProfileComplete: profileComplete }) => {
+      if (googleAuth) {
+        if (profileComplete) {
+          handleLoginComplete();
+        } else {
+          setStep(3);
+        }
+      } else {
+        setPhoneData(phone);
+        setStep(2);
+      }
+=======
     onNext={({ phone }) => {
       setPhoneData(phone);
       setStep(2);
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
     }}
     onClose={() => setIsModalOpen(false)}
   />
@@ -185,7 +208,10 @@ const Nav = () => {
     onBack={() => setStep(1)}
     onNext={({ isProfileComplete: profileComplete }) => {
       setIsProfileComplete(profileComplete);
+<<<<<<< HEAD
+=======
       // Skip Step 3 if profile is already complete
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
       if (profileComplete) {
         handleLoginComplete();
       } else {

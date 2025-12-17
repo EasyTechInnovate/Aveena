@@ -6,13 +6,22 @@ import Modal from "../common/Modal";
 import { useAuth } from "../../context/AuthContext";
 
 const RibbonSignin = () => {
+<<<<<<< HEAD
+  const { isLoggedIn, refreshProfile } = useAuth();
+=======
   const { isLoggedIn } = useAuth();
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [phoneData, setPhoneData] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
+<<<<<<< HEAD
+  const handleLoginComplete = async () => {
+    await refreshProfile();
+=======
   const handleLoginComplete = () => {
+>>>>>>> dd81ab68ad52f6811e1cc2eec59ae94996be9e7f
     setIsModalOpen(false);
     setStep(1);
   };
