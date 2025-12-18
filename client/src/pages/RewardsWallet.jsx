@@ -1,11 +1,10 @@
 import React from "react";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 
 const RewardsWallet = () => {
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
-      <div className="border rounded-2xl p-6 flex-1 max-h-fit">
+    <UserDashboardLayout>
+      <div className="border rounded-2xl p-4 sm:p-6 flex-1 max-h-fit">
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-darkGray">Rewards & Wallet</h1>
           <p className="text-darkGray">Save money on your next adventure with Us</p>
@@ -35,7 +34,7 @@ const RewardsWallet = () => {
           </div>
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 };
 

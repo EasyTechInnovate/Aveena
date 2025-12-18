@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 
 const PaymentMethods = () => {
   const [cardholder, setCardholder] = useState("Leslie Alexander");
@@ -13,8 +13,7 @@ const PaymentMethods = () => {
   };
 
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
+    <UserDashboardLayout>
       <div className="flex-1 max-h-fit">
         <div className="mb-2 border border-gray-200 p-4 rounded-2xl">
 
@@ -97,7 +96,7 @@ const PaymentMethods = () => {
           </form>
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 };
 

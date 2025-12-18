@@ -1,5 +1,5 @@
 import React from "react";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 
 const SavedCard = () => (
   <div className="rounded-2xl border overflow-hidden">
@@ -46,8 +46,7 @@ const SavedLists = () => {
   ];
 
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
+    <UserDashboardLayout>
       <div className="flex-1">
         <div className="border rounded-2xl p-4">
           <h1 className="text-2xl font-bold">Saved lists</h1>
@@ -76,7 +75,7 @@ const SavedLists = () => {
           <SavedCard />
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 };
 

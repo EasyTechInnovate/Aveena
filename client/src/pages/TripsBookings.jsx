@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 import { getMyBookings, cancelBooking } from "../services";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/common/LoadingSpinner";
@@ -372,18 +372,16 @@ const TripsBookings = () => {
 
   if (isLoading) {
     return (
-      <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-        <UserSidebar />
+      <UserDashboardLayout>
         <div className="flex-1 flex items-center justify-center min-h-[400px]">
           <LoadingSpinner />
         </div>
-      </div>
+      </UserDashboardLayout>
     );
   }
 
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
+    <UserDashboardLayout>
       <div className="flex-1">
         <div className="border rounded-2xl p-4">
           <h1 className="text-2xl font-bold">Trips and bookings</h1>
@@ -468,7 +466,7 @@ const TripsBookings = () => {
           )}
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 };
 

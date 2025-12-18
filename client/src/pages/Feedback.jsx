@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 
 const Feedback = () => {
   const [type, setType] = useState("");
@@ -12,8 +12,7 @@ const Feedback = () => {
   };
 
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
+    <UserDashboardLayout>
       <form onSubmit={handleSubmit} className="border rounded-2xl p-4 flex-1 max-h-fit">
         <div className="mb-2 border-b border-gray-200 pb-4">
           <h1 className="text-2xl font-semibold text-darkGray mb-2">Share your feedback</h1>
@@ -58,7 +57,7 @@ const Feedback = () => {
           </button>
         </div>
       </form>
-    </div>
+    </UserDashboardLayout>
   );
 };
 

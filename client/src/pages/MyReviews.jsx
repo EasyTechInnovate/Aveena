@@ -1,5 +1,5 @@
 import React from "react";
-import UserSidebar from "../components/account/UserSidebar";
+import UserDashboardLayout from "../components/account/UserDashboardLayout";
 
 const ReviewRow = () => (
   <div className="rounded-2xl border p-3 flex gap-4 items-start">
@@ -23,8 +23,7 @@ const ReviewRow = () => (
 
 const MyReviews = () => {
   return (
-    <div className="flex gap-4 max-w-7xl mx-auto mt-6 pt-20">
-      <UserSidebar />
+    <UserDashboardLayout>
       <div className="flex-1 border rounded-2xl p-4">
         <div className="mb-4">
           <h1 className="text-2xl font-bold">My reviews</h1>
@@ -37,7 +36,7 @@ const MyReviews = () => {
           <ReviewRow />
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 };
 
