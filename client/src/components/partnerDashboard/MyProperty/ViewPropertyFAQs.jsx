@@ -9,12 +9,12 @@ const ViewPropertyFAQs = ({ propertyData }) => {
     {
       id: 1,
       question: "Should users be able to filter hotels (by price, location, star rating, amenities, etc.)?",
-      answer: 'In this agreement "FabHotels" refers to the corporate entity Casa2 Stays Private Limited as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
+      answer: 'In this agreement "FabHotels" refers to the corporate entity Brise Hospitality Management Opc Pvt Ltd as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
     },
     {
       id: 2,
       question: "Should users be able to filter hotels (by price, location, star rating, amenities, etc.)?",
-      answer: 'In this agreement "FabHotels" refers to the corporate entity Casa2 Stays Private Limited as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
+      answer: 'In this agreement "FabHotels" refers to the corporate entity Brise Hospitality Management Opc Pvt Ltd as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
     },
   ];
 
