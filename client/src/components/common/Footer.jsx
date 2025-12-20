@@ -48,7 +48,7 @@ const Footer = () => {
               </a>
             </div>
             <span className="flex justify-center md:justify-normal items-center gap-2 text-gray-600 text-nowrap">
-              <FaHeadset /> +919028502281
+              <FaHeadset />  +918062177157
             </span>
           </div>
         </div>
