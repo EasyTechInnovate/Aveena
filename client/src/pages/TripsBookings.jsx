@@ -66,19 +66,30 @@ const BookingCard = ({ booking, actionLabel = 'Pay Now', actionVariant = 'primar
     <div className="rounded-2xl border flex gap-4 overflow-hidden">
       <div className="relative">
         <img 
-          src={booking?.property?.images?.[0] || booking?.property?.image || "/assets/booking/room.png"} 
+          src={
+            booking?.property?.images?.[0] ||
+            booking?.property?.image ||
+            booking?.property?.coverImage ||
+            "/assets/booking/room.png"
+          } 
           alt="room" 
-          className="w-[300px] h-full object-cover" 
+          className="w-[300px] aspect-square h-full object-cover" 
         />
-        <button className="absolute top-2 right-2 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow">
+        {/* <button className="absolute top-2 right-2 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow">
           <img src="/assets/account/likered.svg" alt="like" className="w-full h-full" />
-        </button>
+        </button> */}
       </div>
       <div className="flex-1 p-3">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-lg">{booking?.property?.name || 'UDS Villa - Next to VFS, Walking to Connaught Place'}</h3>
-            <div className="text-sm text-darkGray">{booking?.property?.address || 'New Delhi'}</div>
+            <h3 className="font-semibold text-lg">
+              {booking?.property?.name || 'UDS Villa - Next to VFS, Walking to Connaught Place'}
+            </h3>
+            <div className="text-sm text-darkGray">
+              {booking?.property?.address?.fullAddress ||
+                booking?.property?.address ||
+                'New Delhi'}
+            </div>
           </div>
           <div className="relative" ref={menuRef}>
             <button 
@@ -122,12 +133,20 @@ const BookingCard = ({ booking, actionLabel = 'Pay Now', actionVariant = 'primar
         </div>
 
       <div className="mt-2 flex items-center gap-3 text-sm">
-        <div className="flex items-center gap-1">
-          <span className="text-yellow-500"><img src="/assets/booking/star.svg" className="w-4 h-4" /></span>
-          <span className="font-semibold">{booking?.property?.rating?.toFixed(1) || '4.6'}</span>
+        {/* <div className="flex items-center gap-1">
+          <span className="text-yellow-500">
+            <img src="/assets/booking/star.svg" className="w-4 h-4" />
+          </span>
+          <span className="font-semibold">
+            {booking?.property?.rating
+              ? booking.property.rating.toFixed(1)
+              : '4.6'}
+          </span>
           <span className="text-darkGray">/5</span>
-        </div>
-        <a className="text-blue underline" href="#">{booking?.property?.reviews?.length || 63} Reviews</a>
+        </div> */}
+        {/* <a className="text-blue underline" href="#">
+          {(booking?.property?.reviews && booking.property.reviews.length) || 63} Reviews
+        </a> */}
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-5 text-[13px] text-darkGray">
@@ -138,26 +157,42 @@ const BookingCard = ({ booking, actionLabel = 'Pay Now', actionVariant = 'primar
           </div>
         ))}
         {booking?.property?.amenities?.length > 6 && (
-          <a className="text-blue underline" href="#">+{booking.property.amenities.length - 6} Amenities</a>
+          <a className="text-blue underline" href="#">
+            +{booking.property.amenities.length - 6} Amenities
+          </a>
         )}
       </div>
 
- <div className="mt-3 flex items-center justify-between">
- <div className="flex flex-col gap-2">
+      <div className="mt-3 flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         {booking?.status === 'pending' && (
           <div className="bg-green text-white px-3 py-2 rounded-md text-sm">Payment Pending</div>
         )}
         <div className="text-green text-sm">
-          {new Date(booking?.checkInDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })} - {new Date(booking?.checkOutDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+          {booking?.checkInDate &&
+            booking?.checkOutDate &&
+            `${new Date(booking.checkInDate).toLocaleDateString('en-US', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+            })} - ${new Date(booking.checkOutDate).toLocaleDateString('en-US', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+            })}`}
         </div>
+        
+ <div className="text-darkGray text-sm">Booking ID: {booking?.bookingId || booking?._id?.slice(-8)}</div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-end gap-2 justify-between">
         <div>
           <div className="flex items-end gap-3">
-            <div className="text-2xl md:text-3xl font-bold">₹{booking?.totalAmount?.toLocaleString('en-IN') || '0'}</div>
+            <div className="text-2xl md:text-3xl font-bold">
+              ₹{(booking?.totalAmount || 0).toLocaleString('en-IN')}
+            </div>
           </div>
-          <div className="text-darkGray text-sm">Booking ID: {booking?.bookingId || booking?._id?.slice(-8)}</div>
+   
         </div>
         {actionVariant === 'primary' ? (
           <button 
@@ -176,6 +211,7 @@ const BookingCard = ({ booking, actionLabel = 'Pay Now', actionVariant = 'primar
         )}
       </div>
  </div>
+
     </div>
 
     {/* Cancel Confirmation Modal */}
@@ -316,19 +352,42 @@ const TripsBookings = () => {
     try {
       const response = await getMyBookings({ page: 1, limit: 100 });
       if (response.data?.success) {
-        const allBookings = response.data.data.bookings || [];
+        const rawBookings = response.data.data.bookings || [];
+
+        // Normalize API response to UI-friendly shape
+        const allBookings = rawBookings.map((booking) => {
+          const property = booking.property || booking.propertyId || {};
+          const checkInDate = booking.checkInDate || booking.checkIn;
+          const checkOutDate = booking.checkOutDate || booking.checkOut;
+          const totalAmount =
+            booking.totalAmount || booking.priceBreakdown?.total || 0;
+
+          return {
+            ...booking,
+            property,
+            checkInDate,
+            checkOutDate,
+            totalAmount,
+            bookingId: booking.bookingId || booking._id,
+          };
+        });
+
         setBookings(allBookings);
-        
+
         const now = new Date();
-        const upcoming = allBookings.filter(booking => {
-          const checkIn = new Date(booking.checkInDate);
-          return checkIn >= now;
+        const upcoming = allBookings.filter((booking) => {
+          const checkIn = booking.checkInDate
+            ? new Date(booking.checkInDate)
+            : null;
+          return checkIn && checkIn >= now;
         });
-        const past = allBookings.filter(booking => {
-          const checkIn = new Date(booking.checkInDate);
-          return checkIn < now;
+        const past = allBookings.filter((booking) => {
+          const checkIn = booking.checkInDate
+            ? new Date(booking.checkInDate)
+            : null;
+          return checkIn && checkIn < now;
         });
-        
+
         setUpcomingBookings(upcoming);
         setPastBookings(past);
       }
@@ -353,20 +412,34 @@ const TripsBookings = () => {
   const filteredUpcoming = upcomingBookings.filter(booking => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
+    const name = booking.property?.name || '';
+    const address =
+      booking.property?.address?.fullAddress ||
+      (typeof booking.property?.address === 'string'
+        ? booking.property.address
+        : '');
+    const id = booking.bookingId || '';
     return (
-      booking.property?.name?.toLowerCase().includes(query) ||
-      booking.property?.address?.toLowerCase().includes(query) ||
-      booking.bookingId?.toLowerCase().includes(query)
+      name.toLowerCase().includes(query) ||
+      address.toLowerCase().includes(query) ||
+      id.toLowerCase().includes(query)
     );
   });
 
   const filteredPast = pastBookings.filter(booking => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
+    const name = booking.property?.name || '';
+    const address =
+      booking.property?.address?.fullAddress ||
+      (typeof booking.property?.address === 'string'
+        ? booking.property.address
+        : '');
+    const id = booking.bookingId || '';
     return (
-      booking.property?.name?.toLowerCase().includes(query) ||
-      booking.property?.address?.toLowerCase().includes(query) ||
-      booking.bookingId?.toLowerCase().includes(query)
+      name.toLowerCase().includes(query) ||
+      address.toLowerCase().includes(query) ||
+      id.toLowerCase().includes(query)
     );
   });
 
@@ -452,8 +525,14 @@ const TripsBookings = () => {
                     </button>
                   </div>
                   <div className="p-3">
-                    <h3 className="font-semibold text-sm">{booking.property?.name || 'Property Name'}</h3>
-                    <div className="text-xs text-darkGray mt-1">{booking.property?.address || 'Location'}</div>
+                    <h3 className="font-semibold text-sm">
+                      {booking.property?.name || 'Property Name'}
+                    </h3>
+                    <div className="text-xs text-darkGray mt-1">
+                      {booking.property?.address?.fullAddress ||
+                        booking.property?.address ||
+                        'Location'}
+                    </div>
                     <div className="border-t border-gray-200 mt-2 pt-2">
                       <div className="text-xs text-darkGray">
                         {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()}

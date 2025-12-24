@@ -30,6 +30,7 @@ const Nav = () => {
     await refreshProfile();
     setIsModalOpen(false);
     setStep(1);
+    // Note: ProtectedRoute will automatically redirect to /account if profile is incomplete
   };
 
   return (

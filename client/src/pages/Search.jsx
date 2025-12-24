@@ -1,5 +1,5 @@
 import Result from "../components/search/Result";
-import Filter from "../components/search/Filter";
+// import Filter from "../components/search/Filter";
 import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LocationSelector from "../components/common/LocationSelector";
@@ -10,7 +10,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import FilterChips from "../components/search/FilterChips";
 import SortDropdown from "../components/search/SortDropdown";
-import SearchTabs from "../components/search/SearchTabs";
+// import SearchTabs from "../components/search/SearchTabs";
 import Pagination from "../components/common/Pagination";
 
 // Helper function to parse URL parameters
@@ -45,8 +45,9 @@ const mapSortByToAPI = (sortBy) => {
   const sortMap = {
     "price-low": "price_low_to_high",
     "price-high": "price_high_to_low",
-    "rating": "rating",
-    "distance": "distance",
+    // rating/distance are not supported by backend sort; map to recommended
+    "rating": "recommended",
+    "distance": "recommended",
     "recommended": "recommended",
   };
   return sortMap[sortBy] || "recommended";
@@ -54,9 +55,8 @@ const mapSortByToAPI = (sortBy) => {
 
 // Default filters structure
 const DEFAULT_FILTERS = {
-  priceRange: { min: 0, max: 0 },
+  // API supports only property name search as a filter
   propertySearch: "",
-  selectedFilters: {},
 };
 
 const Search = () => {
@@ -82,7 +82,8 @@ const Search = () => {
   // UI state
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sortBy, setSortBy] = useState("recommended");
-  const [activeTab, setActiveTab] = useState("all-stay");
+  // NOTE: Tabs UI removed from page; keeping state commented for future use if needed.
+  // const [activeTab, setActiveTab] = useState("all-stay");
 
   // Parse URL parameters on mount and when URL changes
   useEffect(() => {
@@ -100,15 +101,7 @@ const Search = () => {
     if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
       fetchProperties();
     }
-  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters, activeTab]);
-
-  // Fetch properties when dependencies change
-  useEffect(() => {
-    // Only fetch if we have required parameters
-    if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
-      fetchProperties();
-    }
-  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters, activeTab]);
+  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters.propertySearch]);
 
   // Fetch properties with current parameters
   const fetchProperties = useCallback(async () => {
@@ -116,7 +109,8 @@ const Search = () => {
     setError(null);
     
     try {
-      // Build API parameters
+      // Build API parameters - Only use filters supported by the API
+      // API supports: whereTo, checkIn, checkOut, adults, childrens, rooms, page, limit, sortBy, search
       const apiParams = {
         whereTo: searchParams.location,
         checkIn: searchParams.checkIn,
@@ -129,55 +123,61 @@ const Search = () => {
         sortBy: mapSortByToAPI(sortBy),
       };
       
-      // Add property search if available
+      // Add property search if available (API supports 'search' parameter)
       if (filters.propertySearch) {
         apiParams.search = filters.propertySearch;
       }
       
-      // Add price filter if set
-      if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
-        if (filters.priceRange.min > 0) {
-          apiParams.minPrice = filters.priceRange.min;
-        }
-        if (filters.priceRange.max > 0) {
-          apiParams.maxPrice = filters.priceRange.max;
-        }
-      }
+      // NOTE: The following filters are NOT supported by the API and are commented out:
+      // - minPrice/maxPrice (price range filtering)
+      // - amenities
+      // - propertyType
+      // - starRating/rating
+      // - All other selectedFilters
       
-      // Add other selected filters
-      const additionalFilters = {};
+      // // Add price filter if set - NOT SUPPORTED BY API
+      // if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
+      //   if (filters.priceRange.min > 0) {
+      //     apiParams.minPrice = filters.priceRange.min;
+      //   }
+      //   if (filters.priceRange.max > 0) {
+      //     apiParams.maxPrice = filters.priceRange.max;
+      //   }
+      // }
       
-      Object.entries(filters.selectedFilters || {}).forEach(([key, values]) => {
-        if (values && values.length > 0) {
-          switch (key) {
-            case "amenities":
-              additionalFilters.amenities = values.join(",");
-              break;
-            case "propertyType":
-              additionalFilters.propertyType = values.join(",");
-              break;
-            case "starRating":
-              if (values.length > 0) {
-                additionalFilters.rating = Math.min(...values);
-              }
-              break;
-            default:
-              additionalFilters[key] = values.join(",");
-          }
-        }
-      });
+      // // Add other selected filters - NOT SUPPORTED BY API
+      // const additionalFilters = {};
+      // Object.entries(filters.selectedFilters || {}).forEach(([key, values]) => {
+      //   if (values && values.length > 0) {
+      //     switch (key) {
+      //       case "amenities":
+      //         additionalFilters.amenities = values.join(",");
+      //         break;
+      //       case "propertyType":
+      //         additionalFilters.propertyType = values.join(",");
+      //         break;
+      //       case "starRating":
+      //         if (values.length > 0) {
+      //           additionalFilters.rating = Math.min(...values);
+      //         }
+      //         break;
+      //       default:
+      //         additionalFilters[key] = values.join(",");
+      //     }
+      //   }
+      // });
       
-      // Apply tab-based filtering (only if not already set)
-      if (!additionalFilters.propertyType) {
-        if (activeTab === "hotels") {
-          additionalFilters.propertyType = "hotel";
-        } else if (activeTab === "homes") {
-          additionalFilters.propertyType = "villa,apartment,home";
-        }
-      }
+      // // Apply tab-based filtering - NOT SUPPORTED BY API
+      // if (!additionalFilters.propertyType) {
+      //   if (activeTab === "hotels") {
+      //     additionalFilters.propertyType = "hotel";
+      //   } else if (activeTab === "homes") {
+      //     additionalFilters.propertyType = "villa,apartment,home";
+      //   }
+      // }
       
-      // Make API call
-      const response = await getFilteredProperties(apiParams, additionalFilters);
+      // Make API call - only pass apiParams, no additionalFilters
+      const response = await getFilteredProperties(apiParams, {});
       
       if (response.data?.success) {
         const data = response.data.data;
@@ -201,10 +201,21 @@ const Search = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [searchParams, currentPage, sortBy, filters, activeTab]);
+  }, [searchParams, currentPage, sortBy, filters.propertySearch]);
 
   // Handle main search form submission
   const handleSearch = () => {
+    // Validate required fields
+    if (!searchParams.location) {
+      alert("Please select a location.");
+      return;
+    }
+
+    if (!searchParams.checkIn || !searchParams.checkOut) {
+      alert("Please select both check-in and check-out dates.");
+      return;
+    }
+
     // Reset to first page on new search
     setCurrentPage(1);
     
@@ -247,29 +258,18 @@ const Search = () => {
     setCurrentPage(1);
   };
 
-  // Handle tab change
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setCurrentPage(1);
-  };
+  // Tabs are currently disabled/hidden from the UI.
+  // const handleTabChange = (tab) => {
+  //   setActiveTab(tab);
+  //   setCurrentPage(1);
+  // };
 
   // Remove individual filter
-  const removeFilter = (filterKey, filterValue) => {
-    setFilters(prev => {
-      const newFilters = { ...prev };
-      
-      if (filterKey === "propertySearch") {
-        newFilters.propertySearch = "";
-      } else if (filterKey === "priceRange") {
-        newFilters.priceRange = { min: 0, max: 0 };
-      } else if (newFilters.selectedFilters[filterKey]) {
-        newFilters.selectedFilters[filterKey] = 
-          newFilters.selectedFilters[filterKey].filter(item => item !== filterValue);
-      }
-      
-      return newFilters;
-    });
-    
+  const removeFilter = (filterKey) => {
+    setFilters(prev => ({
+      ...prev,
+      propertySearch: filterKey === "propertySearch" ? "" : prev.propertySearch,
+    }));
     setCurrentPage(1);
   };
 
@@ -297,11 +297,11 @@ const Search = () => {
     navigate(`/search?${queryParams}`, { replace: true });
   };
 
-  // Get active filter chips for display
+  // Get active filter chips for display - Only show supported filters
   const getActiveFilterChips = () => {
     const chips = [];
     
-    // Add property search chip
+    // Add property search chip (API supports 'search' parameter)
     if (filters.propertySearch) {
       chips.push({
         key: "propertySearch",
@@ -310,27 +310,31 @@ const Search = () => {
       });
     }
     
-    // Add price range chip
-    if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
-      chips.push({
-        key: "priceRange",
-        value: `${filters.priceRange.min}-${filters.priceRange.max}`,
-        label: `Price: ₹${filters.priceRange.min} - ₹${filters.priceRange.max}`,
-      });
-    }
+    // NOTE: The following filters are NOT supported by the API and are commented out:
+    // - Price range (minPrice/maxPrice not in API)
+    // - All selectedFilters (amenities, propertyType, etc. not in API)
     
-    // Add other selected filters
-    Object.entries(filters.selectedFilters).forEach(([filterKey, filterValues]) => {
-      if (filterValues && filterValues.length > 0) {
-        filterValues.forEach(value => {
-          chips.push({
-            key: filterKey,
-            value,
-            label: `${filterKey}: ${value}`,
-          });
-        });
-      }
-    });
+    // // Add price range chip - NOT SUPPORTED BY API
+    // if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
+    //   chips.push({
+    //     key: "priceRange",
+    //     value: `${filters.priceRange.min}-${filters.priceRange.max}`,
+    //     label: `Price: ₹${filters.priceRange.min} - ₹${filters.priceRange.max}`,
+    //   });
+    // }
+    
+    // // Add other selected filters - NOT SUPPORTED BY API
+    // Object.entries(filters.selectedFilters).forEach(([filterKey, filterValues]) => {
+    //   if (filterValues && filterValues.length > 0) {
+    //     filterValues.forEach(value => {
+    //       chips.push({
+    //         key: filterKey,
+    //         value,
+    //         label: `${filterKey}: ${value}`,
+    //       });
+    //     });
+    //   }
+    // });
     
     return chips;
   };
@@ -413,27 +417,31 @@ const Search = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filters Sidebar */}
+          {/* Filters Sidebar - temporarily removed as per requirement */}
+          {/*
           <aside className="lg:w-1/4">
             <Filter 
               onFiltersChange={handleFiltersChange}
               currentFilters={filters}
             />
           </aside>
+          */}
 
           {/* Results Section */}
-          <main className="lg:w-3/4">
-            {/* Tabs */}
+          <main className="w-full lg:w-full">
+            {/* Tabs removed from search page */}
+            {/*
             <SearchTabs
               activeTab={activeTab}
               onTabChange={handleTabChange}
             />
+            */}
 
             {/* Filters Bar */}
             <div className="mt-6 bg-gray-50 px-5 py-4 rounded-xl shadow-sm">
-              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                {/* Results Info */}
-                <div className="flex flex-col gap-3">
+              <div className="space-y-4">
+                {/* Results Info + chips on one line */}
+                <div className="flex flex-col gap-2">
                   <h4 className="text-sm font-medium text-darkBlue">
                     {isLoading ? (
                       "Searching properties..."
@@ -448,7 +456,7 @@ const Search = () => {
                       </>
                     )}
                   </h4>
-                  
+
                   {/* Filter Chips */}
                   {activeFilterChips.length > 0 && (
                     <FilterChips
@@ -459,12 +467,34 @@ const Search = () => {
                   )}
                 </div>
 
-                {/* Sort Dropdown */}
-                <div className="lg:self-start">
-                  <SortDropdown
-                    value={sortBy}
-                    onChange={handleSortChange}
-                  />
+                {/* Search + Sort row */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  {/* Search by property name - wide on desktop */}
+                  <div className="w-full md:flex-1">
+                    <div className="py-2 px-4 flex items-center gap-2 border rounded-full bg-white shadow-sm">
+                      <img src="/assets/search/search.svg" alt="search property" className="w-4 h-4" />
+                      <input
+                        type="text"
+                        value={filters.propertySearch}
+                        onChange={(e) =>
+                          setFilters(prev => ({
+                            ...prev,
+                            propertySearch: e.target.value,
+                          }))
+                        }
+                        className="py-1 outline-0 w-full text-sm"
+                        placeholder="Search by property name"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sort Dropdown aligned to the right */}
+                  <div className="w-full md:w-auto md:ml-3">
+                    <SortDropdown
+                      value={sortBy}
+                      onChange={handleSortChange}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -39,6 +39,11 @@ const handleSearch = () => {
     return;
   }
 
+  if (!dates.checkIn || !dates.checkOut) {
+    alert("Please select both check-in and check-out dates.");
+    return;
+  }
+
   const params = new URLSearchParams({
     location,
     checkIn: dates.checkIn,

@@ -37,7 +37,7 @@ const UserSidebar = ({ onNavigate }) => {
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
-
+{/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/security') 
@@ -52,8 +52,8 @@ const UserSidebar = ({ onNavigate }) => {
               alt="" 
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
-          </div>
-
+          </div> */}
+{/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/identity-verification') 
@@ -68,7 +68,7 @@ const UserSidebar = ({ onNavigate }) => {
               alt="" 
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
@@ -106,7 +106,7 @@ const UserSidebar = ({ onNavigate }) => {
             />
           </div>
 
-          <div 
+          {/* <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/feedback') 
                 ? 'bg-light text-green' 
@@ -120,13 +120,13 @@ const UserSidebar = ({ onNavigate }) => {
               alt="" 
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
-          </div>
+          </div> */}
           
           
           
         </div>
 
-      <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
+      {/* <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
           <h2 className="font-semibold text-sm sm:text-base">Payment info</h2>
 
           <div 
@@ -162,7 +162,7 @@ const UserSidebar = ({ onNavigate }) => {
           </div>
 
          
-        </div>
+        </div> */}
 
       <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
           <h2 className="font-semibold text-sm sm:text-base">Travel activity</h2>
@@ -182,7 +182,7 @@ const UserSidebar = ({ onNavigate }) => {
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
-
+{/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/saved-lists') 
@@ -197,9 +197,9 @@ const UserSidebar = ({ onNavigate }) => {
               alt="" 
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
-          </div>
+          </div> */}
 
-          <div 
+          {/* <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/my-reviews') 
                 ? 'bg-light text-green' 
@@ -213,7 +213,7 @@ const UserSidebar = ({ onNavigate }) => {
               alt="" 
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
-          </div>
+          </div> */}
         </div>
 
 
