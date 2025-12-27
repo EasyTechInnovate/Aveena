@@ -42,6 +42,11 @@ const config = {
         successUrl: process.env.PAYU_SUCCESS_URL,
         failureUrl: process.env.PAYU_FAILURE_URL,
         verifyUrl: process.env.PAYU_VERIFY_URL
+    },
+    msg91: {
+        authKey: process.env.MSG91_AUTH_KEY,
+        smsTemplateId: process.env.MSG91_SMS_TEMPLATE_ID,
+        emailTemplateId: process.env.MSG91_EMAIL_TEMPLATE_ID
     }
 }
 

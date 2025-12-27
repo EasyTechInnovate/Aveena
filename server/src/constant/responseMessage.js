@@ -17,7 +17,8 @@ export default {
         DATABASE_ERROR: 'A database error occurred',
         SERVICE_UNAVAILABLE: 'Service temporarily unavailable',
         DUPLICATE_ENTRY: (field) => `Duplicate entry for ${field}`,
-        INVALID_OPERATION: 'Invalid operation requested'
+        INVALID_OPERATION: 'Invalid operation requested',
+        OTP_EXPIRED: 'The OTP has expired. Please request a new one.',
     },
 
     COMMON: {

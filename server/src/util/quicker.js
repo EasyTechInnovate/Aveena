@@ -26,7 +26,7 @@ export default {
         for (let i = 0; i < length; i++) {
             otp += Math.floor(Math.random() * 10).toString();
         }
-        return '000000';
+        return otp;
     },
     hashOtp: (otp) => {
         const hashedOtp = bcrypt.hashSync(otp, 8);

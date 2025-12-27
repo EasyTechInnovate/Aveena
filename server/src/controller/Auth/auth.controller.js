@@ -3,6 +3,7 @@ import httpResponse from "../../util/httpResponse.js";
 import httpError from "../../util/httpError.js";
 import quicker from "../../util/quicker.js";
 import responseMessage from "../../constant/responseMessage.js";
+import { sendEmail, sendSms } from "../../util/sendOtp.js";
 
 export default {
     sendOtp: async (req, res, next) => {
@@ -43,6 +44,15 @@ export default {
 
             await user.save();
 
+            if(user.phone?.number) {
+                await sendSms((user.phone.countryCode.replace('+', '') + user.phone.number), code);
+            }
+
+            if(user.email) {
+                await sendEmail(user.email, code);
+            }
+
+
             return httpResponse(req, res, 200, responseMessage.customMessage('OTP sent successfully'), null);
 
         } catch (error) {
@@ -65,6 +75,14 @@ export default {
 
             if (!user) {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
+            }
+
+            if(user.verification.expiresAt < new Date()) {
+                return httpError(next, new Error(responseMessage.ERROR.OTP_EXPIRED), req, 400);
+            }
+
+            if(!quicker.compareOtp(verificationCode, user.verification.code)) {
+                return httpError(next, new Error(responseMessage.customMessage('Invalid OTP')), req, 400);
             }
 
             const token = quicker.generateToken({
