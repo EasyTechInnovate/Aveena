@@ -110,6 +110,23 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
             }
 
+            await userModel.find({
+                _id: { $ne: userId },
+                $or: [
+                    { email: email },
+                    { 'phone.number': phone.number }
+                ]
+            }).then(existingUsers => {
+                existingUsers.forEach(existingUser => {
+                    if (existingUser.email === email) {
+                        throw new Error(responseMessage.ERROR.ALREADY_EXISTS('Email'));
+                    }
+                    if (existingUser.phone.number === phone.number) {
+                        throw new Error(responseMessage.ERROR.ALREADY_EXISTS('Phone number'));
+                    }
+                });
+            });
+
             user.firstName = firstName;
             user.lastName = lastName;
             user.email = user.email || email;
