@@ -29,7 +29,7 @@ const TABS = [
 
 export default function BookingOverview({ property, bookingInfo, onBookingInfoChange }) {
   const navigate = useNavigate();
-  const { isAuth } = useAuth();
+  const { isAuth, user } = useAuth();
   const [activeTab, setActiveTab] = useState("Overview");
   const [expanded, setExpanded] = useState(false);
 
@@ -394,6 +394,13 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
   const handleReserve = () => {
     if (!isAuth) {
       alert('Please login or sign up first to proceed with booking');
+      return;
+    }
+
+    // Check if profile is complete
+    if (user && !user.isProfileComplete) {
+      alert('Please complete your profile before booking. You will be redirected to your account page.');
+      navigate('/account');
       return;
     }
 

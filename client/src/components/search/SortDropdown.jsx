@@ -5,8 +5,9 @@ const SortDropdown = ({ value, onChange }) => {
     { value: 'recommended', label: 'Recommended' },
     { value: 'price-low', label: 'Price: Low to High' },
     { value: 'price-high', label: 'Price: High to Low' },
-    { value: 'rating', label: 'Star Rating' },
-    { value: 'distance', label: 'Distance' },
+    // rating/distance are not supported by backend sort; keep commented until available
+    // { value: 'rating', label: 'Star Rating' },
+    // { value: 'distance', label: 'Distance' },
   ];
 
   return (

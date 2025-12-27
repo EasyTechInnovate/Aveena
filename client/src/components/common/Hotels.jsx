@@ -2,12 +2,26 @@ import React from 'react'
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 
 const Hotels = ({ hotels }) => {
   const navigate = useNavigate();
+  const { isAuth, user } = useAuth();
 
   const handleHotelClick = (hotel) => {
+    if (!isAuth) {
+      alert('Please login or sign up first to view property details');
+      return;
+    }
+
+    // Check if profile is complete
+    if (user && !user.isProfileComplete) {
+      alert('Please complete your profile before booking. You will be redirected to your account page.');
+      navigate('/account');
+      return;
+    }
+
     if (hotel._id) {
       navigate(`/booking/${hotel._id}`);
     }
@@ -58,7 +72,7 @@ const Hotels = ({ hotels }) => {
                 />
 
                 {/* Rating */}
-                <motion.div 
+                {/* <motion.div 
                   className="ratings flex gap-2 bg-white px-4 py-1.5 rounded-full absolute top-2 left-2 shadow"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -66,17 +80,17 @@ const Hotels = ({ hotels }) => {
                 >
                   <h2 className="font-semibold">{hotel.rating}</h2>
                   <img src="/assets/star5.svg" alt="rating" className="w-4" />
-                </motion.div>
+                </motion.div> */}
 
                 {/* Like */}
-                <motion.div 
+                {/* <motion.div 
                   className="like bg-white p-3 rounded-full shadow absolute top-2 right-2 flex items-center justify-center cursor-pointer"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ duration: 0.2 }}
                 >
                   <img src="/assets/like.svg" alt="like" className="w-5" />
-                </motion.div>
+                </motion.div> */}
 
                 {/* Best Rated Badge */}
                 {index === 0 && (

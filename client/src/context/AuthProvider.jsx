@@ -59,7 +59,9 @@ export const AuthProvider = ({ children }) => {
     
     getProfile().then(response => {
       if (response.data?.success) {
-        setUser(response.data.data);
+        const userData = response.data.data;
+        setUser(userData);
+        // Note: ProtectedRoute will handle redirect to /account if isProfileComplete is false
       }
     }).catch(err => {
       if (err.response?.status === 401 || 

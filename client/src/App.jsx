@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Nav from "./components/common/Nav";
 // import PartnerNav from "./components/common/PartnerNav";
@@ -19,7 +19,7 @@ import Blog from "./pages/Blog";
 import BlogDetails from "./pages/BlogDetails";
 import Career from "./pages/Career";
 import Checkout from "./pages/Checkout";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Account from "./pages/Account";
 import SecurityPage from "./pages/Security";
 import IdentityVerificationPage from "./pages/IdentityVerification";
@@ -56,6 +56,23 @@ import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Test from "./pages/Test";
+
+// Component to handle profile completion redirect
+const ProfileCompletionGuard = ({ children }) => {
+  const { isAuth, user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only redirect if user is authenticated, profile is incomplete, and not already on account page
+    if (!loading && isAuth && user && !user.isProfileComplete && location.pathname !== "/account") {
+      navigate("/account", { replace: true });
+    }
+  }, [isAuth, user, loading, location.pathname, navigate]);
+
+  return children;
+};
+
 // Wrapper to handle conditional nav
 const Layout = () => {
   const location = useLocation();
@@ -64,6 +81,7 @@ const Layout = () => {
   return (
     <>
  <AuthProvider>
+  <ProfileCompletionGuard>
   <Nav />
 
       <Routes>
@@ -136,6 +154,7 @@ const Layout = () => {
       </Routes>
 
       {!isDashboardRoute && <Footer />}
+  </ProfileCompletionGuard>
  </AuthProvider>
     </>
   );

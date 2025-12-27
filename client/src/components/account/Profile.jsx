@@ -150,11 +150,31 @@ const Profile = () => {
     <div className="border rounded-2xl p-4 sm:p-6 flex-1 max-h-fit w-full">
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
         <div className="relative w-fit">
-          <img
-            src="/assets/account/user.png"
-            alt="user"
-            className="w-14 sm:w-16 aspect-square"
-          />
+          {user?.profilePicture ? (
+            <img
+              src={user.profilePicture}
+              alt={user.firstName || "User"}
+              className="w-14 sm:w-16 aspect-square rounded-full object-cover"
+              onError={(e) => {
+                // Fallback to initials if profile picture fails to load
+                e.target.style.display = 'none';
+                const fallback = e.target.nextElementSibling;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-14 sm:w-16 aspect-square rounded-full bg-green text-white flex items-center justify-center font-semibold text-lg sm:text-xl ${user?.profilePicture ? 'hidden' : ''}`}
+            style={{ display: user?.profilePicture ? 'none' : 'flex' }}
+          >
+            {user?.firstName && user?.lastName
+              ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+              : user?.firstName
+              ? user.firstName.charAt(0).toUpperCase()
+              : user?.email
+              ? user.email.charAt(0).toUpperCase()
+              : "U"}
+          </div>
           <div className="bg-green p-1.5 sm:p-2 rounded-full aspect-square w-fit flex items-center cursor-pointer justify-center absolute bottom-0 -right-2 sm:-right-3">
             <img src="/assets/account/pencil.svg" alt="edit" className="w-2.5 sm:w-3" />
           </div>

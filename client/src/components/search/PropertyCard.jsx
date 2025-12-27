@@ -1,6 +1,7 @@
 import React from "react";
 import { Star, MapPin, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const PropertyCard = ({ property, checkIn, checkOut, adults, childrens, rooms }) => {
   // Helper function to format price
@@ -13,7 +14,8 @@ const PropertyCard = ({ property, checkIn, checkOut, adults, childrens, rooms })
     }).format(price);
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { isAuth, user } = useAuth();
 
   // Calculate total price (price per night × nights)
   const calculateTotalPrice = () => {
@@ -107,6 +109,18 @@ const PropertyCard = ({ property, checkIn, checkOut, adults, childrens, rooms })
 
 
   const handleCardClick = () => {
+    if (!isAuth) {
+      alert('Please login or sign up first to view property details');
+      return;
+    }
+
+    // Check if profile is complete
+    if (user && !user.isProfileComplete) {
+      alert('Please complete your profile before booking. You will be redirected to your account page.');
+      navigate('/account');
+      return;
+    }
+
     // Build URL with query parameters
     const params = new URLSearchParams();
     if (checkIn) params.set('checkIn', checkIn);

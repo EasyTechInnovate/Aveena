@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuth } = useAuth();
+  const { isAuth, user } = useAuth();
   
   const urlParams = new URLSearchParams(location.search);
   const bookingState = location.state || {};
@@ -61,6 +61,14 @@ const Checkout = () => {
       navigate('/');
       return;
     }
+
+    // Check if profile is complete
+    if (user && !user.isProfileComplete) {
+      alert('Please complete your profile before proceeding with checkout. You will be redirected to your account page.');
+      navigate('/account');
+      return;
+    }
+
     if (!bookingData.propertyId || !bookingData.checkIn || !bookingData.checkOut) {
       navigate('/search');
       return;
