@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Nav from "./components/common/Nav";
 // import PartnerNav from "./components/common/PartnerNav";
@@ -63,15 +69,28 @@ const ProfileCompletionGuard = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Routes that REQUIRE a completed profile
+  const restrictedRoutes = [
+    "/checkout",
+    "/payment-methods",
+    "/rewards-wallet",
+  ];
+
   useEffect(() => {
-    // Only redirect if user is authenticated, profile is incomplete, and not already on account page
-    if (!loading && isAuth && user && !user.isProfileComplete && location.pathname !== "/account") {
+    if (loading || !isAuth || !user) return;
+
+    const isRestricted = restrictedRoutes.some((path) =>
+      location.pathname.startsWith(path)
+    );
+
+    if (!user.isProfileComplete && isRestricted) {
       navigate("/account", { replace: true });
     }
   }, [isAuth, user, loading, location.pathname, navigate]);
 
   return children;
 };
+
 
 // Wrapper to handle conditional nav
 const Layout = () => {
@@ -80,82 +99,116 @@ const Layout = () => {
 
   return (
     <>
- <AuthProvider>
-  <ProfileCompletionGuard>
-  <Nav />
+      <AuthProvider>
+        <ProfileCompletionGuard>
+          <Nav />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/partner" element={<Partner />} />
-        <Route path="/tour" element={<Tour />} />
-        <Route path="/visa" element={<Visa />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/cancellation" element={<Cancellation />} />
-        <Route path="/about" element={<About />} />
-        {/* <Route path="/booking" element={<BookingPage />} /> */}
-        <Route path="/booking/:id" element={<BookingPage />} />
-        <Route path="/faq" element={<Faq />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogDetails />} />
-        <Route path="/career" element={<Career />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/security" element={<SecurityPage />} />
-        <Route path="/identity-verification" element={<IdentityVerificationPage />} />
-        <Route path="/customer-support" element={<CustomerSupportPage />} />
-        <Route path="/help-centre" element={<HelpCentre />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/rewards-wallet" element={<RewardsWallet />} />
-        <Route path="/payment-methods" element={<PaymentMethods />} />
-        <Route path="/trips-bookings" element={<TripsBookings />} />
-        <Route path="/saved-lists" element={<SavedLists />} />
-        <Route path="/my-reviews" element={<MyReviews />} />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/partner" element={<Partner />} />
+            <Route path="/tour" element={<Tour />} />
+            <Route path="/visa" element={<Visa />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/cancellation" element={<Cancellation />} />
+            <Route path="/about" element={<About />} />
+            {/* <Route path="/booking" element={<BookingPage />} /> */}
+            <Route path="/booking/:id" element={<BookingPage />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetails />} />
+            <Route path="/career" element={<Career />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/security" element={<SecurityPage />} />
+            <Route
+              path="/identity-verification"
+              element={<IdentityVerificationPage />}
+            />
+            <Route path="/customer-support" element={<CustomerSupportPage />} />
+            <Route path="/help-centre" element={<HelpCentre />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/rewards-wallet" element={<RewardsWallet />} />
+            <Route path="/payment-methods" element={<PaymentMethods />} />
+            <Route path="/trips-bookings" element={<TripsBookings />} />
+            <Route path="/saved-lists" element={<SavedLists />} />
+            <Route path="/my-reviews" element={<MyReviews />} />
 
+            <Route
+              path="/dashboard/partner"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
+            <Route path="/dashboard/property" element={<MyProperty />} />
+            <Route
+              path="/dashboard/partner/view-property/:id"
+              element={<ViewProperty />}
+            />
+            <Route
+              path="/dashboard/partner/booking-details/:id"
+              element={<BookingDetailsPage />}
+            />
+            <Route path="/dashboard/kyc" element={<KycDoc />} />
+            <Route path="/dashboard/sign" element={<SignPatronDoc />} />
+            <Route path="/dashboard/bookings" element={<MyBookings />} />
+            <Route path="/dashboard/revenue" element={<Revenue />} />
 
-        <Route path="/dashboard/partner" element={
-          
-          <ProtectedRoute>
-          <Dashboard />
-       </ProtectedRoute>
-      } />
-       
-        <Route path="/dashboard/property" element={<MyProperty />} />
-        <Route path="/dashboard/partner/view-property/:id" element={<ViewProperty />} />
-        <Route path="/dashboard/partner/booking-details/:id" element={<BookingDetailsPage />} />
-        <Route path="/dashboard/kyc" element={<KycDoc />} />
-        <Route path="/dashboard/sign" element={<SignPatronDoc />} />
-        <Route path="/dashboard/bookings" element={<MyBookings />} />
-        <Route path="/dashboard/revenue" element={<Revenue />} />
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            <Route
+              path="/dashboard/admin/analytics"
+              element={<AdminAnalytics />}
+            />
+            <Route path="/dashboard/admin/help" element={<AdminHelpCenter />} />
+            <Route
+              path="/dashboard/admin/help/ticket/:id"
+              element={<AdminTicketDetail />}
+            />
+            <Route
+              path="/dashboard/admin/bookings"
+              element={<AdminAllBookings />}
+            />
+            <Route
+              path="/dashboard/admin/customers"
+              element={<AdminAllCustomers />}
+            />
+            <Route
+              path="/dashboard/admin/property"
+              element={<AdminAllProperty />}
+            />
+            <Route
+              path="/dashboard/admin/property/edit/:id"
+              element={<EditProperty />}
+            />
+            <Route
+              path="/dashboard/admin/property-owners"
+              element={<AllPropertyOwners />}
+            />
+            <Route
+              path="/dashboard/admin/property-owners/edit/:id"
+              element={<EditPropertyOwner />}
+            />
+            <Route path="/dashboard/admin/offer" element={<AdminOffer />} />
+            <Route
+              path="/dashboard/admin/team"
+              element={<AdminTeamManagement />}
+            />
+            <Route path="/dashboard/admin/profile" element={<AdminProfile />} />
+            <Route
+              path="/dashboard/admin/settings"
+              element={<AdminSettings />}
+            />
 
-        <Route path="/dashboard/admin" element={<AdminDashboard />} />
-        <Route path="/dashboard/admin/analytics" element={<AdminAnalytics />} />
-        <Route path="/dashboard/admin/help" element={<AdminHelpCenter />} />
-        <Route path="/dashboard/admin/help/ticket/:id" element={<AdminTicketDetail />} />
-        <Route path="/dashboard/admin/bookings" element={<AdminAllBookings />} />
-        <Route path="/dashboard/admin/customers" element={<AdminAllCustomers />} />
-        <Route path="/dashboard/admin/property" element={<AdminAllProperty />} />
-        <Route path="/dashboard/admin/property/edit/:id" element={<EditProperty />} />
-        <Route path="/dashboard/admin/property-owners" element={<AllPropertyOwners />} />
-        <Route path="/dashboard/admin/property-owners/edit/:id" element={<EditPropertyOwner />} />
-        <Route path="/dashboard/admin/offer" element={<AdminOffer />} />
-        <Route path="/dashboard/admin/team" element={<AdminTeamManagement />} />
-        <Route path="/dashboard/admin/profile" element={<AdminProfile />} />
-        <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
+            <Route path="/test" element={<Test />} />
+          </Routes>
 
-
-        <Route path="/test" element={<Test />} />
-
-
-
-
-      </Routes>
-
-      {!isDashboardRoute && <Footer />}
-  </ProfileCompletionGuard>
- </AuthProvider>
+          {!isDashboardRoute && <Footer />}
+        </ProfileCompletionGuard>
+      </AuthProvider>
     </>
   );
 };

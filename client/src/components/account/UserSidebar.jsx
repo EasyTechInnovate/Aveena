@@ -22,22 +22,26 @@ const UserSidebar = ({ onNavigate }) => {
         <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
           <h2 className="font-semibold text-sm sm:text-base">Manage account</h2>
 
-          <div 
+          <div
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
-              isActive('/account') 
-                ? 'bg-light text-green' 
-                : 'text-darkGray hover:bg-light'
+              isActive("/account")
+                ? "bg-light text-green"
+                : "text-darkGray hover:bg-light"
             }`}
-            onClick={() => handleNavigation('/account')}
+            onClick={() => handleNavigation("/account")}
           >
             <h3 className="mr-auto text-sm sm:text-base">Personal details</h3>
-            <img 
-              src={isActive('/account') ? "/assets/account/greenArrow.svg" : "/assets/account/blueArrow.svg"} 
-              alt="" 
+            <img
+              src={
+                isActive("/account")
+                  ? "/assets/account/greenArrow.svg"
+                  : "/assets/account/blueArrow.svg"
+              }
+              alt=""
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
-{/* 
+          {/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/security') 
@@ -53,7 +57,7 @@ const UserSidebar = ({ onNavigate }) => {
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div> */}
-{/* 
+          {/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/identity-verification') 
@@ -72,36 +76,48 @@ const UserSidebar = ({ onNavigate }) => {
         </div>
 
         <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
-          <h2 className="font-semibold text-sm sm:text-base">Help and support</h2>
+          <h2 className="font-semibold text-sm sm:text-base">
+            Help and support
+          </h2>
 
-          <div 
+          <div
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
-              isActive('/customer-support') 
-                ? 'bg-light text-green' 
-                : 'text-darkGray hover:bg-light'
+              isActive("/customer-support")
+                ? "bg-light text-green"
+                : "text-darkGray hover:bg-light"
             }`}
-            onClick={() => handleNavigation('/customer-support')}
+            onClick={() => handleNavigation("/customer-support")}
           >
             <h3 className="mr-auto text-sm sm:text-base">Customer Support</h3>
-            <img 
-              src={isActive('/customer-support') ? "/assets/account/greenArrow.svg" : "/assets/account/blueArrow.svg"} 
-              alt="" 
+            <img
+              src={
+                isActive("/customer-support")
+                  ? "/assets/account/greenArrow.svg"
+                  : "/assets/account/blueArrow.svg"
+              }
+              alt=""
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
 
-          <div 
+          <div
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
-              isActive('/help-centre') 
-                ? 'bg-light text-green' 
-                : 'text-darkGray hover:bg-light'
+              isActive("/help-centre")
+                ? "bg-light text-green"
+                : "text-darkGray hover:bg-light"
             }`}
-            onClick={() => handleNavigation('/help-centre')}
+            onClick={() => handleNavigation("/help-centre")}
           >
-            <h3 className="mr-auto text-sm sm:text-base">Visit the Help Centre</h3>
-            <img 
-              src={isActive('/help-centre') ? "/assets/account/greenArrow.svg" : "/assets/account/blueArrow.svg"} 
-              alt="" 
+            <h3 className="mr-auto text-sm sm:text-base">
+              Visit the Help Centre
+            </h3>
+            <img
+              src={
+                isActive("/help-centre")
+                  ? "/assets/account/greenArrow.svg"
+                  : "/assets/account/blueArrow.svg"
+              }
+              alt=""
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
@@ -121,12 +137,9 @@ const UserSidebar = ({ onNavigate }) => {
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div> */}
-          
-          
-          
         </div>
 
-      {/* <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
+        {/* <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
           <h2 className="font-semibold text-sm sm:text-base">Payment info</h2>
 
           <div 
@@ -164,25 +177,31 @@ const UserSidebar = ({ onNavigate }) => {
          
         </div> */}
 
-      <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
-          <h2 className="font-semibold text-sm sm:text-base">Travel activity</h2>
+        <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
+          <h2 className="font-semibold text-sm sm:text-base">
+            Travel activity
+          </h2>
 
-          <div 
+          <div
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
-              isActive('/trips-bookings') 
-                ? 'bg-light text-green' 
-                : 'text-darkGray hover:bg-light'
+              isActive("/trips-bookings")
+                ? "bg-light text-green"
+                : "text-darkGray hover:bg-light"
             }`}
-            onClick={() => handleNavigation('/trips-bookings')}
+            onClick={() => handleNavigation("/trips-bookings")}
           >
             <h3 className="mr-auto text-sm sm:text-base">Trips and bookings</h3>
-            <img 
-              src={isActive('/trips-bookings') ? "/assets/account/greenArrow.svg" : "/assets/account/blueArrow.svg"} 
-              alt="" 
+            <img
+              src={
+                isActive("/trips-bookings")
+                  ? "/assets/account/greenArrow.svg"
+                  : "/assets/account/blueArrow.svg"
+              }
+              alt=""
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
-{/* 
+          {/* 
           <div 
             className={`flex p-3 sm:p-4 w-full rounded cursor-pointer ${
               isActive('/saved-lists') 
@@ -215,8 +234,6 @@ const UserSidebar = ({ onNavigate }) => {
             />
           </div> */}
         </div>
-
-
       </div>
     </>
   );

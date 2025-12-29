@@ -24,22 +24,31 @@ servicesAxiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+
 servicesAxiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error?.response?.status === 401) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message?.toLowerCase() || "";
+
+    // Logout ONLY when token is actually invalid
+    const shouldLogout =
+      status === 401 &&
+      (
+        message.includes("jwt malformed") ||
+        message.includes("invalid token") ||
+        message.includes("token expired") ||
+        message.includes("unauthorized")
+      );
+
+    if (shouldLogout) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
-        window.location.href = "/";
-      }
-    }
-    
-    if (error?.response?.status === 500 && 
-        error?.response?.data?.message?.toLowerCase().includes('jwt malformed')) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
+
+      if (
+        !window.location.pathname.includes("/login") &&
+        !window.location.pathname.includes("/signup")
+      ) {
         window.location.href = "/";
       }
     }

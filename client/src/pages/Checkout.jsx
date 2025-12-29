@@ -516,7 +516,7 @@ const Checkout = () => {
               <div className="rounded-xl p-4 border my-4">
                 <div className="flex gap-6 pb-4 border-b mb-4">
                   {/* Property Image */}
-                  <div className="w-48 aspect-video  flex-shrink-0">
+                  <div className="w-48 aspect-video shrink-0">
                     <img
                       src={bookingData.propertyImage || "/assets/checkout/Outdoors.png"}
                       alt="Villa"

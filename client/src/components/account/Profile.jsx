@@ -112,7 +112,9 @@ const Profile = () => {
         ...(formData.gender && { gender: formData.gender }),
         ...(Object.values(formData.address).some((val) => val) && {
           address: {
-            ...(formData.address.country && { country: formData.address.country }),
+            ...(formData.address.country && {
+              country: formData.address.country,
+            }),
             ...(formData.address.city && { city: formData.address.city }),
             ...(formData.address.state && { state: formData.address.state }),
             ...(formData.address.aptorsuiteorfloor && {
@@ -121,7 +123,9 @@ const Profile = () => {
             ...(formData.address.fullAddress && {
               fullAddress: formData.address.fullAddress,
             }),
-            ...(formData.address.zipCode && { zipCode: formData.address.zipCode }),
+            ...(formData.address.zipCode && {
+              zipCode: formData.address.zipCode,
+            }),
           },
         }),
       };
@@ -157,26 +161,30 @@ const Profile = () => {
               className="w-14 sm:w-16 aspect-square rounded-full object-cover"
               onError={(e) => {
                 // Fallback to initials if profile picture fails to load
-                e.target.style.display = 'none';
+                e.target.style.display = "none";
                 const fallback = e.target.nextElementSibling;
-                if (fallback) fallback.style.display = 'flex';
+                if (fallback) fallback.style.display = "flex";
               }}
             />
           ) : null}
-          <div 
-            className={`w-14 sm:w-16 aspect-square rounded-full bg-green text-white flex items-center justify-center font-semibold text-lg sm:text-xl ${user?.profilePicture ? 'hidden' : ''}`}
-            style={{ display: user?.profilePicture ? 'none' : 'flex' }}
+          <div
+            className={`w-14 sm:w-16 aspect-square rounded-full bg-green text-white flex items-center justify-center font-semibold text-lg sm:text-xl ${user?.profilePicture ? "hidden" : ""}`}
+            style={{ display: user?.profilePicture ? "none" : "flex" }}
           >
             {user?.firstName && user?.lastName
               ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
               : user?.firstName
-              ? user.firstName.charAt(0).toUpperCase()
-              : user?.email
-              ? user.email.charAt(0).toUpperCase()
-              : "U"}
+                ? user.firstName.charAt(0).toUpperCase()
+                : user?.email
+                  ? user.email.charAt(0).toUpperCase()
+                  : "U"}
           </div>
           <div className="bg-green p-1.5 sm:p-2 rounded-full aspect-square w-fit flex items-center cursor-pointer justify-center absolute bottom-0 -right-2 sm:-right-3">
-            <img src="/assets/account/pencil.svg" alt="edit" className="w-2.5 sm:w-3" />
+            <img
+              src="/assets/account/pencil.svg"
+              alt="edit"
+              className="w-2.5 sm:w-3"
+            />
           </div>
         </div>
 
@@ -252,19 +260,16 @@ const Profile = () => {
               <h4 className="text-xs sm:text-sm font-semibold text-darkGray">
                 Phone number <span className="text-red-500">*</span>
               </h4>
+
               <div className="flex gap-2">
+                {/* Country code (hard-coded) */}
+                <div className="p-3 sm:p-4 border rounded-xl bg-gray-100 text-sm sm:text-base font-medium max-w-[120px] flex items-center justify-center">
+                  +91
+                </div>
+
+                {/* Phone number input */}
                 <input
-                  type="text"
-                  className="p-3 sm:p-4 border rounded-xl outline-none w-full text-sm sm:text-base max-w-[120px]"
-                  placeholder="+91"
-                  value={formData.phone.countryCode}
-                  onChange={(e) =>
-                    handleInputChange("phone.countryCode", e.target.value)
-                  }
-                  required
-                />
-                <input
-                  type="text"
+                  type="tel"
                   className="p-3 sm:p-4 border rounded-xl outline-none w-full text-sm sm:text-base"
                   placeholder="1234567890"
                   value={formData.phone.number}

@@ -25,7 +25,7 @@ const Nav = () => {
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  
+
   const handleLoginComplete = async () => {
     await refreshProfile();
     setIsModalOpen(false);
@@ -173,44 +173,43 @@ const Nav = () => {
           setStep(1); // Reset to step 1 when closing
         }}
       >
-    {step === 1 ? (
-  <Step1
-    onNext={({ phone, googleAuth, isProfileComplete: profileComplete }) => {
-      if (googleAuth) {
-        if (profileComplete) {
-          handleLoginComplete();
-        } else {
-          setStep(3);
-        }
-      } else {
-        setPhoneData(phone);
-        setStep(2);
-      }
-    }}
-    onClose={() => setIsModalOpen(false)}
-  />
-) : step === 2 ? (
-  <Step2
-    phone={phoneData}
-    onBack={() => setStep(1)}
-    onNext={({ isProfileComplete: profileComplete }) => {
-      setIsProfileComplete(profileComplete);
-      if (profileComplete) {
-        handleLoginComplete();
-      } else {
-        setStep(3);
-      }
-    }}
-    onClose={() => setIsModalOpen(false)}
-  />
-) : (
-  <Step3
-   phone={phoneData}
-    onClose={handleLoginComplete}
-  />
-)}
-
-
+        {step === 1 ? (
+          <Step1
+            onNext={({
+              phone,
+              googleAuth,
+              isProfileComplete: profileComplete,
+            }) => {
+              if (googleAuth) {
+                if (profileComplete) {
+                  handleLoginComplete();
+                } else {
+                  setStep(3);
+                }
+              } else {
+                setPhoneData(phone);
+                setStep(2);
+              }
+            }}
+            onClose={() => setIsModalOpen(false)}
+          />
+        ) : step === 2 ? (
+          <Step2
+            phone={phoneData}
+            onBack={() => setStep(1)}
+            onNext={({ isProfileComplete: profileComplete }) => {
+              setIsProfileComplete(profileComplete);
+              if (profileComplete) {
+                handleLoginComplete();
+              } else {
+                setStep(3);
+              }
+            }}
+            onClose={() => setIsModalOpen(false)}
+          />
+        ) : (
+          <Step3 phone={phoneData} onClose={handleLoginComplete} />
+        )}
       </Modal>
     </div>
   );

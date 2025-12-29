@@ -70,10 +70,6 @@ const Home = () => {
       </motion.div>
       
       <motion.div variants={sectionVariants}>
-        <Recommended />
-      </motion.div>
-      
-      <motion.div variants={sectionVariants}>
         <Trusted />
       </motion.div>
       
