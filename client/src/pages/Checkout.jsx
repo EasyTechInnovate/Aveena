@@ -1,92 +1,104 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { createBooking, getPropertyById } from '../services';
-import { useAuth } from '../context/AuthContext';
+// client/src/pages/Checkout.jsx
+
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
+import { createBooking, getPropertyById } from "../services";
+import { useAuth } from "../context/AuthContext";
 
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuth, user } = useAuth();
-  
+
   const urlParams = new URLSearchParams(location.search);
   const bookingState = location.state || {};
-  
+
   const bookingData = useMemo(() => {
-    const checkIn = urlParams.get('checkIn') || bookingState.checkIn || '';
-    const checkOut = urlParams.get('checkOut') || bookingState.checkOut || '';
-    const adults = parseInt(urlParams.get('adults')) || bookingState.adults || 2;
-    const childrens = parseInt(urlParams.get('childrens')) || bookingState.childrens || 0;
-    const rooms = parseInt(urlParams.get('rooms')) || bookingState.rooms || 1;
-    const propertyId = urlParams.get('propertyId') || bookingState.propertyId || '';
-    
+    const checkIn = urlParams.get("checkIn") || bookingState.checkIn || "";
+    const checkOut = urlParams.get("checkOut") || bookingState.checkOut || "";
+    const adults =
+      parseInt(urlParams.get("adults")) || bookingState.adults || 2;
+    const childrens =
+      parseInt(urlParams.get("childrens")) || bookingState.childrens || 0;
+    const rooms = parseInt(urlParams.get("rooms")) || bookingState.rooms || 1;
+    const propertyId =
+      urlParams.get("propertyId") || bookingState.propertyId || "";
+
     let nights = bookingState.nights;
     if (!nights && checkIn && checkOut) {
-      nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+      nights = Math.ceil(
+        (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)
+      );
     } else if (!nights) {
       nights = 1;
     }
-    
+
     return {
       propertyId,
       property: bookingState.property || null,
-      propertyName: bookingState.propertyName || '',
-      propertyLocation: bookingState.propertyLocation || '',
-      propertyImage: bookingState.propertyImage || '',
+      propertyName: bookingState.propertyName || "",
+      propertyLocation: bookingState.propertyLocation || "",
+      propertyImage: bookingState.propertyImage || "",
       checkIn,
       checkOut,
       adults,
       childrens,
       rooms,
-      nights
+      nights,
     };
   }, [location.search, location.state]);
-  
+
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
-  const [couponError, setCouponError] = useState('');
-  const [specialRequests, setSpecialRequests] = useState('');
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [specialRequests, setSpecialRequests] = useState("");
   const [pricing, setPricing] = useState({
     base: 0,
     taxes: 0,
     discount: 0,
-    total: 0
+    total: 0,
   });
   const [property, setProperty] = useState(null);
 
   useEffect(() => {
     if (!isAuth) {
-      navigate('/');
+      navigate("/");
       return;
     }
 
-    // Check if profile is complete
     if (user && !user.isProfileComplete) {
-      alert('Please complete your profile before proceeding with checkout. You will be redirected to your account page.');
-      navigate('/account');
+      alert(
+        "Please complete your profile before proceeding with checkout. You will be redirected to your account page."
+      );
+      navigate("/account");
       return;
     }
 
-    if (!bookingData.propertyId || !bookingData.checkIn || !bookingData.checkOut) {
-      navigate('/search');
+    if (
+      !bookingData.propertyId ||
+      !bookingData.checkIn ||
+      !bookingData.checkOut
+    ) {
+      navigate("/search");
       return;
     }
-    
+
     const calculatePricing = (prop) => {
       if (!prop || !bookingData.nights) return;
-      
+
       const basePrice = prop.basePrice || 0;
       const base = basePrice * bookingData.nights * (bookingData.rooms || 1);
       const taxes = base * 0.18;
       const total = base + taxes;
-      
+
       setPricing({
         base,
         taxes,
         discount: 0,
-        total
+        total,
       });
     };
 
@@ -97,7 +109,7 @@ const Checkout = () => {
       calculatePricing(prop);
     } else if (bookingData.propertyId) {
       getPropertyById(bookingData.propertyId)
-        .then(response => {
+        .then((response) => {
           if (response.data?.success) {
             const fullData = response.data.data;
             setProperty(fullData);
@@ -105,9 +117,9 @@ const Checkout = () => {
             calculatePricing(prop);
           }
         })
-        .catch(err => {
-          console.error('Error fetching property:', err);
-          setCouponError('Failed to load property details');
+        .catch((err) => {
+          console.error("Error fetching property:", err);
+          setCouponError("Failed to load property details");
         });
     }
   }, [isAuth, bookingData, navigate]);
@@ -116,8 +128,8 @@ const Checkout = () => {
     if (!termsAccepted) return;
 
     setIsProcessing(true);
-    setCouponError('');
-    
+    setCouponError("");
+
     try {
       const bookingPayload = {
         propertyId: bookingData.propertyId,
@@ -125,10 +137,9 @@ const Checkout = () => {
         checkOutDate: bookingData.checkOut,
         adults: bookingData.adults || 2,
         childrens: bookingData.childrens || 0,
-        noOfRooms: bookingData.rooms || 1
+        noOfRooms: bookingData.rooms || 1,
       };
 
-      // Include coupon code if provided
       if (couponCode.trim()) {
         bookingPayload.couponCode = couponCode.trim().toUpperCase();
       }
@@ -137,25 +148,30 @@ const Checkout = () => {
       try {
         response = await createBooking(bookingPayload);
       } catch (err) {
-        // Handle 404 - booking endpoint not found (server might be down or route doesn't exist)
         if (err.response?.status === 404) {
-          throw new Error('Booking service is currently unavailable. Please try again later.');
+          throw new Error(
+            "Booking service is currently unavailable. Please try again later."
+          );
         }
-        
-        // If error is related to coupon and coupon was provided, retry without coupon
-        if (couponCode.trim() && (err.response?.data?.message?.toLowerCase().includes('route') || 
-            err.response?.data?.message?.toLowerCase().includes('coupon') ||
-            err.response?.data?.message?.toLowerCase().includes('not found') ||
-            err.response?.status === 404)) {
-          // Remove coupon and retry
+
+        if (
+          couponCode.trim() &&
+          (err.response?.data?.message?.toLowerCase().includes("route") ||
+            err.response?.data?.message?.toLowerCase().includes("coupon") ||
+            err.response?.data?.message?.toLowerCase().includes("not found") ||
+            err.response?.status === 404)
+        ) {
           delete bookingPayload.couponCode;
-          setCouponError('Coupon code could not be applied. Proceeding without coupon.');
+          setCouponError(
+            "Coupon code could not be applied. Proceeding without coupon."
+          );
           try {
             response = await createBooking(bookingPayload);
           } catch (retryErr) {
-            // If retry also fails with 404, it's a server issue
             if (retryErr.response?.status === 404) {
-              throw new Error('Booking service is currently unavailable. Please try again later.');
+              throw new Error(
+                "Booking service is currently unavailable. Please try again later."
+              );
             }
             throw retryErr;
           }
@@ -163,299 +179,480 @@ const Checkout = () => {
           throw err;
         }
       }
-      
+
       if (response.data?.success) {
         const { payuUrl, params } = response.data.data;
-        
-        // Create and submit form to PayU payment gateway
-        const form = document.createElement('form');
-        form.method = 'POST';
+
+        const form = document.createElement("form");
+        form.method = "POST";
         form.action = payuUrl;
-        
-        Object.keys(params).forEach(key => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
+
+        Object.keys(params).forEach((key) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
           input.name = key;
           input.value = params[key];
           form.appendChild(input);
         });
-        
+
         document.body.appendChild(form);
         form.submit();
       } else {
-        throw new Error(response.data?.message || 'Failed to create booking');
+        throw new Error(response.data?.message || "Failed to create booking");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to complete booking';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to complete booking";
       setCouponError(errorMessage);
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-20 pb-10">
       {/* Header with Breadcrumbs */}
       <div className="">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="text-sm text-blue">
+        <div className="max-w-7xl mx-auto px-4 py-4 overflow-x-auto">
+          <nav className="text-xs md:text-sm text-blue flex items-center whitespace-nowrap">
             <span>Home</span>
-         <span className="mx-2 text-darkGray">&gt;</span>
-<span>Villas in Alibaug</span>
-<span className="mx-2 text-darkGray">&gt;</span>
-<span>Pranaam Villa in Alibaug</span>
-<span className="mx-2 text-darkGray">&gt;</span>
-<span className="text-gray-900 font-medium">Payment</span>
-
+            <span className="mx-2 text-darkGray">&gt;</span>
+            <span>Villas</span>
+            <span className="mx-2 text-darkGray">&gt;</span>
+            <span className="truncate max-w-[150px] md:max-w-xs">
+              {bookingData.propertyName || "Property"}
+            </span>
+            <span className="mx-2 text-darkGray">&gt;</span>
+            <span className="text-gray-900 font-medium">Payment</span>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Booking Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Property Information */}
-            <div className="border rounded-lg p-6 ">
-              <div className="flex gap-6">
-                <div>
-                  <div className="flex-1 border-b-2 h-fit">
-                    <h1 className="text-xl font-semibold mb-2">
-                      {bookingData.propertyName || 'UDS Villa - Next to VFS, Walking to Connaught Place'}
+            {/* Property Information Card */}
+            <div className="bg-white border rounded-xl p-4 md:p-6 shadow-sm">
+              <div className="flex flex-col-reverse md:flex-row gap-6">
+                <div className="flex-1">
+                  <div className="border-b-2 pb-4 mb-4">
+                    <h1 className="text-lg md:text-xl font-semibold mb-2 leading-tight">
+                      {bookingData.propertyName ||
+                        "UDS Villa - Next to VFS, Walking to Connaught Place"}
                     </h1>
-                    <p className="text-gray-600 text-sm mb-4">{bookingData.propertyLocation || 'New Delhi'}</p>
-
-
+                    <p className="text-gray-600 text-sm">
+                      {bookingData.propertyLocation || "New Delhi"}
+                    </p>
                   </div>
 
+                  {/* Dates Section */}
                   <div>
-                    <div className='flex items-center justify-between py-4'>
-                      <div className='flex flex-col gap-2'>
-                        <h4 className='font-medium'>Check in</h4>
-                        <div className='flex items-center gap-2'>
-                          <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
-                          <div className='flex flex-col'>
-                            <h3>{bookingData.checkIn ? new Date(bookingData.checkIn).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
-                            <h5>(From 02:00 PM)</h5>
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-2 md:py-4 gap-4 md:gap-0">
+                      {/* Check In */}
+                      <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <h4 className="font-medium text-sm text-gray-500 uppercase tracking-wide">
+                          Check in
+                        </h4>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gray-50 rounded-lg">
+                            <img
+                              src="/assets/checkout/date.svg"
+                              alt="calendar"
+                              className="w-6 md:w-8"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <h3 className="font-semibold text-gray-900">
+                              {bookingData.checkIn
+                                ? new Date(
+                                    bookingData.checkIn
+                                  ).toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                                : "Select Date"}
+                            </h3>
+                            <h5 className="text-xs text-gray-500">
+                              (From 02:00 PM)
+                            </h5>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center bg-darkGreen px-4 py-2 rounded-xl text-sm text-white">
-                        <h5>{bookingData.nights ? `For ${bookingData.nights} Night${bookingData.nights > 1 ? 's' : ''}` : 'For 1 Night'}</h5>
+                      {/* Nights Pill */}
+                      <div className="self-start md:self-center flex items-center bg-darkGreen/10 border border-darkGreen/20 px-3 py-1 rounded-full text-xs md:text-sm text-darkGreen font-medium my-2 md:my-0">
+                        <h5>
+                          {bookingData.nights
+                            ? `${bookingData.nights} Night${bookingData.nights > 1 ? "s" : ""}`
+                            : "1 Night"}
+                        </h5>
                       </div>
 
-                      <div className='flex flex-col gap-2'>
-                        <h4 className='font-medium'>Check out</h4>
-                        <div className='flex items-center gap-2'>
-                          <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
-                          <div className='flex flex-col'>
-                            <h3>{bookingData.checkOut ? new Date(bookingData.checkOut).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
-                            <h5>(Until 11:00 AM)</h5>
+                      {/* Check Out */}
+                      <div className="flex flex-col gap-2 w-full md:w-auto text-left md:text-right">
+                        <h4 className="font-medium text-sm text-gray-500 uppercase tracking-wide">
+                          Check out
+                        </h4>
+                        <div className="flex items-center gap-3 md:flex-row-reverse">
+                          <div className="p-2 bg-gray-50 rounded-lg">
+                            <img
+                              src="/assets/checkout/date.svg"
+                              alt="calendar"
+                              className="w-6 md:w-8"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <h3 className="font-semibold text-gray-900">
+                              {bookingData.checkOut
+                                ? new Date(
+                                    bookingData.checkOut
+                                  ).toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                                : "Select Date"}
+                            </h3>
+                            <h5 className="text-xs text-gray-500">
+                              (Until 11:00 AM)
+                            </h5>
                           </div>
                         </div>
                       </div>
-
-
-
                     </div>
                   </div>
 
-                  <div className='flex items-center gap-8 mt-4'>
-                    <div className='flex flex-col gap-2'>
-                      <h4 className='font-medium'>
+                  {/* Guests & Rooms Section */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-12 mt-6 pt-4 border-t border-gray-100">
+                    <div className="flex flex-col gap-2">
+                      <h4 className="font-medium text-sm text-gray-500 uppercase tracking-wide">
                         No. of Rooms
                       </h4>
-                      <div className='flex items-center gap-2'>
-                        <img src="/assets/checkout/rooms.svg" alt="room" className="w-10" />
-                        <h3 className='font-semibold'>{bookingData.rooms || 1} Room{(bookingData.rooms || 1) > 1 ? 's' : ''}</h3>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src="/assets/checkout/rooms.svg"
+                          alt="room"
+                          className="w-6"
+                        />
+                        <h3 className="font-semibold text-gray-900">
+                          {bookingData.rooms || 1} Room
+                          {(bookingData.rooms || 1) > 1 ? "s" : ""}
+                        </h3>
                       </div>
                     </div>
-                    <div className='flex flex-col gap-2'>
-                      <h4 className='font-medium'>
+                    <div className="flex flex-col gap-2">
+                      <h4 className="font-medium text-sm text-gray-500 uppercase tracking-wide">
                         Guests
                       </h4>
-                      <div className='flex items-center gap-2'>
-                        <img src="/assets/checkout/guests.svg" alt="room" className="w-10" />
+                      <div className="flex items-center gap-3">
+                        <img
+                          src="/assets/checkout/guests.svg"
+                          alt="guests"
+                          className="w-6"
+                        />
                         <div>
-                          <h3 className='font-semibold'>{((bookingData.adults || 2) + (bookingData.childrens || 0))} Guest{((bookingData.adults || 2) + (bookingData.childrens || 0)) > 1 ? 's' : ''}</h3>
-                          <p className='text-sm text-darkGray'>({bookingData.adults || 2} Adult{(bookingData.adults || 2) > 1 ? 's' : ''}{bookingData.childrens ? `, ${bookingData.childrens} Child${bookingData.childrens > 1 ? 'ren' : ''}` : ''})</p>
+                          <h3 className="font-semibold text-gray-900">
+                            {(bookingData.adults || 2) +
+                              (bookingData.childrens || 0)}{" "}
+                            Guest
+                            {(bookingData.adults || 2) +
+                              (bookingData.childrens || 0) >
+                            1
+                              ? "s"
+                              : ""}
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            ({bookingData.adults || 2} Adult,{" "}
+                            {bookingData.childrens || 0} Children)
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
-
-
                 </div>
 
-                <div className="">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex items-center gap-2">
-                      <img src="/assets/booking/guestFav_left_leaf.svg" alt="rating" className="h-5" />
-                      <span className="font-bold text-nowrap text-md">Like a 5*</span>
-                      <img src="/assets/booking/guestFav_right_leaf.svg" alt="rating" className="h-5" />
+                {/* Right Side Image & Ratings (Desktop: Right, Mobile: Top) */}
+                <div className="w-full md:w-[240px] shrink-0">
+                  <div className="flex flex-wrap items-center gap-3 mb-3 text-xs md:text-sm">
+                    <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-green-700 font-bold border border-green-100">
+                      <img
+                        src="/assets/booking/guestFav_left_leaf.svg"
+                        alt=""
+                        className="h-3"
+                      />
+                      <span>Guest Favorite</span>
+                      <img
+                        src="/assets/booking/guestFav_right_leaf.svg"
+                        alt=""
+                        className="h-3"
+                      />
                     </div>
                     <div className="flex items-center gap-1">
-                      <img src="/assets/booking/star.svg" alt="star" className="w-4" />
-                      <span className="font-semibold">4.6</span>
-                      <span className="text-gray-500">/5</span>
+                      <img
+                        src="/assets/booking/star.svg"
+                        alt="star"
+                        className="w-3"
+                      />
+                      <span className="font-bold">4.6</span>
+                      <span className="text-gray-400">/5</span>
                     </div>
-                    <a href="#" className="text-blue text-nowrap underline font-semibold text-sm">
+                    <span className="text-blue font-semibold underline cursor-pointer">
                       63 Reviews
-                    </a>
+                    </span>
                   </div>
                   <img
-                    src={bookingData.propertyImage || "/assets/checkout/Outdoors.png"}
-                    alt="Villa"
-                    className="w-[210px] ml-auto object-cover rounded-lg"
+                    src={
+                      bookingData.propertyImage ||
+                      "/assets/checkout/Outdoors.png"
+                    }
+                    alt="Property"
+                    className="w-full h-48 md:h-[220px] object-cover rounded-xl shadow-sm"
                   />
                 </div>
               </div>
             </div>
 
-
             {/* Important Information */}
-            <div className="rounded-lg p-6 border">
-              <h2 className="text-lg font-semibold mb-3">Important information</h2>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                This property offers transfers from the airport. Guests must contact the property with arrival details before travel, using the contact information on the booking confirmation. To make arrangements for check-in please contact the property at least 24 hours before arrival using the information on the booking confirmation. Guests must contact the property in advance for check-in instructions. Front desk staff will greet guests on arrival at the property. Please note that Expedia and the hotel will not issue a tax invoice. You will receive a commercial receipt for the purpose of the transaction.
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-200">
+              <h2 className="text-lg font-semibold mb-3">
+                Important information
+              </h2>
+              <p className="text-sm text-gray-600 leading-relaxed text-justify">
+                This property offers transfers from the airport. Guests must
+                contact the property with arrival details before travel, using
+                the contact information on the booking confirmation. To make
+                arrangements for check-in please contact the property at least
+                24 hours before arrival using the information on the booking
+                confirmation. Guests must contact the property in advance for
+                check-in instructions.
               </p>
             </div>
 
             {/* Booking & Cancellation Policy */}
-            <div className="rounded-lg p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-semibold mb-4">Booking & Cancellation policy</h2>
-              <div className="mb-4">
-                <div className="">
-                  <img src="/assets/checkout/cancelation.svg" alt="refund" className="w-10 mb-4" />
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">
+                Booking & Cancellation policy
+              </h2>
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-2 bg-red-50 rounded-full shrink-0">
+                  <img
+                    src="/assets/checkout/cancelation.svg"
+                    alt="refund"
+                    className="w-6 md:w-8"
+                  />
                 </div>
                 <div>
-                  <p className="font-medium
-                 text-darkBlue
-                 ">No Refund</p>
-                  <p className="text-sm text-darkGray">On your selected dates</p>
+                  <p className="font-semibold text-darkBlue">No Refund</p>
+                  <p className="text-sm text-gray-500">
+                    On your selected dates
+                  </p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <button className="px-4 py-2 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
                   Refund Policy
                 </button>
-                <button className="px-4 py-2 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
                   Home Rules and Policy
                 </button>
               </div>
             </div>
 
             {/* Assistance Section */}
-            <div className="bg-[linear-gradient(275.02deg,#9ccdfb33_0%,#fcc99233_100%),linear-gradient(107.22deg,#17ff581c_1.46%,#016c6e1c_99.96%)] rounded-lg p-4 border">
-              <div className="flex items-center justify-between">
-                <p className="font-semibold">Any issue to complete your booking?</p>
-                <button className="text-darkGray border border-darkGray rounded-lg px-4 py-2 font-medium cursor-pointer">
+            <div className="bg-[linear-gradient(275.02deg,#9ccdfb33_0%,#fcc99233_100%),linear-gradient(107.22deg,#17ff581c_1.46%,#016c6e1c_99.96%)] rounded-xl p-4 border border-blue-100">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <p className="font-semibold text-gray-800">
+                  Any issue to complete your booking?
+                </p>
+                <button className="text-darkGray bg-white/50 border border-darkGray rounded-lg px-6 py-2 font-medium cursor-pointer hover:bg-white transition-colors w-full sm:w-auto">
                   Click here
                 </button>
               </div>
             </div>
 
             {/* Special Requests */}
-            <div className="rounded-lg p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-semibold mb-4">Any special requests?</h2>
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">
+                Any special requests?
+              </h2>
               <textarea
-                placeholder="Write here......"
+                placeholder="Write your request here (optional)..."
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
-                className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full h-32 p-4 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               />
             </div>
           </div>
 
           {/* Right Column - Price Details */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8">
-
-              <div className='border rounded-xl'>
-
+            <div className="sticky top-24">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 {/* Zero Convenience Fees Message */}
-                <div className="mb-6 mx-4 pt-4 border-b pb-3">
-                  <h2 className="text-lg font-semibold mb-4">Price details</h2>
-                  <div className="flex items-center gap-2">
-                    <p className="text-darkGreen font-normal text-nowrap text-sm">
+                <div className="p-4 border-b border-gray-100 bg-green-50/50">
+                  <h2 className="text-lg font-semibold mb-2">Price details</h2>
+                  <div className="flex items-start gap-2">
+                    <img
+                      src="/assets/checkout/info-circle.svg"
+                      alt="info"
+                      className="w-4 mt-0.5"
+                    />
+                    <p className="text-darkGreen text-xs md:text-sm font-medium">
                       You pay zero convenience fees on your booking!
                     </p>
-                    <img src="/assets/checkout/info-circle.svg" alt="convinience" className="w-5" />
                   </div>
                 </div>
 
                 {/* Cost Breakdown */}
-                <div className="space-y-3 mb-6 px-4">
-                  <div className="flex justify-between">
-                    <span>Rental Charges</span>
-                    <span className="font-medium">₹{pricing.base.toLocaleString('en-IN')}</span>
+                <div className="p-4 space-y-3">
+                  <div className="flex justify-between text-sm md:text-base">
+                    <span className="text-gray-600">Rental Charges</span>
+                    <span className="font-medium">
+                      ₹{pricing.base.toLocaleString("en-IN")}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>GST <span className="text-sm text-darkGray">(As per government guidelines)</span></span>
-                    <span className="font-medium">₹{pricing.taxes.toLocaleString('en-IN')}</span>
+                  <div className="flex justify-between text-sm md:text-base">
+                    <span className="text-gray-600">
+                      GST{" "}
+                      <span className="text-xs text-gray-400">
+                        (Govt guidelines)
+                      </span>
+                    </span>
+                    <span className="font-medium">
+                      ₹{pricing.taxes.toLocaleString("en-IN")}
+                    </span>
                   </div>
                   {pricing.discount > 0 && (
-                    <div className="flex justify-between text-green">
+                    <div className="flex justify-between text-green-600 text-sm md:text-base">
                       <span>Discount {couponCode && `(${couponCode})`}</span>
-                      <span className="font-medium">-₹{pricing.discount.toLocaleString('en-IN')}</span>
+                      <span className="font-medium">
+                        -₹{pricing.discount.toLocaleString("en-IN")}
+                      </span>
                     </div>
                   )}
                 </div>
 
                 {/* Coupon Section */}
-                <div className="border mx-4 rounded-lg p-4">
-                  <div className="space-y-2">
+                <div className="px-4 pb-4">
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                     <div className="flex items-center gap-2 mb-2">
-                      <img src="/assets/checkout/offer.svg" alt="coupon" className="w-10" />
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                          placeholder="Enter coupon code"
-                          disabled={isProcessing}
-                          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green disabled:opacity-50"
-                        />
-                        {couponError && (
-                          <p className="text-red-500 text-xs mt-1">{couponError}</p>
-                        )}
-                      </div>
+                      <img
+                        src="/assets/checkout/offer.svg"
+                        alt="coupon"
+                        className="w-5"
+                      />
+                      <span className="text-sm font-medium">Apply Coupon</span>
                     </div>
-                    {couponCode && (
-                      <p className="text-xs text-gray-600">Coupon will be applied during booking</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) =>
+                          setCouponCode(e.target.value.toUpperCase())
+                        }
+                        placeholder="Enter code"
+                        disabled={isProcessing}
+                        className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 uppercase"
+                      />
+                    </div>
+                    {couponError && (
+                      <p className="text-red-500 text-xs mt-2">{couponError}</p>
+                    )}
+                    {couponCode && !couponError && (
+                      <p className="text-green-600 text-xs mt-2">
+                        Coupon will be applied at payment
+                      </p>
                     )}
                   </div>
+                  <a
+                    href="#"
+                    className="block text-center text-blue-600 text-xs mt-3 hover:underline"
+                  >
+                    View more coupons / Apply Voucher
+                  </a>
                 </div>
-                <a href="#" className="block text-center mx-4 mb-6 text-blue text-sm mt-2 hover:underline">
-                  View more coupons/ Apply Future Stay Voucher
-                </a>
+
                 {/* Total Payable */}
-                <div className="bg-[#2F80ED1A] rounded-br-xl rounded-bl-xl p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Total Payable</span>
-                    <span className="text-2xl font-bold">₹{(Math.round((pricing.base + pricing.taxes - pricing.discount) * 100) / 100).toLocaleString('en-IN')}</span>
+                <div className="bg-[#E5EEF9] bg-opacity-10 p-4 border-t border-blue-100">
+                  <div className="flex justify-between items-end">
+                    <span className="text-gray-900 font-semibold">
+                      Total Payable
+                    </span>
+                    <span className="text-2xl font-bold text-gray-900">
+                      ₹
+                      {(
+                        Math.round(
+                          (pricing.base + pricing.taxes - pricing.discount) *
+                            100
+                        ) / 100
+                      ).toLocaleString("en-IN")}
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-600 mt-1">Final amount will be calculated by server</p>
+                  <p className="text-[10px] text-gray-500 mt-1 text-right">
+                    Inclusive of all taxes
+                  </p>
                 </div>
               </div>
 
               {/* Terms & Conditions */}
-              <div className="my-6">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-1 w-8 h-8 text-green border border-darkGreen rounded focus:ring-green"
-                  />
-                  <span className="text-xs text-darkGray leading-relaxed">
-                    I have read and accepted the{' '}
-                    <a href="/terms" className="underline">Terms & Conditions</a>,{' '}
-                    <a href="/privacy" className="underline">Privacy Policies</a>,{' '}
-                    <a href="/cancellation" className="underline">Cancellation Policy</a>{' '}
-                    and{' '}
-                    <a href="#" className="underline">Indemnity Form</a>
+              <div className="my-6 px-2">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-400 checked:bg-green-600 checked:border-green-600 transition-all"
+                    />
+                    <svg
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 text-white"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M3 8L6 11L11 3.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-gray-600 leading-normal select-none">
+                    I have read and accepted the{" "}
+                    <a
+                      href="/terms"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      Terms & Conditions
+                    </a>
+                    ,{" "}
+                    <a
+                      href="/privacy"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      Privacy Policies
+                    </a>
+                    ,{" "}
+                    <a
+                      href="/cancellation"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      Cancellation Policy
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="#"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      Indemnity Form
+                    </a>
                   </span>
                 </label>
               </div>
@@ -464,14 +661,43 @@ const Checkout = () => {
               <motion.button
                 disabled={!termsAccepted || isProcessing}
                 onClick={handleContinue}
-                className={`w-full py-4 px-6 rounded-xl font-semibold cursor-pointer text-lg transition-colors ${termsAccepted && !isProcessing
-                  ? 'bg-green hover:bg-darkGreen text-white'
-                  : 'bg-gray-300 cursor-not-allowed'
-                  }`}
-                whileHover={termsAccepted && !isProcessing ? { scale: 1.02 } : {}}
+                className={`w-full py-4 px-6 rounded-xl font-bold text-lg shadow-md transition-all ${
+                  termsAccepted && !isProcessing
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-green-200"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+                whileHover={
+                  termsAccepted && !isProcessing ? { scale: 1.02 } : {}
+                }
                 whileTap={termsAccepted && !isProcessing ? { scale: 0.98 } : {}}
               >
-                {isProcessing ? 'Processing...' : 'Continue'}
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  "Continue"
+                )}
               </motion.button>
             </div>
           </div>
@@ -485,126 +711,93 @@ const Checkout = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
             onClick={() => setShowConfirmation(false)}
           >
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-white rounded-2xl p-8 max-w-3xl w-full max-h-[90vh]"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Success Icon */}
-              <div className="flex justify-center mb-4">
-                <div className="w-20 h-20 flex items-center justify-center">
-                  <img src="/assets/checkout/conf.svg" alt="success" className="w-full h-full" />
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <img
+                    src="/assets/checkout/conf.svg"
+                    alt="success"
+                    className="w-10 h-10"
+                  />
                 </div>
               </div>
 
               {/* Confirmation Message */}
-              <div className="text-center border-b pb-4">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Your booking is confirmed!
+              <div className="text-center border-b border-gray-100 pb-6 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Booking Confirmed!
                 </h2>
-                <p className="text-sm text-darkGray leading-relaxed">
-                  Thank you for choosing [Hotel Name]. A confirmation email with your booking details has been sent to you. We look forward to welcoming you soon!
+                <p className="text-sm text-gray-600 leading-relaxed px-4">
+                  Thank you for choosing us. A confirmation email with details
+                  has been sent to you. We look forward to welcoming you!
                 </p>
               </div>
 
-              {/* Property Details Card */}
-              <div className="rounded-xl p-4 border my-4">
-                <div className="flex gap-6 pb-4 border-b mb-4">
-                  {/* Property Image */}
-                  <div className="w-48 aspect-video shrink-0">
-                    <img
-                      src={bookingData.propertyImage || "/assets/checkout/Outdoors.png"}
-                      alt="Villa"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-
-                  {/* Property Info */}
+              {/* Property Details Card in Modal */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-6">
+                <div className="flex gap-4 border-b border-gray-200 pb-4 mb-4">
+                  <img
+                    src={
+                      bookingData.propertyImage ||
+                      "/assets/checkout/Outdoors.png"
+                    }
+                    alt="Villa"
+                    className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
+                  />
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-1">
-                      {bookingData.propertyName || 'UDS Villa - Next to VFS, Walking to Connaught Place'}
+                    <h3 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-2">
+                      {bookingData.propertyName || "Property Name"}
                     </h3>
-                    <p className="text-sm text-darkGray mb-4">{bookingData.propertyLocation || 'New Delhi'}</p>
-
-
+                    <p className="text-xs text-gray-500 mt-1">
+                      {bookingData.propertyLocation}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-white border border-gray-200 px-2 py-1 rounded">
+                        {bookingData.nights} Night
+                        {bookingData.nights > 1 ? "s" : ""}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className=''>
-                    <div className='flex items-center justify-between py-4'>
-                      <div className='flex flex-col gap-2'>
-                        <h4 className='font-medium'>Check in</h4>
-                        <div className='flex items-center gap-2'>
-                          <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
-                          <div className='flex flex-col'>
-                            <h3>{bookingData.checkIn ? new Date(bookingData.checkIn).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
-                            <h5>(From 02:00 PM)</h5>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center bg-darkGreen px-4 py-2 rounded-xl text-sm text-white">
-                        <h5>{bookingData.nights ? `For ${bookingData.nights} Night${bookingData.nights > 1 ? 's' : ''}` : 'For 1 Night'}</h5>
-                      </div>
-
-                      <div className='flex flex-col gap-2'>
-                        <h4 className='font-medium'>Check out</h4>
-                        <div className='flex items-center gap-2'>
-                          <img src="/assets/checkout/date.svg" alt="calendar" className="w-10" />
-                          <div className='flex flex-col'>
-                            <h3>{bookingData.checkOut ? new Date(bookingData.checkOut).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select Date'}</h3>
-                            <h5>(Until 11:00 AM)</h5>
-                          </div>
-                        </div>
-                      </div>
-
-
-
-                    </div>
-                    <div className='flex items-center gap-16'>
-                    <div className='flex flex-col gap-2'>
-                      <h4 className='font-medium'>
-                        No. of Rooms
-                      </h4>
-                      <div className='flex items-center gap-2'>
-                        <img src="/assets/checkout/rooms.svg" alt="room" className="w-10" />
-                        <h3 className='font-semibold'>{bookingData.rooms || 1} Room{(bookingData.rooms || 1) > 1 ? 's' : ''}</h3>
-                      </div>
-                    </div>
-                    <div className='flex flex-col gap-2'>
-                      <h4 className='font-medium'>
-                        Guests
-                      </h4>
-                      <div className='flex items-center gap-2'>
-                        <img src="/assets/checkout/guests.svg" alt="room" className="w-10" />
-                        <div>
-                          <h3 className='font-semibold'>{((bookingData.adults || 2) + (bookingData.childrens || 0))} Guest{((bookingData.adults || 2) + (bookingData.childrens || 0)) > 1 ? 's' : ''}</h3>
-                          <p className='text-sm text-darkGray'>({bookingData.adults || 2} Adult{(bookingData.adults || 2) > 1 ? 's' : ''}{bookingData.childrens ? `, ${bookingData.childrens} Child${bookingData.childrens > 1 ? 'ren' : ''}` : ''})</p>
-                        </div>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase">Check-in</p>
+                    <p className="font-semibold text-gray-900 mt-1">
+                      {bookingData.checkIn
+                        ? new Date(bookingData.checkIn).toLocaleDateString()
+                        : "-"}
+                    </p>
                   </div>
-
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500 uppercase">Check-out</p>
+                    <p className="font-semibold text-gray-900 mt-1">
+                      {bookingData.checkOut
+                        ? new Date(bookingData.checkOut).toLocaleDateString()
+                        : "-"}
+                    </p>
                   </div>
-
-
-
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <motion.button
                   onClick={() => {
                     setShowConfirmation(false);
-                    navigate('/trips-bookings');
+                    navigate("/trips-bookings");
                   }}
                   className="flex-1 py-3 px-6 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   View Booking
@@ -612,13 +805,12 @@ const Checkout = () => {
                 <motion.button
                   onClick={() => {
                     setShowConfirmation(false);
-                    navigate('/');
+                    navigate("/");
                   }}
                   className="flex-1 py-3 px-6 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Continue
+                  Back to Home
                 </motion.button>
               </div>
             </motion.div>

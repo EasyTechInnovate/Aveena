@@ -1,18 +1,10 @@
+// client\src\components\booking\BookingOverview.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import RulesAndSpaces from "./RefundPolicy";
 import GuestReviews from "./GuestReviews";
-
-const items = [
-  { icon: "/assets/booking/meal.svg", label: "Food" },
-  { icon: "/assets/booking/service.svg", label: "Service" },
-  { icon: "/assets/booking/senior.svg", label: "Senior Citizens" },
-  { icon: "/assets/booking/view.svg", label: "View" },
-  { icon: "/assets/booking/kids.svg", label: "Kids" },
-  { icon: "/assets/booking/design.svg", label: "Design" },
-];
 
 const TABS = [
   "Overview",
@@ -27,191 +19,226 @@ const TABS = [
   "FAQ's",
 ];
 
-export default function BookingOverview({ property, bookingInfo, onBookingInfoChange }) {
+export default function BookingOverview({
+  property,
+  bookingInfo,
+  onBookingInfoChange,
+}) {
   const navigate = useNavigate();
   const { isAuth, user } = useAuth();
   const [activeTab, setActiveTab] = useState("Overview");
   const [expanded, setExpanded] = useState(false);
 
+  // --- REFS FOR SCROLLING ---
+  const overviewRef = useRef(null);
+  const highlightsRef = useRef(null);
+  const refundPolicyRef = useRef(null);
+  const spacesRef = useRef(null);
+  const reviewsRef = useRef(null);
+
   const propertyData = property?.property || {};
   const propertyDetails = property?.propertyDetails || {};
-  const roomsData = property?.rooms || [];
 
-  // Sync with bookingInfo from URL/state
+  // --- STATE INITIALIZATION ---
   const [checkInDate, setCheckInDate] = useState(bookingInfo?.checkIn || "");
   const [checkOutDate, setCheckOutDate] = useState(bookingInfo?.checkOut || "");
-  const [guests, setGuests] = useState({ 
-    adults: bookingInfo?.adults || 2, 
-    children: bookingInfo?.childrens || 0 
+  const [guests, setGuests] = useState({
+    adults: bookingInfo?.adults || 2,
+    children: bookingInfo?.childrens || 0,
   });
   const [rooms, setRooms] = useState(bookingInfo?.rooms || 1);
 
-  // Sync state when bookingInfo changes (from URL params)
+  // --- FIX: INFINITE LOOP PREVENTION ---
   useEffect(() => {
-    if (bookingInfo?.checkIn) setCheckInDate(bookingInfo.checkIn);
-    if (bookingInfo?.checkOut) setCheckOutDate(bookingInfo.checkOut);
-    if (bookingInfo?.adults !== undefined) setGuests(prev => ({ ...prev, adults: bookingInfo.adults }));
-    if (bookingInfo?.childrens !== undefined) setGuests(prev => ({ ...prev, children: bookingInfo.childrens }));
-    if (bookingInfo?.rooms !== undefined) setRooms(bookingInfo.rooms);
+    if (!bookingInfo) return;
+
+    if (bookingInfo.checkIn && bookingInfo.checkIn !== checkInDate) {
+      setCheckInDate(bookingInfo.checkIn);
+    }
+    if (bookingInfo.checkOut && bookingInfo.checkOut !== checkOutDate) {
+      setCheckOutDate(bookingInfo.checkOut);
+    }
+    if (bookingInfo.rooms !== undefined && bookingInfo.rooms !== rooms) {
+      setRooms(bookingInfo.rooms);
+    }
+
+    setGuests((prev) => {
+      const newAdults =
+        bookingInfo.adults !== undefined ? bookingInfo.adults : prev.adults;
+      const newChildren =
+        bookingInfo.childrens !== undefined
+          ? bookingInfo.childrens
+          : prev.children;
+
+      if (newAdults === prev.adults && newChildren === prev.children) {
+        return prev;
+      }
+      return { adults: newAdults, children: newChildren };
+    });
   }, [bookingInfo]);
+
+  // --- OUTGOING CHANGE HANDLER ---
+  useEffect(() => {
+    if (onBookingInfoChange) {
+      onBookingInfoChange({
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        adults: guests.adults,
+        childrens: guests.children,
+        rooms,
+      });
+    }
+  }, [checkInDate, checkOutDate, guests, rooms]);
+
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
   const [showRoomPicker, setShowRoomPicker] = useState(false);
 
-  const fullText = propertyData.description || propertyDetails.villaLocationDescription || propertyDetails.villaLocationDescription || `Nestled in the serene landscapes, this property offers the perfect blend of comfort, luxury, and curated experiences.`;
-  const previewText = fullText.length > 250 ? fullText.slice(0, 250) + "..." : fullText;
+  const fullText =
+    propertyData.description ||
+    propertyDetails.villaLocationDescription ||
+    `Nestled in the serene landscapes...`;
+  const previewText =
+    fullText.length > 250 ? fullText.slice(0, 250) + "..." : fullText;
+
+  // --- SCROLL HANDLER ---
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+
+    const sectionMap = {
+      Overview: overviewRef,
+      Highlights: highlightsRef,
+      "Refund Policy": refundPolicyRef,
+      Spaces: spacesRef,
+      Reviews: reviewsRef,
+    };
+
+    const targetRef = sectionMap[tab];
+
+    if (targetRef && targetRef.current) {
+      const offset = 160;
+      const elementPosition = targetRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const formatDate = (date) => {
     if (!date) return "Add Date";
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   const formatGuests = () => {
     const { adults, children } = guests;
-    if (children === 0) return `${adults} Adults`;
-    return `${adults} Adults, ${children} Chi...`;
+    return children === 0 ? `${adults} Adults` : `${adults} Ad, ${children} Ch`;
   };
 
   const handleGuestChange = (type, value) => {
-    setGuests(prev => ({
-      ...prev,
-      [type]: Math.max(0, prev[type] + value)
-    }));
+    setGuests((prev) => ({ ...prev, [type]: Math.max(0, prev[type] + value) }));
   };
 
   const handleRoomChange = (value) => {
     setRooms(Math.max(1, rooms + value));
   };
 
-  const getAmenities = () => {
-    return propertyData.amenities || propertyData.amenties || [];
-  };
+  const getAmenities = () =>
+    propertyData.amenities || propertyData.amenties || [];
+  const getBasePrice = () => propertyData.basePrice || 37000;
 
-  const getBasePrice = () => {
-    return propertyData.basePrice || 37000;
-  };
-
-  const CustomDateRangePicker = ({ isOpen, onClose }) => {
+  // --- DATE PICKER COMPONENT ---
+  const CustomDateRangePicker = ({
+    isOpen,
+    onClose,
+    isMobileModal = false,
+  }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [nextMonth, setNextMonth] = useState(new Date(new Date().setMonth(new Date().getMonth() + 1)));
-    // Initialize with existing dates from URL/state
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
 
-    // Helper function to safely parse date
     const parseDate = (dateString) => {
       if (!dateString || dateString.trim() === "") return null;
       const date = new Date(dateString);
       return !isNaN(date.getTime()) ? date : null;
     };
 
-    // Initialize and sync with checkInDate/checkOutDate when picker opens or dates change
     useEffect(() => {
       if (isOpen) {
         const startDate = parseDate(checkInDate);
         const endDate = parseDate(checkOutDate);
         setSelectedStartDate(startDate);
         setSelectedEndDate(endDate);
-        
-        // Navigate to the month of check-in date if available, or current month
-        if (startDate) {
-          setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
-          setNextMonth(new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1));
-        } else {
-          // Reset to current month if no dates
-          const now = new Date();
-          setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
-          setNextMonth(new Date(now.getFullYear(), now.getMonth() + 1, 1));
-        }
+        if (startDate)
+          setCurrentMonth(
+            new Date(startDate.getFullYear(), startDate.getMonth(), 1)
+          );
       }
-    }, [isOpen, checkInDate, checkOutDate]);
+    }, [isOpen]);
 
     const monthNames = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
-
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
 
     const getDaysInMonth = (date) => {
       const year = date.getFullYear();
       const month = date.getMonth();
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
-      const daysInMonth = lastDay.getDate();
       const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
-
       const days = [];
-
-      for (let i = 0; i < startingDayOfWeek; i++) {
-        days.push(null);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
+      for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
+      for (let day = 1; day <= lastDay.getDate(); day++)
         days.push(new Date(year, month, day));
-      }
-
       return days;
     };
 
-    const navigateMonth = (direction, isNextMonth = false) => {
-      const targetMonth = isNextMonth ? nextMonth : currentMonth;
-      const newDate = new Date(targetMonth);
+    const navigateMonth = (direction) => {
+      const newDate = new Date(currentMonth);
       newDate.setMonth(newDate.getMonth() + direction);
-
-      if (isNextMonth) {
-        setNextMonth(newDate);
-        setCurrentMonth(new Date(newDate.getTime() - 30 * 24 * 60 * 60 * 1000));
-      } else {
-        setCurrentMonth(newDate);
-        setNextMonth(new Date(newDate.getTime() + 30 * 24 * 60 * 60 * 1000));
-      }
+      setCurrentMonth(newDate);
     };
 
     const isDateInRange = (date) => {
       if (!selectedStartDate || !selectedEndDate || !date) return false;
-      // Compare dates without time components
-      const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const startOnly = new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
-      const endOnly = new Date(selectedEndDate.getFullYear(), selectedEndDate.getMonth(), selectedEndDate.getDate());
-      return dateOnly >= startOnly && dateOnly <= endOnly;
+      const d = new Date(date.setHours(0, 0, 0, 0));
+      const s = new Date(selectedStartDate.setHours(0, 0, 0, 0));
+      const e = new Date(selectedEndDate.setHours(0, 0, 0, 0));
+      return d >= s && d <= e;
     };
 
     const isDateSelected = (date) => {
       if (!date) return false;
-      // Compare dates without time components
-      const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      if (selectedStartDate) {
-        const startOnly = new Date(selectedStartDate.getFullYear(), selectedStartDate.getMonth(), selectedStartDate.getDate());
-        if (dateOnly.getTime() === startOnly.getTime()) return true;
-      }
-      if (selectedEndDate) {
-        const endOnly = new Date(selectedEndDate.getFullYear(), selectedEndDate.getMonth(), selectedEndDate.getDate());
-        if (dateOnly.getTime() === endOnly.getTime()) return true;
-      }
-      return false;
-    };
-
-    const isDateDisabled = (date) => {
-      if (!date) return true;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return date < today;
-    };
-
-    const isWeekend = (date) => {
-      if (!date) return false;
-      const day = date.getDay();
-      return day === 0 || day === 6;
+      const d = new Date(date.setHours(0, 0, 0, 0)).getTime();
+      const s = selectedStartDate
+        ? new Date(selectedStartDate.setHours(0, 0, 0, 0)).getTime()
+        : null;
+      const e = selectedEndDate
+        ? new Date(selectedEndDate.setHours(0, 0, 0, 0)).getTime()
+        : null;
+      return d === s || d === e;
     };
 
     const handleDateClick = (date) => {
-      if (!date || isDateDisabled(date)) return;
-
+      if (!date || date < new Date().setHours(0, 0, 0, 0)) return;
       if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
         setSelectedStartDate(date);
         setSelectedEndDate(null);
@@ -227,695 +254,45 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
 
     const applyDateRange = () => {
       if (selectedStartDate && selectedEndDate) {
-        const checkIn = selectedStartDate.toISOString().split('T')[0];
-        const checkOut = selectedEndDate.toISOString().split('T')[0];
+        const offsetStart = new Date(
+          selectedStartDate.getTime() -
+            selectedStartDate.getTimezoneOffset() * 60000
+        );
+        const offsetEnd = new Date(
+          selectedEndDate.getTime() -
+            selectedEndDate.getTimezoneOffset() * 60000
+        );
+        const checkIn = offsetStart.toISOString().split("T")[0];
+        const checkOut = offsetEnd.toISOString().split("T")[0];
+
         setCheckInDate(checkIn);
         setCheckOutDate(checkOut);
         setShowDatePicker(null);
-        // Update parent component immediately
-        if (onBookingInfoChange) {
-          onBookingInfoChange({
-            checkIn,
-            checkOut,
-            adults: guests.adults,
-            childrens: guests.children,
-            rooms: rooms
-          });
-        }
       }
     };
 
     if (!isOpen) return null;
 
+    // --- FIX: Using the same Modal styles for both Mobile and Desktop to ensure visibility ---
+    const containerClasses = isMobileModal
+      ? "fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+      : "absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-[9999]";
+
+    const wrapperClasses = isMobileModal
+      ? "bg-white rounded-lg shadow-xl w-full max-w-[340px] p-4 border border-gray-200"
+      : "bg-white rounded-lg shadow-xl w-[350px] p-4 border border-gray-200";
+
     return (
-      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] p-4 w-96">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => navigateMonth(-1)}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="flex space-x-8">
-            <span className="font-medium">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
-            <span className="font-medium">{monthNames[nextMonth.getMonth()]} {nextMonth.getFullYear()}</span>
-          </div>
-          <button
-            onClick={() => navigateMonth(1, true)}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex space-x-4">
-          <div className="flex-1">
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {daysOfWeek.map((day) => (
-                <div
-                  key={day}
-                  className={`text-xs font-medium text-center py-2 ${day === 'Sat' || day === 'Sun' ? 'text-red-500' : 'text-gray-700'
-                    }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {getDaysInMonth(currentMonth).map((date, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDateClick(date)}
-                  disabled={isDateDisabled(date)}
-                  className={`
-                    w-8 h-8 text-sm rounded flex items-center justify-center relative
-                    ${!date ? 'invisible' : ''}
-                    ${isDateDisabled(date) ? 'text-gray-300 cursor-not-allowed' : ''}
-                    ${isDateSelected(date) ? 'bg-blue-500 text-white' : ''}
-                    ${isDateInRange(date) && !isDateSelected(date) ? 'bg-blue-100' : ''}
-                    ${!isDateSelected(date) && !isDateInRange(date) && !isDateDisabled(date) && isWeekend(date) ? 'text-blue-500' : ''}
-                    ${!isDateSelected(date) && !isDateInRange(date) && !isDateDisabled(date) && !isWeekend(date) ? 'text-gray-700 hover:bg-gray-100' : ''}
-                  `}
-                >
-                  {date?.getDate()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1">
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {daysOfWeek.map((day) => (
-                <div
-                  key={day}
-                  className={`text-xs font-medium text-center py-2 ${day === 'Sat' || day === 'Sun' ? 'text-red-500' : 'text-gray-700'
-                    }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {getDaysInMonth(nextMonth).map((date, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDateClick(date)}
-                  disabled={isDateDisabled(date)}
-                  className={`
-                    w-8 h-8 text-sm rounded flex items-center justify-center relative
-                    ${!date ? 'invisible' : ''}
-                    ${isDateDisabled(date) ? 'text-gray-300 cursor-not-allowed' : ''}
-                    ${isDateSelected(date) ? 'bg-blue-500 text-white' : ''}
-                    ${isDateInRange(date) && !isDateSelected(date) ? 'bg-blue-100' : ''}
-                    ${!isDateSelected(date) && !isDateInRange(date) && !isDateDisabled(date) && isWeekend(date) ? 'text-blue-500' : ''}
-                    ${!isDateSelected(date) && !isDateInRange(date) && !isDateDisabled(date) && !isWeekend(date) ? 'text-gray-700 hover:bg-gray-100' : ''}
-                  `}
-                >
-                  {date?.getDate()}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={applyDateRange}
-            disabled={!selectedStartDate || !selectedEndDate}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            Done
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.booking-form-container')) {
-        setShowDatePicker(null);
-        setShowGuestPicker(false);
-        setShowRoomPicker(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Update parent component when booking info changes (but not on every render)
-  useEffect(() => {
-    if (onBookingInfoChange) {
-      const newInfo = {
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        adults: guests.adults,
-        childrens: guests.children,
-        rooms: rooms
-      };
-      onBookingInfoChange(newInfo);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkInDate, checkOutDate, guests.adults, guests.children, rooms]);
-
-  const handleReserve = () => {
-    if (!isAuth) {
-      alert('Please login or sign up first to proceed with booking');
-      return;
-    }
-
-    // Check if profile is complete
-    if (user && !user.isProfileComplete) {
-      alert('Please complete your profile before booking. You will be redirected to your account page.');
-      navigate('/account');
-      return;
-    }
-
-    if (!checkInDate || !checkOutDate) {
-      alert('Please select check-in and check-out dates');
-      return;
-    }
-
-    const propertyData = property?.property || property || {};
-    const propertyId = propertyData._id || property?._id;
-    const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
-
-    const params = new URLSearchParams();
-    params.set('propertyId', propertyId);
-    params.set('checkIn', checkInDate);
-    params.set('checkOut', checkOutDate);
-    params.set('adults', guests.adults.toString());
-    params.set('childrens', guests.children.toString());
-    params.set('rooms', rooms.toString());
-
-    navigate(`/checkout?${params.toString()}`, {
-      state: {
-        propertyId,
-        property: propertyData,
-        propertyName: propertyData.name || 'Property',
-        propertyLocation: propertyData.address?.fullAddress || propertyData.address || 'Location',
-        propertyImage: propertyData.coverImage || propertyData.images?.[0] || propertyData.image || '/assets/checkout/Outdoors.png',
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        adults: guests.adults,
-        childrens: guests.children,
-        rooms: rooms,
-        nights: nights
-      }
-    });
-  };
-
-  return (
-    <section className="py-8">
-      <div className="mb-6">
-        <div className="overflow-x-auto scrollbar-hide">
-          <nav
-            className="flex items-center gap-6 whitespace-nowrap text-sm"
-            aria-label="Property sections"
-          >
-            {TABS.map((tab, index) => {
-              const isActive = tab === activeTab;
-              return (
-                <motion.button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`relative px-3 py-2 focus:outline-none ${isActive
-                      ? "text-blue font-semibold"
-                      : "text-gray-600 hover:text-gray-800"
-                    }`}
-                  aria-current={isActive ? "page" : undefined}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span>{tab}</span>
-
-                  <motion.span
-                    className={`block h-0.5 mt-2 rounded-full ${isActive ? "bg-blue" : "bg-transparent"
-                      }`}
-                    initial={{ width: 0 }}
-                    animate={{ width: isActive ? "100%" : "0%" }}
-                    transition={{ duration: 0.15 }}
-                    aria-hidden="true"
-                  />
-                </motion.button>
-              );
-            })}
-          </nav>
-        </div>
-        <div className="border-t mt-4" />
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6 w-full max-w-full">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-semibold">
-            {propertyData.name || "Pranaam"}
-          </h1>
-          <p className="text-gray-500">
-            {propertyData.address?.fullAddress || "Alibaug, Maharashtra"}
-          </p>
-
-          <div className="flex items-center gap-3 my-6 text-sm">
-            <div className="flex gap-1 items-center">
-              <img
-                src="/assets/booking/guestFav_left_leaf.svg"
-                alt="left"
-                className="h-6"
-              />
-              <h4 className="text-center font-bold text-md">Like a 5*</h4>
-              <img
-                src="/assets/booking/guestFav_right_leaf.svg"
-                alt="left"
-                className="h-6"
-              />
-            </div>
-
-            <span className="flex items-center gap-1">
-              <span>
-                <img
-                  src="/assets/booking/star.svg"
-                  alt="star"
-                  className="w-4"
-                />
-              </span>{" "}
-              <span className="text-md font-semibold">
-                {propertyData.rating ? propertyData.rating.toFixed(1) : "4.6"}
-                <span className="text-gray-500 text-md font-semibold">/5</span>
-              </span>
-            </span>
-            <span className="w-0.5 h-6 bg-gray-400"></span>
-            <a
-              href="#reviews"
-              className="text-blue underline font-semibold text-sm"
-            >
-              {propertyDetails.reviews?.length || 0} Review{(propertyDetails.reviews?.length || 0) !== 1 ? 's' : ''}
-            </a>
-          </div>
-
-          <div className="flex flex-wrap gap-3 mt-4">
-            <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
-              <img src="/assets/booking/user.svg" alt="user" className="w-4" />{" "}
-              Up to {propertyData.capacity?.adults || 15} Guests
-            </span>
-            <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
-              <img src="/assets/booking/room.svg" alt="user" className="w-4" />{" "}
-              {propertyData.noOfRooms || 3} Rooms
-            </span>
-            <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
-              <img src="/assets/booking/bath.svg" alt="user" className="w-4" />{" "}
-              {propertyData.noOfBaths || propertyData.noOfRooms || 1} Bath{propertyData.noOfBaths !== 1 ? 's' : ''}
-            </span>
-            {propertyDetails.meals?.options && propertyDetails.meals.options.length > 0 && (
-              <span className="flex items-center gap-2 text-darkGray text-sm font-semibold bg-[#2F80ED1A] px-3 py-1 rounded-sm">
-                <img src="/assets/booking/meal.svg" alt="user" className="w-4" />{" "}
-                Meals Available
-              </span>
-            )}
-            <button className="flex items-center gap-2 font-semibold text-darkGray text-sm border border-red-200 px-3 py-1 rounded-sm hover:bg-red-50">
-              <img src="/assets/booking/pdf.svg" alt="user" className="w-4" />{" "}
-              View Brochure
-            </button>
-          </div>
-
-          {(propertyDetails.experiences || items.length > 0) && (
-            <div className="flex items-center flex-wrap gap-3 my-6 text-sm text-gray-700">
-              <span className="font-semibold text-base text-gray-800 mr-1">
-                Great for:
-              </span>
-              {propertyDetails.experiences?.description ? (
-                <span className="text-gray-700">{propertyDetails.experiences.description}</span>
-              ) : (
-                items.map(({ icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-1.5 text-gray-700"
-                  >
-                    <img src={icon} alt="icon" className="w-5" />
-                    <span className="font-medium">{label}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          <div className="flex items-start gap-4 mt-4">
-            {getAmenities().slice(0, 5).map((amenity, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center justify-center text-center w-16"
-              >
-                <div className="w-12 h-12 flex items-center justify-center border border-gray-300 rounded-lg">
-                  <div className="w-6 h-6 flex items-center justify-center text-gray-700">
-                    {typeof amenity === 'string' ? amenity.charAt(0).toUpperCase() : '✓'}
-                  </div>
-                </div>
-                <span className="mt-2 text-sm text-gray-800 leading-tight capitalize">
-                  {typeof amenity === 'string' ? amenity.split(' ')[0] : amenity}
-                </span>
-              </div>
-            ))}
-            {getAmenities().length > 5 && (
-              <a
-                href="#"
-                className="text-blue-600 font-medium underline text-sm self-center"
-              >
-                +{getAmenities().length - 5} Amenities
-              </a>
-            )}
-          </div>
-
-          <div className="mt-30">
-            <h3 className="text-lg font-semibold border-l-4 border-[#F5959E] pl-3">
-              The Aveena Experience
-            </h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 font-['Marcellus'] text-white">
-              {[
-                {
-                  img: "/assets/booking/lavida-features.png",
-                  title: "FULLY-SERVICED VILLAS",
-                },
-                {
-                  img: "/assets/booking/lavida-features1.png",
-                  title: "FOUR COURSE MEAL",
-                },
-                {
-                  img: "/assets/booking/lavida-features2.png",
-                  title: "PREMIUM INTERIORS",
-                },
-                {
-                  img: "/assets/booking/lavida-features3.png",
-                  title: "CURATED EXPERIENCES",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="relative rounded-md overflow-hidden shadow-sm border border-gray-200"
-                >
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-full h-40 md:h-48 object-cover"
-                  />
-                  <p className="absolute inset-0 flex items-center justify-center text-center px-2 text-lg md:text-xl font-medium">
-                    {item.title}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t mt-10" />
-
-          <div className="mt-10">
-            <h2 className="text-xl font-semibold text-gray-900 border-l-4 border-[#F5959E] pl-3">
-              {propertyData.name || "Property"} – {(propertyData.type || "villa").charAt(0).toUpperCase() + (propertyData.type || "villa").slice(1)} in {propertyData.address?.fullAddress?.split(',')[0] || propertyData.address?.city || "Location"}
-            </h2>
-
-            <p className="mt-2 text-gray-600 italic text-sm leading-relaxed">
-              {expanded ? fullText : previewText}
-            </p>
-
+      <div
+        className={containerClasses}
+        onClick={isMobileModal ? onClose : undefined}
+      >
+        <div className={wrapperClasses} onClick={(e) => e.stopPropagation()}>
+          <div className="flex justify-between items-center mb-4">
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="mt-2 font-medium text-sm underline cursor-pointer"
+              onClick={() => navigateMonth(-1)}
+              className="p-2 hover:bg-gray-100 rounded-full"
             >
-              {expanded ? "Read Less" : "Read More"}
-            </button>
-
-            <div className="mt-6 flex gap-4">
-              <button className="px-5 py-2 rounded-sm text-sm font-medium bg-light border border-gray-300 hover:bg-gray-50 transition-colors">
-                Explore Your Stay
-              </button>
-
-              <button className="px-5 py-2 border border-gray-300 rounded-sm text-sm font-medium bg-light hover:bg-gray-50 transition-colors">
-                FAQ's
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <RulesAndSpaces propertyDetails={propertyDetails} />
-          </div>
-
-          <div>
-            <GuestReviews propertyDetails={propertyDetails} />
-          </div>
-        </div>
-
-        <aside className="w-full lg:w-[384px] lg:shrink-0">
-          <div className="lg:sticky lg:top-24 rounded-lg overflow-visible border border-gray-200 lg:border-0 bg-white lg:bg-transparent shadow-sm lg:shadow-none">
-            <div className="bg-[linear-gradient(107.22deg,_rgba(23,255,82,0.11)_1.46%,_rgba(1,108,110,0.11)_99.96%)] px-6 py-4 rounded-t-lg lg:rounded-lg">
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold text-darkGray">
-                  ₹{getBasePrice().toLocaleString('en-IN')}
-                </span>
-                <span className="text-sm text-[#959595]">
-                  (for {rooms} rooms) Per Night + Taxes
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2 mb-4 relative booking-form-container overflow-visible">
-                <div className="flex gap-2 w-full bg-white  rounded-lg p-3">
-                  <div className="bg-white flex-1 cursor-pointer transition-colors">
-                    <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
-                      Check-in
-                      <svg
-                        className="w-3 h-3 text-pink-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </label>
-                    <div
-                      className="text-sm font-bold text-black"
-                      onClick={() => {
-                        setShowDatePicker(showDatePicker === 'dates' ? null : 'dates');
-                        setShowGuestPicker(false);
-                        setShowRoomPicker(false);
-                      }}
-                    >
-                      {formatDate(checkInDate)}
-                    </div>
-                  </div>
-
-                  <div className="bg-white flex-1 cursor-pointer transition-colors">
-                    <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
-                      Check-out
-                      <svg
-                        className="w-3 h-3 text-pink-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </label>
-                    <div
-                      className="text-sm font-bold text-black"
-                      onClick={() => {
-                        setShowDatePicker(showDatePicker === 'dates' ? null : 'dates');
-                        setShowGuestPicker(false);
-                        setShowRoomPicker(false);
-                      }}
-                    >
-                      {formatDate(checkOutDate)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <CustomDateRangePicker
-                    isOpen={showDatePicker === 'dates'}
-                    onClose={() => setShowDatePicker(null)}
-                  />
-                </div>
-
-                <div className="flex gap-2 w-full bg-white rounded-lg p-3">
-                  <div className="bg-white flex-1 cursor-pointer transition-colors relative">
-                    <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
-                      Guests
-                      <svg
-                        className="w-3 h-3 text-pink-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </label>
-                    <div
-                      className="text-sm font-bold text-black"
-                      onClick={() => {
-                        setShowGuestPicker(!showGuestPicker);
-                        setShowDatePicker(null);
-                        setShowRoomPicker(false);
-                      }}
-                    >
-                      {formatGuests()}
-                    </div>
-                    {showGuestPicker && (
-                      <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] p-4 w-64">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Adults</span>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => handleGuestChange('adults', -1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center font-medium">{guests.adults}</span>
-                              <button
-                                onClick={() => handleGuestChange('adults', 1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Children</span>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => handleGuestChange('children', -1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center font-medium">{guests.children}</span>
-                              <button
-                                onClick={() => handleGuestChange('children', 1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex justify-end gap-2 pt-4 border-t">
-                            <button
-                              onClick={() => setShowGuestPicker(false)}
-                              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
-                            >
-                              Done
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-white flex-1 cursor-pointer transition-colors relative">
-                    <label className="text-xs text-[#959595] flex items-center gap-1 mb-1">
-                      No. of Rooms
-                      <svg
-                        className="w-3 h-3 text-pink-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </label>
-                    <div
-                      className="text-sm font-bold text-black"
-                      onClick={() => {
-                        setShowRoomPicker(!showRoomPicker);
-                        setShowDatePicker(null);
-                        setShowGuestPicker(false);
-                      }}
-                    >
-                      {rooms} Rooms
-                    </div>
-                    {showRoomPicker && (
-                      <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] p-4 w-56">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Rooms</span>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => handleRoomChange(-1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center font-medium">{rooms}</span>
-                              <button
-                                onClick={() => handleRoomChange(1)}
-                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex justify-end gap-2 pt-4 border-t">
-                            <button
-                              onClick={() => setShowRoomPicker(false)}
-                              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
-                            >
-                              Done
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-4 mt-4 text-center">
-              <div className="bg-[#2196531A] text-darkGreen text-sm px-4 py-2 ">
-                Select Dates for Best Price
-              </div>
-              <div className="bg-[#E9F4EE] text-green text-sm px-4 py-2 flex items-center gap-2">
-                <div className="flex items-center justify-center">
-                  <img
-                    src="/assets/booking/reserve_offer.svg"
-                    alt="reserve_offer"
-                    className="w-6 h-6"
-                  />
-                </div>
-                <h5 className="text-nowrap text-xs">
-                  Reserve to get exciting offer for this property!
-                </h5>
-              </div>
-            </div>
-
-            <button 
-              onClick={handleReserve}
-              className="w-full bg-green text-white text-xl font-medium py-4 px-4 rounded hover:bg-darkGreen transition-colors mb-4"
-            >
-              {checkInDate && checkOutDate ? 'Reserve' : 'Select Dates'}
-            </button>
-
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -926,42 +303,519 @@ export default function BookingOverview({ property, bookingInfo, onBookingInfoCh
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  d="M15 19l-7-7 7-7"
                 />
               </svg>
-              <span>For Cancellation and Refund Policy,</span>
-              <a href="#" className="text-blue-600 underline">
-                click here
-              </a>
+            </button>
+            <span className="font-semibold text-lg">
+              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            </span>
+            <button
+              onClick={() => navigateMonth(1)}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {daysOfWeek.map((d, i) => (
+                <div
+                  key={i}
+                  className="text-center text-xs font-bold text-gray-500"
+                >
+                  {d}
+                </div>
+              ))}
             </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {getDaysInMonth(currentMonth).map((date, i) => (
+              <button
+                key={i}
+                onClick={() => handleDateClick(date)}
+                disabled={!date || date < new Date().setHours(0, 0, 0, 0)}
+                className={`aspect-square rounded-md text-sm flex items-center justify-center transition-colors ${
+                  !date ? "invisible" : ""
+                } ${
+                  isDateSelected(date) ? "bg-blue-600 text-white shadow-md" : ""
+                } ${
+                  isDateInRange(date) && !isDateSelected(date)
+                    ? "bg-blue-100 text-blue-800"
+                    : ""
+                } ${
+                  date && !isDateSelected(date) && !isDateInRange(date)
+                    ? "hover:bg-gray-100 text-gray-700"
+                    : ""
+                } ${
+                  date && date < new Date().setHours(0, 0, 0, 0)
+                    ? "text-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {date?.getDate()}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-end gap-3 mt-4 pt-3 border-t">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={applyDateRange}
+              disabled={!selectedStartDate || !selectedEndDate}
+              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md disabled:opacity-50 hover:bg-blue-700"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-            <div className="bg-[linear-gradient(280.37deg,_rgba(156,205,251,0.2)_0%,_rgba(252,201,146,0.2)_100%),_linear-gradient(107.22deg,_rgba(23,255,82,0.11)_1.46%,_rgba(1,108,110,0.11)_99.96%)] rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  <span className="text-sm text-gray-700">
-                    Connect with Host
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // If clicking inside a date picker modal, don't close it via this handler
+      // (The modal has its own onClose logic usually)
+      if (
+        !event.target.closest(".booking-form-container") &&
+        !event.target.closest(".fixed")
+      ) {
+        // Only close if we are not in the modal mode (which handles its own outside click)
+        if (showDatePicker !== "dates") {
+          setShowGuestPicker(false);
+          setShowRoomPicker(false);
+        }
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDatePicker]);
+
+  const handleReserve = () => {
+    if (!isAuth) {
+      alert("Please login or sign up first");
+      return;
+    }
+    if (user && !user.isProfileComplete) {
+      alert("Please complete your profile first");
+      navigate("/account");
+      return;
+    }
+    if (!checkInDate || !checkOutDate) {
+      // For both desktop and mobile, open the modal if dates aren't selected
+      setShowDatePicker("dates");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      propertyId: property?.property?._id,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      adults: guests.adults,
+      childrens: guests.children,
+      rooms,
+    });
+
+    navigate(`/checkout?${params.toString()}`, {
+      state: {
+        ...property?.property,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        adults: guests.adults,
+        childrens: guests.children,
+        rooms,
+        nights: Math.ceil(
+          (new Date(checkOutDate) - new Date(checkInDate)) / 86400000
+        ),
+      },
+    });
+  };
+
+  return (
+    <section className="py-4 md:py-8 w-full max-w-full">
+      {/* --- Sticky Navbar --- */}
+      <div className="mb-6 sticky top-[60px] z-30 bg-white/95 backdrop-blur-sm py-2 shadow-sm md:shadow-none -mx-4 px-4 md:mx-0 md:px-0 transition-all duration-200">
+        <nav className="flex items-center gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-1 w-full">
+          {TABS.map((tab) => {
+            const isActive = tab === activeTab;
+            return (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`relative px-2 md:px-3 py-2 text-sm whitespace-nowrap transition-colors ${
+                  isActive
+                    ? "text-blue-600 font-semibold"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                {tab}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 relative items-start pb-24 lg:pb-0">
+        {/* --- LEFT CONTENT --- */}
+        <div className="flex-1 min-w-0 w-full" ref={overviewRef}>
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 wrap-break-word leading-tight">
+            {propertyData.name || "Luxury Villa"}
+          </h1>
+          <p className="text-sm md:text-base text-gray-500 mt-1">
+            {propertyData.address?.fullAddress || "Location"}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
+            <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100">
+              <span className="font-bold text-xs">Guest Favorite</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-yellow-500 text-lg">★</span>
+              <span className="font-bold">
+                {propertyData.rating?.toFixed(1) || "4.8"}
+              </span>
+              <span className="text-gray-400">/5</span>
+            </div>
+            <span className="hidden sm:inline text-gray-300">|</span>
+            <button
+              onClick={() => handleTabClick("Reviews")}
+              className="text-blue-600 hover:underline font-medium"
+            >
+              {propertyDetails.reviews?.length || 0} Reviews
+            </button>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mt-4">
+            {[
+              {
+                icon: "/assets/booking/user.svg",
+                text: `Up to ${propertyData.capacity?.adults || 10} Guests`,
+              },
+              {
+                icon: "/assets/booking/room.svg",
+                text: `${propertyData.noOfRooms || 3} Rooms`,
+              },
+              {
+                icon: "/assets/booking/bath.svg",
+                text: `${propertyData.noOfBaths || 2} Baths`,
+              },
+            ].map((tag, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-blue-50 text-blue-900 px-3 py-1.5 rounded text-xs md:text-sm font-medium"
+              >
+                <img src={tag.icon} alt="" className="w-3.5 h-3.5 opacity-70" />
+                {tag.text}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-4 mt-8">
+            {getAmenities()
+              .slice(0, 5)
+              .map((amenity, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center gap-2 text-center"
+                >
+                  <div className="w-10 h-10 rounded-full border flex items-center justify-center bg-gray-50">
+                    <span className="text-xs font-bold text-gray-600">
+                      {typeof amenity === "string" ? amenity[0] : "✓"}
+                    </span>
+                  </div>
+                  <span className="text-[10px] md:text-xs text-gray-600 font-medium capitalize truncate w-full max-w-[60px]">
+                    {typeof amenity === "string"
+                      ? amenity.split(" ")[0]
+                      : amenity}
                   </span>
                 </div>
-                <button className="border border-gray-400 text-gray-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-50 transition-colors">
-                  Request Callback
+              ))}
+          </div>
+
+          <div className="mt-12 scroll-mt-36" ref={highlightsRef}>
+            <h3 className="text-lg font-bold text-gray-900 border-l-4 border-pink-400 pl-3 mb-4">
+              The Experience
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                {
+                  img: "/assets/booking/lavida-features.png",
+                  title: "Luxury Villas",
+                },
+                {
+                  img: "/assets/booking/lavida-features1.png",
+                  title: "Gourmet Meals",
+                },
+                {
+                  img: "/assets/booking/lavida-features2.png",
+                  title: "Premium Design",
+                },
+                {
+                  img: "/assets/booking/lavida-features3.png",
+                  title: "Experiences",
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="relative group overflow-hidden rounded-lg aspect-4/3 sm:aspect-auto sm:h-40"
+                >
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span className="text-white font-serif text-center font-medium px-2">
+                      {item.title}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-10 pt-8 border-t border-gray-100">
+            <h3 className="text-lg font-bold border-l-4 border-pink-400 pl-3 mb-2">
+              About
+            </h3>
+            <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+              {expanded ? fullText : previewText}
+            </p>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-blue-600 font-medium text-sm mt-2 underline"
+            >
+              {expanded ? "Read Less" : "Read More"}
+            </button>
+          </div>
+
+          <div className="mt-10 scroll-mt-36" ref={spacesRef}>
+            {/* Spaces placeholder */}
+          </div>
+
+          <div ref={refundPolicyRef} className="mt-8 pt-4 scroll-mt-36">
+            <RulesAndSpaces propertyDetails={propertyDetails} />
+          </div>
+          <div ref={reviewsRef} className="mt-8 pt-4 scroll-mt-36">
+            <GuestReviews propertyDetails={propertyDetails} />
+          </div>
+        </div>
+
+        {/* --- DESKTOP SIDEBAR (Hidden on Mobile) --- */}
+        <aside className="hidden lg:block w-[360px] shrink-0 sticky top-24 booking-form-container h-fit">
+          <div className="bg-white rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+            <div className="bg-[linear-gradient(107.22deg,rgba(23,255,82,0.11)_1.46%,rgba(1,108,110,0.11)_99.96%)] px-5 py-4 border-b border-green-100">
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-gray-900">
+                  ₹{getBasePrice().toLocaleString("en-IN")}
+                </span>
+                <span className="text-xs text-gray-500">/ night</span>
+              </div>
+            </div>
+
+            <div className="p-5 space-y-4 relative">
+              <div className="grid grid-cols-2 gap-0 border border-gray-300 rounded-lg overflow-hidden relative">
+                <div
+                  onClick={() => {
+                    setShowDatePicker("dates");
+                    setShowGuestPicker(false);
+                  }}
+                  className="p-3 border-r border-gray-300 hover:bg-gray-50 cursor-pointer"
+                >
+                  <span className="text-[10px] uppercase font-bold text-gray-500 block mb-1">
+                    Check-In
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 block truncate">
+                    {formatDate(checkInDate)}
+                  </span>
+                </div>
+                <div
+                  onClick={() => {
+                    setShowDatePicker("dates");
+                    setShowGuestPicker(false);
+                  }}
+                  className="p-3 hover:bg-gray-50 cursor-pointer"
+                >
+                  <span className="text-[10px] uppercase font-bold text-gray-500 block mb-1">
+                    Check-Out
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 block truncate">
+                    {formatDate(checkOutDate)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Removed Nested CustomDateRangePicker from here to avoid overflow/clipping issues */}
+
+              <div className="grid grid-cols-2 gap-0 border border-gray-300 rounded-lg overflow-hidden relative">
+                <div
+                  onClick={() => {
+                    setShowGuestPicker(!showGuestPicker);
+                    setShowDatePicker(null);
+                  }}
+                  className="p-3 border-r border-gray-300 hover:bg-gray-50 cursor-pointer"
+                >
+                  <span className="text-[10px] uppercase font-bold text-gray-500 block mb-1">
+                    Guests
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 block truncate">
+                    {formatGuests()}
+                  </span>
+                </div>
+
+                {showGuestPicker && (
+                  <div className="absolute top-full left-0 z-50 w-64 mt-1 bg-white rounded-lg shadow-xl border border-gray-200 p-4">
+                    {["adults", "children"].map((type) => (
+                      <div
+                        key={type}
+                        className="flex justify-between items-center mb-4 last:mb-0"
+                      >
+                        <span className="capitalize text-sm font-medium">
+                          {type}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGuestChange(
+                                type === "children" ? "children" : "adults",
+                                -1
+                              );
+                            }}
+                            className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                          >
+                            -
+                          </button>
+                          <span className="w-4 text-center text-sm">
+                            {
+                              guests[
+                                type === "children" ? "children" : "adults"
+                              ]
+                            }
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGuestChange(
+                                type === "children" ? "children" : "adults",
+                                1
+                              );
+                            }}
+                            className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowGuestPicker(false);
+                      }}
+                      className="w-full mt-2 py-2 bg-gray-900 text-white text-xs rounded font-medium"
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+
+                <div
+                  onClick={() => {
+                    setShowRoomPicker(!showRoomPicker);
+                    setShowDatePicker(null);
+                  }}
+                  className="p-3 hover:bg-gray-50 cursor-pointer"
+                >
+                  <span className="text-[10px] uppercase font-bold text-gray-500 block mb-1">
+                    Rooms
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 block truncate">
+                    {rooms} Rooms
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleReserve}
+                className="w-full bg-green text-white py-3.5 rounded-lg font-semibold text-base hover:bg-darkGreen transition shadow-sm active:scale-[0.98]"
+              >
+                {checkInDate && checkOutDate
+                  ? "Reserve Now"
+                  : "Check Availability"}
+              </button>
+
+              <div className="text-center">
+                <button
+                  onClick={() => handleTabClick("Refund Policy")}
+                  className="text-xs text-gray-500 underline decoration-gray-300"
+                >
+                  Cancellation Policy
                 </button>
               </div>
             </div>
           </div>
         </aside>
+
+        {/* --- MOBILE STICKY FOOTER --- */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:hidden">
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-bold text-gray-900">
+                ₹{getBasePrice().toLocaleString("en-IN")}
+              </span>
+              <span className="text-xs text-gray-500">/ night</span>
+            </div>
+            <div className="text-xs text-gray-500 mt-0.5">
+              {checkInDate && checkOutDate
+                ? `${formatDate(checkInDate)} - ${formatDate(checkOutDate)}`
+                : "Select Dates"}
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (!checkInDate || !checkOutDate) {
+                setShowDatePicker("dates");
+              } else {
+                handleReserve();
+              }
+            }}
+            className="bg-[#222222] text-white px-6 py-3 rounded-lg font-medium text-sm active:scale-95 transition-transform"
+          >
+            {checkInDate && checkOutDate ? "Reserve" : "Select Dates"}
+          </button>
+        </div>
+
+        {/* --- GLOBAL DATE PICKER (Works for both Mobile & Desktop) --- */}
+        <CustomDateRangePicker
+          isOpen={showDatePicker === "dates"}
+          onClose={() => setShowDatePicker(null)}
+          isMobileModal={true} // Forcing Modal Mode for both screens as requested
+        />
       </div>
     </section>
   );

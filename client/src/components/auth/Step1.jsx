@@ -39,12 +39,10 @@ function Step1({ onNext, onClose }) {
           number: phone,
         },
       });
-
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message ||
-        "Failed to send OTP. Please try again."
+        err.response?.data?.message || "Failed to send OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -63,16 +61,15 @@ function Step1({ onNext, onClose }) {
 
         onNext({
           googleAuth: true,
-          isProfileComplete: authResponse.data.data.isProfileComplete
+          isProfileComplete: authResponse.data.data.isProfileComplete,
         });
       }
-
     } catch (err) {
-      console.error('Google Login Error:', err);
+      console.error("Google Login Error:", err);
       setError(
         err.response?.data?.message ||
-        err.message ||
-        "Failed to login with Google. Please try again."
+          err.message ||
+          "Failed to login with Google. Please try again."
       );
     } finally {
       setGoogleLoading(false);
@@ -80,14 +77,14 @@ function Step1({ onNext, onClose }) {
   };
 
   const handleGoogleError = (error) => {
-    console.error('Google Login Failed:', error);
+    console.error("Google Login Failed:", error);
     setError("Google login failed. Please try again.");
   };
 
   const login = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
     onError: handleGoogleError,
-    flow: 'auth-code',
+    flow: "auth-code",
   });
 
   // ---------------- ANIMATION VARIANTS ----------------
@@ -134,7 +131,8 @@ function Step1({ onNext, onClose }) {
         <img
           src="/assets/auth/left.png"
           alt=""
-          className="object-cover w-full h-full rounded-lg" />
+          className="object-cover w-full h-full rounded-lg"
+        />
       </motion.div>
 
       {/* FORM */}
@@ -149,7 +147,10 @@ function Step1({ onNext, onClose }) {
         </motion.button>
 
         <div className="w-full max-w-md">
-          <motion.h2 className="text-2xl font-semibold mb-2" variants={itemVariants}>
+          <motion.h2
+            className="text-2xl font-semibold mb-2"
+            variants={itemVariants}
+          >
             Sign in or create an account
           </motion.h2>
 
@@ -179,7 +180,8 @@ function Step1({ onNext, onClose }) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Enter Mobile Number"
-              className="w-full p-3 outline-none" />
+              className="w-full p-3 outline-none"
+            />
           </motion.div>
 
           {/* ERROR */}
@@ -196,9 +198,11 @@ function Step1({ onNext, onClose }) {
           <motion.button
             onClick={handleSendOtp}
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium transition mb-4 ${loading
+            className={`w-full py-3 rounded-lg font-medium transition mb-4 ${
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green hover:bg-darkGreen text-white"}`}
+                : "bg-green hover:bg-darkGreen text-white"
+            }`}
             variants={itemVariants}
             whileHover={!loading && { scale: 1.02 }}
             whileTap={!loading && { scale: 0.98 }}
@@ -207,17 +211,18 @@ function Step1({ onNext, onClose }) {
           </motion.button>
 
           <motion.div
-            className="flex justify-center gap-4 mb-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"
             variants={itemVariants}
           >
             <motion.button
-              onClick={() => login()}
+              onClick={login}
               disabled={googleLoading || loading}
-              className={`flex gap-2 border rounded-lg px-4 py-3 w-full justify-center ${
-                googleLoading || loading
-                  ? "bg-gray-100 opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-50 transition"
-              }`}
+              className={`flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm font-medium
+      ${
+        googleLoading || loading
+          ? "bg-gray-100 opacity-50 cursor-not-allowed"
+          : "hover:bg-gray-50 transition"
+      }`}
               whileHover={!googleLoading && !loading && { scale: 1.02 }}
               whileTap={!googleLoading && !loading && { scale: 0.98 }}
             >
@@ -226,8 +231,16 @@ function Step1({ onNext, onClose }) {
             </motion.button>
 
             <motion.button
-              disabled
-              className="flex gap-2 border rounded-lg px-4 py-3 w-full justify-center bg-gray-100 opacity-50 cursor-not-allowed"
+              onClick={login}
+              disabled={googleLoading || loading}
+              className={`flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm font-medium
+      ${
+        googleLoading || loading
+          ? "bg-gray-100 opacity-50 cursor-not-allowed"
+          : "hover:bg-gray-50 transition"
+      }`}
+              whileHover={!googleLoading && !loading && { scale: 1.02 }}
+              whileTap={!googleLoading && !loading && { scale: 0.98 }}
             >
               <MdEmail className="text-lg" />
               <span>Email</span>
