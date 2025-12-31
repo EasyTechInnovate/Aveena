@@ -1,43 +1,32 @@
-import React from 'react'
+import React from "react";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-
 
 const Hotels = ({ hotels }) => {
   const navigate = useNavigate();
-  const { isAuth, user } = useAuth();
 
+  /* =========================
+     CLICK HANDLER
+     ========================= */
   const handleHotelClick = (hotel) => {
-    if (!isAuth) {
-      alert('Please login or sign up first to view property details');
-      return;
-    }
-
-    // Check if profile is complete
-    if (user && !user.isProfileComplete) {
-      alert('Please complete your profile before booking. You will be redirected to your account page.');
-      navigate('/account');
-      return;
-    }
-
     if (hotel._id) {
       navigate(`/booking/${hotel._id}`);
     }
   };
+
   const hotelVariants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" }
+      transition: { duration: 0.3, ease: "easeOut" },
     },
     hover: {
       scale: 1.01,
       y: -2,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
 
   return (
@@ -48,12 +37,12 @@ const Hotels = ({ hotels }) => {
             key={index}
             className="pl-4 max-w-[320px] md:max-w-[350px] lg:max-w-[400px]"
           >
-            <div 
-              className="block"
+            <div
+              className="block cursor-pointer"
               onClick={() => handleHotelClick(hotel)}
             >
-              <motion.div 
-                className="hotel rounded-2xl overflow-hidden shadow bg-white flex flex-col cursor-pointer"
+              <motion.div
+                className="hotel rounded-2xl overflow-hidden shadow bg-white flex flex-col"
                 variants={hotelVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -61,97 +50,83 @@ const Hotels = ({ hotels }) => {
                 whileHover="hover"
                 transition={{ delay: index * 0.05 }}
               >
-              {/* Top */}
-              <div className="hotel-top relative">
-                <motion.img
-                  src={hotel.image}
-                  alt={hotel.name}
-                  className="w-full h-52 object-cover rounded-t-2xl"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                />
+                {/* Top */}
+                <div className="hotel-top relative">
+                  <motion.img
+                    src={hotel.image}
+                    alt={hotel.name}
+                    className="w-full h-52 object-cover rounded-t-2xl"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  />
 
-                {/* Rating */}
-                {/* <motion.div 
-                  className="ratings flex gap-2 bg-white px-4 py-1.5 rounded-full absolute top-2 left-2 shadow"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
-                >
-                  <h2 className="font-semibold">{hotel.rating}</h2>
-                  <img src="/assets/star5.svg" alt="rating" className="w-4" />
-                </motion.div> */}
+                  {/* Best Rated Badge */}
+                  {index === 0 && (
+                    <motion.div
+                      className="best-rated bg-darkGreen text-white text-sm px-3 py-1 flex gap-2 items-center absolute bottom-0 right-0 rounded-tl-md"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.3,
+                        type: "spring",
+                        stiffness: 200,
+                      }}
+                    >
+                      <img src="/assets/bestRating.svg" alt="rate" />
+                      <span>Best Rated</span>
+                    </motion.div>
+                  )}
+                </div>
 
-                {/* Like */}
-                {/* <motion.div 
-                  className="like bg-white p-3 rounded-full shadow absolute top-2 right-2 flex items-center justify-center cursor-pointer"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <img src="/assets/like.svg" alt="like" className="w-5" />
-                </motion.div> */}
-
-                {/* Best Rated Badge */}
-                {index === 0 && (
-                  <motion.div 
-                    className="best-rated bg-darkGreen text-white text-sm px-3 py-1 flex gap-2 items-center absolute bottom-0 right-0 rounded-tl-md"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                {/* Details */}
+                <div className="hotel-details p-5 flex flex-col flex-1">
+                  <motion.div
+                    className="hd-top border-b border-gray-200 pb-3 mb-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + index * 0.1 }}
                   >
-                    <img src="/assets/bestRating.svg" alt="rate" />
-                    <span>Best Rated</span>
+                    <h3 className="font-semibold text-lg text-darkBlue">
+                      {hotel.name}
+                    </h3>
+
+                    <span className="flex gap-2 items-center mt-1 text-sm">
+                      <img
+                        src="/assets/address.svg"
+                        alt="location"
+                        className="h-4"
+                      />
+                      <p className="text-[#1E1E1E]/75">
+                        {hotel.address}
+                      </p>
+                    </span>
+
+                    <div className="flex items-center gap-1 text-[#4F4F4F]/80 flex-wrap mt-2 text-xs">
+                      <span>Upto</span> {hotel.maxGuests} <span>Guests</span>
+                      <img src="/assets/start4.svg" alt="star" className="w-3" />
+                      {hotel.rooms} <span>Rooms</span>
+                      <img src="/assets/start4.svg" alt="star" className="w-3" />
+                      {hotel.baths} <span>Baths</span>
+                    </div>
                   </motion.div>
-                )}
-              </div>
 
-              {/* Details */}
-              <div className="hotel-details p-5 flex flex-col flex-1">
-                <motion.div 
-                  className="hd-top border-b border-gray-200 pb-3 mb-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1 }}
-                >
-                  <h3 className="font-semibold text-lg text-darkBlue">
-                    {hotel.name}
-                  </h3>
-                  <span className="flex gap-2 items-center mt-1 text-sm">
-                    <img
-                      src="/assets/address.svg"
-                      alt="location"
-                      className="h-4"
-                    />
-                    <p className="text-[#1E1E1E]/75">{hotel.address}</p>
-                  </span>
+                  {/* Bottom */}
+                  <motion.div
+                    className="hd-bottom flex items-center justify-between mt-auto"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                  >
+                    <div>
+                      <h2 className="font-semibold text-xl">
+                        ₹{hotel.perNight}
+                      </h2>
+                      <h5 className="text-[#1E1E1E]/75 text-sm">
+                        Per Night + Taxes
+                      </h5>
+                    </div>
 
-                  <div className="flex items-center gap-1 text-[#4F4F4F]/80 flex-wrap mt-2 text-xs">
-                    <span>Upto</span> {typeof hotel.maxGuests === 'number' ? hotel.maxGuests : hotel.maxGuests} <span>Guests</span>
-                    <img src="/assets/start4.svg" alt="star" className="w-3" />
-                    {typeof hotel.rooms === 'number' ? hotel.rooms : hotel.rooms} <span>Rooms</span>
-                    <img src="/assets/start4.svg" alt="star" className="w-3" />
-                    {typeof hotel.baths === 'number' ? hotel.baths : hotel.baths} <span>Baths</span>
-                  </div>
-                </motion.div>
-
-                {/* Bottom */}
-                <motion.div 
-                  className="hd-bottom flex items-center justify-between mt-auto"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
-                >
-                  <div className="hd-bottom-left">
-                    <h2 className="font-semibold text-xl">
-                      ₹{hotel.perNight}
-                    </h2>
-                    <h5 className="text-[#1E1E1E]/75 text-sm">
-                      Per Night + Taxes
-                    </h5>
-                  </div>
-                  <div className="hd-bottom-right">
-                    <motion.div 
+                    <motion.div
                       className="border rounded-md p-2 hover:bg-gray-50 transition"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       whileTap={{ scale: 0.9 }}
@@ -163,9 +138,8 @@ const Hotels = ({ hotels }) => {
                         className="w-8"
                       />
                     </motion.div>
-                  </div>
-                </motion.div>
-              </div>
+                  </motion.div>
+                </div>
               </motion.div>
             </div>
           </CarouselItem>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Step1 from "../auth/Step1";
 import Step2 from "../auth/Step2";
-import Step3 from "../auth/Step3";
 import Modal from "../common/Modal";
 import { useAuth } from "../../context/AuthContext";
 
@@ -10,7 +9,6 @@ const RibbonSignin = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [phoneData, setPhoneData] = useState(null);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const handleLoginComplete = async () => {
     await refreshProfile();
@@ -27,7 +25,7 @@ const RibbonSignin = () => {
         <img
           src="/assets/ribbon.svg"
           alt="ribbon"
-          className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+          className="w-10 h-10 sm:w-12 sm:h-12 shrink-0"
         />
         <h4 className="font-normal text-sm sm:text-base md:text-lg text-center sm:text-left">
           Members save 10% or more on over 100,000 hotels worldwide when signed in
@@ -43,37 +41,31 @@ const RibbonSignin = () => {
       </button>
 
       {/* Modal for Sign In Steps */}
-      <Modal isOpen={isModalOpen} onClose={() => {
-        setIsModalOpen(false);
-        setStep(1);
-      }}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setStep(1);
+        }}
+      >
         {step === 1 ? (
           <Step1
-            onNext={({ phone }) => {
-              setPhoneData(phone);
-              setStep(2);
-            }}
-            onClose={() => setIsModalOpen(false)}
-          />
-        ) : step === 2 ? (
-          <Step2
-            phone={phoneData}
-            onBack={() => setStep(1)}
-            onNext={({ isProfileComplete: profileComplete }) => {
-              setIsProfileComplete(profileComplete);
-              // Skip Step 3 if profile is already complete
-              if (profileComplete) {
+            onNext={({ phone, googleAuth }) => {
+              if (googleAuth) {
                 handleLoginComplete();
               } else {
-                setStep(3);
+                setPhoneData(phone);
+                setStep(2);
               }
             }}
             onClose={() => setIsModalOpen(false)}
           />
         ) : (
-          <Step3
+          <Step2
             phone={phoneData}
-            onClose={handleLoginComplete}
+            onBack={() => setStep(1)}
+            onNext={handleLoginComplete}
+            onClose={() => setIsModalOpen(false)}
           />
         )}
       </Modal>

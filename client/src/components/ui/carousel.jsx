@@ -99,26 +99,67 @@ function Carousel({
   );
 }
 
-function CarouselContent({
-  className,
-  ...props
-}) {
-  const { carouselRef, orientation } = useCarousel()
+function CarouselContent({ className, ...props }) {
+  const { carouselRef, orientation, api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [scrollSnaps, setScrollSnaps] = React.useState([])
+
+  React.useEffect(() => {
+    if (!api) return
+
+    setScrollSnaps(api.scrollSnapList())
+    setSelectedIndex(api.selectedScrollSnap())
+
+    const onSelect = () => {
+      setSelectedIndex(api.selectedScrollSnap())
+    }
+
+    api.on("select", onSelect)
+    api.on("reInit", onSelect)
+
+    return () => {
+      api.off("select", onSelect)
+    }
+  }, [api])
 
   return (
-    <div
-      ref={carouselRef}
-      className="overflow-hidden"
-      data-slot="carousel-content">
+    <div data-slot="carousel-content-wrapper">
+      {/* SLIDES */}
       <div
-        className={cn(
-          "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          className
-        )}
-        {...props} />
+        ref={carouselRef}
+        className="overflow-hidden"
+        data-slot="carousel-content"
+      >
+        <div
+          className={cn(
+            "flex",
+            orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+            className
+          )}
+          {...props}
+        />
+      </div>
+
+      {/* DOT PAGINATION */}
+      {scrollSnaps.length > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {scrollSnaps.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => api.scrollTo(index)}
+              className={cn(
+                "h-2 w-2 rounded-full transition-all",
+                selectedIndex === index
+                  ? "bg-black w-4"
+                  : "bg-gray-300 hover:bg-gray-400"
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
 function CarouselItem({

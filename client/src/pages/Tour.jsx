@@ -2,22 +2,36 @@ import React from "react";
 
 const Tour = () => {
   return (
-    <div className="h-screen relative pt-20">
-      <img src="/assets/tour-bg.png" alt="tour bg" className="h-screen" />
+    <div className="relative min-h-screen pt-20">
+      {/* Background Image */}
+      <img
+        src="/assets/tour-bg.png"
+        alt="tour bg"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
 
-      <div className="bg-black/40 w-full flex pb-40 text-center h-full absolute top-0 left-0">
-        <div className="max-w-7xl mx-auto mt-auto">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Our Tour Packages Are <br />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40 flex">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-16 sm:pb-24 lg:pb-40 text-center">
+          
+          {/* Heading */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+            Our Tour Packages Are <br className="hidden sm:block" />
             Coming Soon
           </h1>
-          <h5 className="text-white font-normal">
+
+          {/* Description */}
+          <h5 className="text-sm sm:text-base text-white font-normal leading-relaxed max-w-3xl mx-auto">
             We’re curating unforgettable travel experiences just for you. From
-            breathtaking landscapes <br />to iconic landmarks, our upcoming tour
-            packages are designed to make your next getaway <br />stress-free,
+            breathtaking landscapes to iconic landmarks, our upcoming tour
+            packages are designed to make your next getaway stress-free,
             exciting, and memorable.
           </h5>
-          <button className="py-2 px-16 text-md cursor-pointer bg-darkGreen text-white mt-8 rounded">Explore More</button>
+
+          {/* CTA */}
+          <button className="mt-8 mx-auto w-full sm:w-auto py-3 px-10 sm:px-16 text-sm sm:text-md cursor-pointer bg-darkGreen text-white rounded-lg hover:opacity-90 transition">
+            Explore More
+          </button>
         </div>
       </div>
     </div>

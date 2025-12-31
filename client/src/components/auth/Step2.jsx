@@ -13,8 +13,10 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
 
   const { login } = useAuth();
 
+  /* ================= OTP LOGIC ================= */
+
   const handleOtpChange = (index, value) => {
-    if (value.length > 1 || !/^[0-9]?$/.test(value)) return;
+    if (!/^[0-9]?$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -33,20 +35,17 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    
-    const pastedData = e.clipboardData
+    const pasted = e.clipboardData
       .getData("text")
       .replace(/\D/g, "")
       .slice(0, OTP_LENGTH);
 
-    const newOtp = pastedData.split("");
-
-    setOtp([...newOtp, ...Array(OTP_LENGTH - newOtp.length).fill("")]);
+    const filled = pasted.split("");
+    setOtp([...filled, ...Array(OTP_LENGTH - filled.length).fill("")]);
   };
 
   const handleVerify = async () => {
     setError("");
-
     const code = otp.join("");
 
     if (code.length !== OTP_LENGTH) {
@@ -54,122 +53,76 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
       return;
     }
 
-    if (!phone || !phone.countryCode || !phone.number) {
-      setError("Phone data is missing. Please go back and re-enter.");
-      return;
-    }
-
-    const payload = {
-      phone: {
-        countryCode: phone.countryCode,
-        number: phone.number,
-      },
-      verificationCode: code,
-    };
-
     try {
       setLoading(true);
-
-      const res = await verifyOtp(payload);
-      const { accessToken, isProfileComplete } = res.data.data;
-
-      login(accessToken);
-
-      onNext({ 
-        isProfileComplete, 
-        phone: payload.phone
+      const res = await verifyOtp({
+        phone,
+        verificationCode: code,
       });
 
-  } catch (err) {
-    console.error(err);
-    setError(
-      err.response?.data?.message || "Invalid OTP. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
+      const { accessToken, isProfileComplete } = res.data.data;
+      login(accessToken);
+      onNext({ isProfileComplete, phone });
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid OTP.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.5, ease: "easeOut", staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
-  };
-
-  const otpVariants = {
-    focus: {
-      scale: 1.1,
-      boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.3)",
-    },
-  };
+  /* ================= UI ================= */
 
   return (
     <motion.div
-      className="flex bg-white rounded-2xl relative h-[60vh] overflow-hidden"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+      className="flex flex-col md:flex-row bg-white rounded-2xl overflow-hidden"
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Left image */}
-      <motion.div className="flex-2 p-4" variants={imageVariants}>
+      {/* LEFT IMAGE */}
+      <div className="hidden md:flex w-1/2 p-4">
         <img
           src="/assets/auth/left.png"
-          alt="Auth side"
-          className="object-cover w-full h-full rounded-lg"
+          alt="Auth visual"
+          className="w-full h-full object-cover rounded-xl"
         />
-      </motion.div>
+      </div>
 
-      {/* Right (OTP form) */}
-      <div className="w-full md:flex-2 flex flex-col justify-center items-center pr-4 relative">
-        <motion.button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold"
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          ×
-        </motion.button>
-
-        <div className="w-full max-w-md">
-          <motion.button
+      {/* RIGHT CONTENT */}
+      <div className="w-full md:w-1/2 px-6 py-6 relative">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <button
             onClick={onBack}
-            className="flex items-center text-darkBlue font-medium mb-6 hover:underline"
-            variants={itemVariants}
-            whileHover={{ x: -5 }}
+            className="text-sm font-medium text-darkBlue hover:underline"
           >
-            ← Go Back
-          </motion.button>
+            ← Back
+          </button>
 
-          <motion.h2 className="text-2xl font-semibold mb-2" variants={itemVariants}>
-            Enter OTP
-          </motion.h2>
+          <button
+            onClick={onClose}
+            className="text-2xl text-gray-500 hover:text-black"
+          >
+            ×
+          </button>
+        </div>
 
-          <motion.p className="text-sm text-gray-600 mb-6" variants={itemVariants}>
-            Enter the {OTP_LENGTH}-digit code sent to:
+        {/* CONTENT */}
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold mb-2">Enter OTP</h2>
+
+          <p className="text-sm text-gray-600 mb-5">
+            Enter the {OTP_LENGTH}-digit code sent to
             <br />
-            <b>{phone?.countryCode} {phone?.number}</b>
-          </motion.p>
+            <b>
+              {phone?.countryCode} {phone?.number}
+            </b>
+          </p>
 
-          {/* OTP Boxes */}
-          <motion.div
-            className="flex justify-between gap-2 mb-4"
-            variants={itemVariants}
-          >
+          {/* OTP INPUTS */}
+          <div className="flex justify-between gap-2 mb-4">
             {Array.from({ length: OTP_LENGTH }).map((_, index) => (
-              <motion.input
+              <input
                 key={index}
                 ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
@@ -179,38 +132,33 @@ const Step2 = ({ phone, onBack, onNext, onClose }) => {
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
-                className="w-12 h-12 text-center border border-gray-300 rounded-lg text-xl font-medium focus:outline-none"
-                variants={otpVariants}
-                whileFocus="focus"
+                className="w-10 h-12 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg text-lg font-medium focus:outline-none focus:ring-2 focus:ring-green"
               />
             ))}
-          </motion.div>
+          </div>
 
           {error && (
-            <p className="text-red-500 text-sm mb-2">
-              {error}
-            </p>
+            <p className="text-red-500 text-sm mb-3">{error}</p>
           )}
 
-          {/* Verify button */}
-          <motion.button
+          <button
             onClick={handleVerify}
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium mb-3 transition ${
+            className={`w-full py-3 rounded-lg font-medium mb-4 ${
               loading
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-gray-300 cursor-not-allowed"
                 : "bg-green text-white hover:bg-darkGreen"
             }`}
           >
             {loading ? "Verifying..." : "Verify OTP"}
-          </motion.button>
+          </button>
 
-          <motion.p className="text-sm text-center text-gray-600" variants={itemVariants}>
+          <p className="text-sm text-center text-gray-600">
             Didn’t receive a code?
-            <span className="text-darkBlue font-medium ml-1 hover:underline cursor-pointer">
+            <span className="ml-1 text-darkBlue font-medium cursor-pointer hover:underline">
               Resend OTP
             </span>
-          </motion.p>
+          </p>
         </div>
       </div>
     </motion.div>

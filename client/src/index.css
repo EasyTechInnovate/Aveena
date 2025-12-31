@@ -4,6 +4,10 @@
 @import "tw-animate-css";
 
 
+/* ::-webkit-scrollbar{
+  display: none;
+} */
+
 
 
 @custom-variant dark (&:is(.dark *));

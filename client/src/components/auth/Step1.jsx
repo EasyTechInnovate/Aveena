@@ -17,7 +17,6 @@ function Step1({ onNext, onClose }) {
 
   const handleSendOtp = async () => {
     setError("");
-
     if (!phone || phone.length < 8) {
       setError("Please enter a valid phone number.");
       return;
@@ -25,26 +24,16 @@ function Step1({ onNext, onClose }) {
 
     try {
       setLoading(true);
-
       await sendOtp({
-        phone: {
-          countryCode,
-          number: phone,
-        },
+        phone: { countryCode, number: phone },
       });
 
       onNext({
-        phone: {
-          countryCode,
-          number: phone,
-        },
+        phone: { countryCode, number: phone },
       });
-
     } catch (err) {
-      console.error(err);
       setError(
-        err.response?.data?.message ||
-        "Failed to send OTP. Please try again."
+        err.response?.data?.message || "Failed to send OTP. Please try again."
       );
     } finally {
       setLoading(false);
@@ -57,69 +46,43 @@ function Step1({ onNext, onClose }) {
       setError("");
 
       const authResponse = await googleLogin({ code: tokenResponse.code });
-
       if (authResponse.data?.data?.accessToken) {
         authLogin(authResponse.data.data.accessToken);
-
         onNext({
           googleAuth: true,
-          isProfileComplete: authResponse.data.data.isProfileComplete
+          isProfileComplete: authResponse.data.data.isProfileComplete,
         });
       }
-
     } catch (err) {
-      console.error('Google Login Error:', err);
       setError(
         err.response?.data?.message ||
-        err.message ||
-        "Failed to login with Google. Please try again."
+          err.message ||
+          "Failed to login with Google."
       );
     } finally {
       setGoogleLoading(false);
     }
   };
 
-  const handleGoogleError = (error) => {
-    console.error('Google Login Failed:', error);
-    setError("Google login failed. Please try again.");
-  };
-
   const login = useGoogleLogin({
     onSuccess: handleGoogleSuccess,
-    onError: handleGoogleError,
-    flow: 'auth-code',
+    onError: () => setError("Google login failed. Please try again."),
+    flow: "auth-code",
   });
 
-  // ---------------- ANIMATION VARIANTS ----------------
+  /* ================= ANIMATIONS ================= */
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.95 },
     visible: {
       opacity: 1,
       scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-        staggerChildren: 0.1,
-      },
+      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.1 },
     },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
-    },
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
@@ -130,15 +93,17 @@ function Step1({ onNext, onClose }) {
       animate="visible"
     >
       {/* LEFT IMAGE */}
-      <motion.div className="flex-2 p-4" variants={imageVariants}>
+      <motion.div className="hidden md:flex w-1/2 p-4">
         <img
           src="/assets/auth/left.png"
-          alt=""
-          className="object-cover w-full h-full rounded-lg" />
+          alt="auth"
+          className="object-cover w-full h-full rounded-lg"
+        />
       </motion.div>
 
-      {/* FORM */}
-      <div className="w-full md:flex-2 flex flex-col justify-center items-center pr-4">
+      {/* RIGHT FORM */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 relative">
+        {/* CLOSE */}
         <motion.button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold"
@@ -149,24 +114,30 @@ function Step1({ onNext, onClose }) {
         </motion.button>
 
         <div className="w-full max-w-md">
-          <motion.h2 className="text-2xl font-semibold mb-2" variants={itemVariants}>
+          <motion.h2
+            className="text-2xl font-semibold mb-3"
+            variants={itemVariants}
+          >
             Sign in or create an account
           </motion.h2>
 
-          <motion.p className="mb-6 text-sm" variants={itemVariants}>
+          <motion.p
+            className="mb-6 text-sm text-gray-600"
+            variants={itemVariants}
+          >
             Unlock a world of travel with one account across Expedia,
             Hotels.com, and Vrbo.
           </motion.p>
 
           {/* PHONE INPUT */}
           <motion.div
-            className="flex items-center border rounded-lg overflow-hidden mb-1"
+            className="flex items-center border rounded-lg overflow-hidden mb-3"
             variants={itemVariants}
           >
             <select
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="p-3 bg-transparent outline-none border-r"
+              className="p-3 bg-transparent outline-none border-r text-sm"
             >
               <option value="+91">+91</option>
               <option value="+1">+1</option>
@@ -178,48 +149,47 @@ function Step1({ onNext, onClose }) {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Enter Mobile Number"
-              className="w-full p-3 outline-none" />
+              placeholder="Enter mobile number"
+              className="w-full p-3 outline-none text-sm"
+            />
           </motion.div>
 
-          {/* ERROR */}
           {error && (
             <motion.p
-              className="text-red-500 text-sm mb-2"
+              className="text-red-500 text-sm mb-3"
               variants={itemVariants}
             >
               {error}
             </motion.p>
           )}
 
-          {/* SEND OTP BUTTON */}
+          {/* OTP */}
           <motion.button
             onClick={handleSendOtp}
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium transition mb-4 ${loading
+            className={`w-full py-3 rounded-lg font-medium mb-5 transition ${
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green hover:bg-darkGreen text-white"}`}
+                : "bg-green hover:bg-darkGreen text-white"
+            }`}
             variants={itemVariants}
-            whileHover={!loading && { scale: 1.02 }}
-            whileTap={!loading && { scale: 0.98 }}
           >
             {loading ? "Sending OTP..." : "Get OTP"}
           </motion.button>
 
+          {/* SOCIAL */}
           <motion.div
-            className="flex justify-center gap-4 mb-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"
             variants={itemVariants}
           >
             <motion.button
-              onClick={() => login()}
+              onClick={login}
               disabled={googleLoading || loading}
-              className={`flex gap-2 border rounded-lg px-4 py-3 w-full justify-center ${
+              className={`flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm ${
                 googleLoading || loading
                   ? "bg-gray-100 opacity-50 cursor-not-allowed"
                   : "hover:bg-gray-50 transition"
               }`}
-              whileHover={!googleLoading && !loading && { scale: 1.02 }}
-              whileTap={!googleLoading && !loading && { scale: 0.98 }}
             >
               <FaGoogle className="text-lg" />
               <span>{googleLoading ? "Loading..." : "Google"}</span>
@@ -227,7 +197,7 @@ function Step1({ onNext, onClose }) {
 
             <motion.button
               disabled
-              className="flex gap-2 border rounded-lg px-4 py-3 w-full justify-center bg-gray-100 opacity-50 cursor-not-allowed"
+              className="flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm opacity-60 cursor-not-allowed"
             >
               <MdEmail className="text-lg" />
               <span>Email</span>

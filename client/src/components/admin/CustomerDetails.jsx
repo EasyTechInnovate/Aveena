@@ -85,7 +85,7 @@ const CustomerDetails = ({ customer, onClose }) => {
       <div className="flex items-center justify-between pb-6 border-b border-gray-200 mb-6">
         <div className="flex items-center gap-4">
           {/* Profile Picture */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden shrink-0">
             <span className="text-white text-xl font-semibold">
               {customerName.split(' ').map(n => n[0]).join('').toUpperCase()}
             </span>

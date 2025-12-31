@@ -5,7 +5,6 @@ import LocationSelector from "../common/LocationSelector";
 import DatePicker from "../common/DatePicker";
 import { motion, AnimatePresence } from "framer-motion";
 
-
 const tabs = [
   { name: "Stays", icon: "/assets/stays.svg" },
   { name: "Tour Package", icon: "/assets/tour-package.svg", path: "/tour" },
@@ -33,29 +32,28 @@ const Search = () => {
     }
   };
 
-const handleSearch = () => {
-  if (!location) {
-    alert("Please select a location.");
-    return;
-  }
+  const handleSearch = () => {
+    if (!location) {
+      alert("Please select a location.");
+      return;
+    }
 
-  if (!dates.checkIn || !dates.checkOut) {
-    alert("Please select both check-in and check-out dates.");
-    return;
-  }
+    if (!dates.checkIn || !dates.checkOut) {
+      alert("Please select both check-in and check-out dates.");
+      return;
+    }
 
-  const params = new URLSearchParams({
-    location,
-    checkIn: dates.checkIn,
-    checkOut: dates.checkOut,
-    adults: travelers.adults,
-    childrens: travelers.childrens,
-    rooms: travelers.rooms,
-  }).toString();
+    const params = new URLSearchParams({
+      location,
+      checkIn: dates.checkIn,
+      checkOut: dates.checkOut,
+      adults: travelers.adults,
+      childrens: travelers.childrens,
+      rooms: travelers.rooms,
+    }).toString();
 
-  navigate(`/search?${params}`);
-};
-
+    navigate(`/search?${params}`);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 15 },
@@ -65,9 +63,9 @@ const handleSearch = () => {
       transition: {
         duration: 0.4,
         ease: "easeOut",
-        staggerChildren: 0.05
-      }
-    }
+        staggerChildren: 0.05,
+      },
+    },
   };
 
   const tabVariants = {
@@ -75,8 +73,8 @@ const handleSearch = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" }
-    }
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
   };
 
   const contentVariants = {
@@ -84,13 +82,13 @@ const handleSearch = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" }
+      transition: { duration: 0.3, ease: "easeOut" },
     },
     exit: {
       opacity: 0,
       y: -10,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
 
   return (
@@ -102,7 +100,7 @@ const handleSearch = () => {
       animate="visible"
     >
       {/* Top Tabs */}
-      <div className="search-top flex items-center justify-center">
+      <div className="search-top mx-2 flex items-center justify-center">
         <div className="flex items-center gap-8">
           {tabs.map((tab) => (
             <motion.button
@@ -132,13 +130,13 @@ const handleSearch = () => {
       </div>
 
       {/* Bottom Content */}
-      <div className="search-bottom border-t-2 border-gray-200 p-8">
+      <div className="search-bottom border-t-2 border-gray-200 px-4 py-6 sm:px-6 lg:p-8">
         <AnimatePresence mode="wait">
           {activeTab === "Stays" && (
             <motion.div
               key="stays"
               id="stays"
-              className="flex items-center gap-4 flex-wrap lg:flex-nowrap"
+              className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-center lg:gap-4"
               variants={contentVariants}
               initial="hidden"
               animate="visible"
@@ -146,9 +144,9 @@ const handleSearch = () => {
             >
               {/* Where */}
               <motion.div
-                className="flex-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="w-full lg:flex-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
                 <LocationSelector
@@ -160,9 +158,9 @@ const handleSearch = () => {
 
               {/* Dates */}
               <motion.div
-                className="flex-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="w-full lg:flex-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
               >
                 <DatePicker
@@ -174,9 +172,9 @@ const handleSearch = () => {
 
               {/* Travellers */}
               <motion.div
-                className="flex-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="w-full lg:flex-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
               >
                 <TravelerSelector
@@ -187,18 +185,18 @@ const handleSearch = () => {
               </motion.div>
 
               {/* Search Button */}
-              <motion.button 
+              <motion.button
                 onClick={handleSearch}
-                className="flex items-center gap-2 bg-green px-6 py-4 rounded-xl text-white font-medium hover:bg-darkGreen transition-colors"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="flex w-full justify-center items-center gap-2 bg-green px-5 py-3 sm:px-6 sm:py-4 lg:w-auto rounded-xl text-white font-medium hover:bg-darkGreen transition-colors"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <motion.img 
-                  src="/assets/search.svg" 
-                  alt="search stay" 
+                <motion.img
+                  src="/assets/search.svg"
+                  alt="search stay"
                   className="w-5 h-5"
                   whileHover={{ rotate: 15 }}
                   transition={{ duration: 0.2 }}
@@ -209,9 +207,9 @@ const handleSearch = () => {
           )}
 
           {activeTab === "Tour Package" && (
-            <motion.p 
+            <motion.p
               key="tour"
-              className="text-darkBlue font-medium"
+              className="text-darkBlue font-medium text-center sm:text-left"
               variants={contentVariants}
               initial="hidden"
               animate="visible"
@@ -220,11 +218,11 @@ const handleSearch = () => {
               Redirecting to tour packages...
             </motion.p>
           )}
-          
+
           {activeTab === "Visa Service" && (
-            <motion.p 
+            <motion.p
               key="visa"
-              className="text-darkBlue font-medium"
+              className="text-darkBlue font-medium text-center sm:text-left"
               variants={contentVariants}
               initial="hidden"
               animate="visible"

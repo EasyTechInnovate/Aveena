@@ -1,17 +1,21 @@
 import React from "react";
 
 const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null; // Hide when not open
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-      <div className="relative bg-white rounded-2xl w-full max-w-4xl shadow-lg overflow-hidden">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold z-10"
-        >
-          ×
-        </button>
+    <div className="fixed inset-0 z-9999 bg-black/60 flex items-center justify-center px-4 py-6 overflow-y-auto">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0"
+        onClick={onClose}
+      />
+
+      {/* Modal Content */}
+      <div
+        className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
       </div>
     </div>
