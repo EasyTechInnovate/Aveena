@@ -2,12 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XCircle, Star, StarHalf } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "../ui/carousel";
-
+import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
 function ReadMore({ text, maxChars = 100 }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -29,7 +24,6 @@ function ReadMore({ text, maxChars = 100 }) {
 }
 
 export default function GuestReviews({
-  
   rating = 4.6,
   count = 63,
   summary = `The villa offers a serene ambience with beautiful decor, lush gardens,
@@ -50,7 +44,6 @@ export default function GuestReviews({
   const [api, setApi] = useState();
   const [current, setCurrent] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
-
 
   const villas = [
     {
@@ -90,7 +83,6 @@ export default function GuestReviews({
     },
   ];
 
-
   useEffect(() => {
     if (!api) return;
 
@@ -102,7 +94,6 @@ export default function GuestReviews({
     });
   }, [api]);
 
-
   useEffect(() => {
     const handleKeyDown = (e) => e.key === "Escape" && setShowGallery(false);
     window.addEventListener("keydown", handleKeyDown);
@@ -112,7 +103,6 @@ export default function GuestReviews({
   return (
     <motion.div>
       <div>
-
         <h3 className="text-lg font-semibold mb-6 border-l-4 border-[#F5959E] pl-3">
           Guest Reviews
         </h3>
@@ -123,10 +113,8 @@ export default function GuestReviews({
           transition={{ duration: 0.25 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
-
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-start gap-5">
             <div className="flex flex-col items-center justify-center flex-1 shrink-0">
-
               <div className="relative w-fit flex justify-center items-center gap-2 mt-8">
                 <div className="flex justify-center items-center gap-1 text-yellow-500">
                   <Star
@@ -243,7 +231,6 @@ export default function GuestReviews({
             </div>
           </div>
         </motion.div>
-
 
         <div className="py-6">
           <div className="flex items-center justify-between">
@@ -960,7 +947,10 @@ export default function GuestReviews({
             {/* +7 more */}
             <div className="flex items-center gap-4 p-4">
               <div>
-                <a href="#" className="text-blue-600 font-medium hover:underline">
+                <a
+                  href="#"
+                  className="text-blue-600 font-medium hover:underline"
+                >
                   +7 more
                 </a>
               </div>
@@ -969,97 +959,6 @@ export default function GuestReviews({
         </div>
 
         {/* Meals Section */}
-        <div className="mt-16">
-          <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
-            Meals
-          </h3>
-
-          {/* Video/Image Section */}
-          <div className="relative mb-6">
-            <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden relative">
-              {/* Food items background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-yellow-100">
-                <img
-                  src="/assets/booking/meals.png"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Play Button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform">
-                  <img src="/assets/booking/PlayButton.svg" alt="" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Menu Selection Buttons */}
-          <div className="flex flex-wrap gap-4 mb-8">
-            <button className="flex items-center gap-3 py-1 px-4 bg-[#F8F8F8] border border-[#E2E2E2] rounded-full hover:bg-gray-100 transition-colors">
-              <div className="w-3 h-3 bg-green rounded-full flex items-center justify-center" />
-              <span className="font-medium text-gray-900">Veg Menu</span>
-            </button>
-
-            <button className="flex items-center gap-3 py-1 px-4 bg-[#F8F8F8] border border-[#E2E2E2] rounded-full hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green rounded-full flex items-center justify-center" />
-
-                <div
-                  className="w-0 h-0 
-border-l-[10px] border-l-transparent 
-border-r-[10px] border-r-transparent 
-border-b-[12px] border-b-[#E10707]"
-                ></div>
-              </div>
-              <span className="font-medium text-gray-900">Mix Menu</span>
-            </button>
-
-            <button className="px-6 py-3 bg-[#F8F8F8] border border-[#E2E2E2] rounded-full hover:bg-gray-100 transition-colors">
-              <span className="font-medium text-gray-900">View More</span>
-            </button>
-          </div>
-
-          {/* Information Text - Two Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <p className="text-darkGray leading-relaxed">
-                All rates are on a per person, per day basis.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Barbecue can be availed at an additional charge.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Please inform us of your meal preference in advance and allow us a
-                minimum 48 hrs notice prior to your check-in date.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Guests do not have access to the villa kitchen.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Guests can indulge in the local fare at nearby restaurants,
-                however, please check the timings given the prevalent
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-darkGray leading-relaxed">lockdown rules.</p>
-              <p className="text-darkGray leading-relaxed">
-                The costs for the aforementioned food and beverage offerings and
-                events are subject to an 18% GST charge.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Service from delivery partners like Swiggy and Zomato is not
-                available in Alibaug.
-              </p>
-              <p className="text-darkGray leading-relaxed">
-                Separate utensils, cutlery & crockery will be used for preparation
-                & serving of Vegetarian & Non-Vegetarian meals
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Villa Location Section */}
         <div className="mt-16">
@@ -1092,10 +991,11 @@ border-b-[12px] border-b-[#E10707]"
                   An ideal getaway from the city's chaotic life, Alibaug shares
                   its boundaries with the magnificent Arabian Sea. It is most
                   commonly known for its sea forts, virgin beaches, black sand,
-                  mouthwatering seafood and a myriad of adventurous water sports.
-                  So, while you're here, make sure to explore the historic forts,
-                  relax on the pristine beaches, and indulge in the local culinary
-                  delights that this coastal paradise has to offer.
+                  mouthwatering seafood and a myriad of adventurous water
+                  sports. So, while you're here, make sure to explore the
+                  historic forts, relax on the pristine beaches, and indulge in
+                  the local culinary delights that this coastal paradise has to
+                  offer.
                   <br />
                   <br />
                   The region is also famous for its colonial architecture, with
@@ -1108,10 +1008,10 @@ border-b-[12px] border-b-[#E10707]"
                   <br />
                   <br />
                   For those interested in history, the nearby forts like Kolaba
-                  Fort and Murud-Janjira Fort offer fascinating insights into the
-                  region's maritime heritage. The area is also home to several
-                  luxury resorts and beachside villas that provide the perfect
-                  setting for a relaxing vacation.
+                  Fort and Murud-Janjira Fort offer fascinating insights into
+                  the region's maritime heritage. The area is also home to
+                  several luxury resorts and beachside villas that provide the
+                  perfect setting for a relaxing vacation.
                 </>
               ) : (
                 "An ideal getaway from the city's chaotic life, Alibaug shares its boundaries with the magnificent Arabian Sea. It is most commonly known for its sea forts, virgin beaches, black sand, mouthwatering seafood and a myriad of adventurous water sports. So, while you're here, make sure to explore the historic forts, relax on the pristine beaches, and indulge in the local culinary delights that this coastal paradise has to offer."
@@ -1159,8 +1059,8 @@ border-b-[12px] border-b-[#E10707]"
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-6">
-            Discover unique experiences and activities that will make your stay at
-            Pranaam truly memorable. From local cultural tours to adventure
+            Discover unique experiences and activities that will make your stay
+            at Pranaam truly memorable. From local cultural tours to adventure
             activities, we have something special for every guest.
           </p>
           <button className="px-4 py-2 text-darkGray text-sm font-medium rounded border-2 border-darkGray transition-colors">
@@ -1279,7 +1179,10 @@ border-b-[12px] border-b-[#E10707]"
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {villas.map((villa, index) => (
-                <CarouselItem key={index} className="pl-2 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3">
+                <CarouselItem
+                  key={index}
+                  className="pl-2 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3"
+                >
                   <div className="w-full h-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div className="h-48 relative overflow-hidden">
                       <img
@@ -1308,119 +1211,114 @@ border-b-[12px] border-b-[#E10707]"
             </CarouselContent>
           </Carousel>
         </div>
-
-
-     
-
       </div>
 
-
-   {/* Gallery Modal */}
-   <AnimatePresence mode="wait">
-          {showGallery && (
+      {/* Gallery Modal */}
+      <AnimatePresence mode="wait">
+        {showGallery && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: 0.15,
+              ease: "easeOut",
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+            onClick={() => setShowGallery(false)}
+            style={{ willChange: "opacity" }}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: 0.15,
-                ease: "easeOut",
+              initial={{
+                y: 8,
+                scale: 0.95,
+                opacity: 0,
               }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-              onClick={() => setShowGallery(false)}
-              style={{ willChange: "opacity" }}
+              animate={{
+                y: 0,
+                scale: 1,
+                opacity: 1,
+              }}
+              exit={{
+                y: 8,
+                scale: 0.95,
+                opacity: 0,
+              }}
+              transition={{
+                duration: 0.2,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+              className=" w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                willChange: "transform, opacity",
+                transform: "translate3d(0, 0, 0)",
+              }}
             >
-              <motion.div
-                initial={{
-                  y: 8,
-                  scale: 0.95,
-                  opacity: 0,
-                }}
-                animate={{
-                  y: 0,
-                  scale: 1,
-                  opacity: 1,
-                }}
-                exit={{
-                  y: 8,
-                  scale: 0.95,
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.2,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                className=" w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  willChange: "transform, opacity",
-                  transform: "translate3d(0, 0, 0)",
-                }}
-              >
-                {/* Left: Large Selected Image */}
-                <div className="flex-1 bg-gray-50 flex items-center justify-center p-4">
-                  <motion.img
-                    key={selectedImg || photos[0]}
-                    src={selectedImg || photos[0]}
-                    alt="Selected"
-                    className="max-h-[80vh] w-full rounded-lg object-contain"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                    style={{ willChange: "transform, opacity" }}
-                  />
+              {/* Left: Large Selected Image */}
+              <div className="flex-1 bg-gray-50 flex items-center justify-center p-4">
+                <motion.img
+                  key={selectedImg || photos[0]}
+                  src={selectedImg || photos[0]}
+                  alt="Selected"
+                  className="max-h-[80vh] w-full rounded-lg object-contain"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ willChange: "transform, opacity" }}
+                />
+              </div>
+
+              {/* Right: Thumbnail List */}
+              <div className="w-full md:w-64 border-l border-gray-200 p-4 overflow-y-auto max-h-[80vh]">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="font-semibold text-sm">Guest Photos</h5>
+                  <motion.button
+                    onClick={() => setShowGallery(false)}
+                    aria-label="Close gallery"
+                    className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <XCircle size={18} />
+                  </motion.button>
                 </div>
 
-                {/* Right: Thumbnail List */}
-                <div className="w-full md:w-64 border-l border-gray-200 p-4 overflow-y-auto max-h-[80vh]">
-                  <div className="flex items-center justify-between mb-3">
-                    <h5 className="font-semibold text-sm">Guest Photos</h5>
+                <div className="grid grid-cols-3 md:grid-cols-1 gap-2">
+                  {photos.map((p, i) => (
                     <motion.button
-                      onClick={() => setShowGallery(false)}
-                      aria-label="Close gallery"
-                      className="p-1 rounded-md hover:bg-gray-100 transition-colors"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ duration: 0.1 }}
+                      key={i}
+                      onClick={() => setSelectedImg(p)}
+                      className={`overflow-hidden rounded-md border transition-colors ${
+                        selectedImg === p
+                          ? "border-blue-500"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: i * 0.02,
+                        duration: 0.15,
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{ willChange: "transform" }}
                     >
-                      <XCircle size={18} />
+                      <img
+                        src={p}
+                        alt={`photo ${i + 1}`}
+                        className="w-full h-20 object-cover"
+                        loading="lazy"
+                      />
                     </motion.button>
-                  </div>
-
-                  <div className="grid grid-cols-3 md:grid-cols-1 gap-2">
-                    {photos.map((p, i) => (
-                      <motion.button
-                        key={i}
-                        onClick={() => setSelectedImg(p)}
-                        className={`overflow-hidden rounded-md border transition-colors ${selectedImg === p
-                            ? "border-blue-500"
-                            : "border-transparent hover:border-gray-300"
-                          }`}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{
-                          delay: i * 0.02,
-                          duration: 0.15,
-                        }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        style={{ willChange: "transform" }}
-                      >
-                        <img
-                          src={p}
-                          alt={`photo ${i + 1}`}
-                          className="w-full h-20 object-cover"
-                          loading="lazy"
-                        />
-                      </motion.button>
-                    ))}
-                  </div>
+                  ))}
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
-
   );
 }

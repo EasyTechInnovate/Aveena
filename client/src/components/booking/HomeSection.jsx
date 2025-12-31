@@ -53,10 +53,10 @@ function HomeSection({ property }) {
             ))}
           </div>
 
-          <button className="hidden md:flex items-center gap-2 border border-red-400 hover:bg-red-200 text-red-600 font-medium px-3 py-2 rounded-sm text-sm transition-colors duration-200">
+          {/* <button className="hidden md:flex items-center gap-2 border border-red-400 hover:bg-red-200 text-red-600 font-medium px-3 py-2 rounded-sm text-sm transition-colors duration-200">
             <img src="/assets/pdf.svg" alt="PDF Icon" className="w-5 h-5" />
             <span>View Brochure</span>
-          </button>
+          </button> */}
         </div>
 
         {/* Image Grid */}

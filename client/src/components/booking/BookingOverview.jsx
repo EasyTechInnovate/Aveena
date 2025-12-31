@@ -14,12 +14,7 @@ const TABS = [
   "Highlights",
   "Refund Policy",
   "Spaces",
-  "Reviews",
-  "Amenities",
-  "Meals",
-  "Location",
-  "Experiences",
-  "FAQ's",
+  "Reviews"
 ];
 
 export default function BookingOverview({
