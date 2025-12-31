@@ -68,8 +68,8 @@ export const createCouponSchema = z.object({
     .positive("User usage limit must be greater than 0.")
     .optional(),
   applicableFor: z
-    .enum(['all', 'hotel', 'villa'], {
-      invalid_type_error: "Applicable for must be 'all', 'hotel', or 'villa'."
+    .enum(['all', 'hotel', 'villa', 'apartment'], {
+      invalid_type_error: "Applicable for must be 'all', 'hotel', 'villa', or 'apartment'."
     })
     .optional()
 });

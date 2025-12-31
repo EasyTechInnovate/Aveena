@@ -57,7 +57,7 @@ const couponSchema = new Schema({
   },
   applicableFor: {
     type: String,
-    enum: ['all', 'hotel', 'villa'],
+    enum: ['all', 'hotel', 'villa', 'apartment'],
     default: 'all'
   },
   createdBy: {

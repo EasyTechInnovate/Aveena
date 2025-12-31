@@ -10,7 +10,7 @@ const propertySchema = new Schema({
     name: String,
     type: {
         type: String,
-        enum: ['hotel', 'villa'],
+        enum: ['hotel', 'villa', 'apartment'],
         required: true
     },
     address: {

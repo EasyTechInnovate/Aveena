@@ -77,7 +77,7 @@ export default {
     updatePropertyDetails: async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const { propertyId, propertyMedia, spaces, meals, villaLocationDescription, experiences, faqs } = req.body;
+            const { propertyId, propertyMedia, spaces, meals, locationDescription, experiences, faqs } = req.body;
 
             const property = await propertyModel.findOne({ _id: propertyId, ownerId: userId });
 
@@ -91,7 +91,7 @@ export default {
                 if (propertyMedia !== undefined) propertyDetails.propertyMedia = propertyMedia;
                 if (spaces !== undefined) propertyDetails.spaces = spaces;
                 if (meals !== undefined) propertyDetails.meals = meals;
-                if (villaLocationDescription !== undefined) propertyDetails.villaLocationDescription = villaLocationDescription;
+                if (locationDescription !== undefined) propertyDetails.villaLocationDescription = locationDescription;
                 if (experiences !== undefined) propertyDetails.experiences = experiences;
                 if (faqs !== undefined) propertyDetails.faqs = faqs;
                 await propertyDetails.save();
@@ -101,7 +101,7 @@ export default {
                     propertyMedia: propertyMedia || [],
                     spaces: spaces || [],
                     meals,
-                    villaLocationDescription,
+                    villaLocationDescription: locationDescription,
                     experiences,
                     faqs: faqs || []
                 });

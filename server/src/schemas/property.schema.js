@@ -51,9 +51,9 @@ export const createPropertySchema = z.object({
     .min(2, "Property name must be at least 2 characters."),
 
   type: z
-    .enum(["hotel", "villa"], {
+    .enum(["hotel", "villa", "apartment"], {
       required_error: "Property type is required.",
-      invalid_type_error: "Type must be either 'hotel' or 'villa'."
+      invalid_type_error: "Type must be either 'hotel', 'villa' or 'apartment'."
     }),
 
   address: z.object({
@@ -154,13 +154,13 @@ export const createPropertySchema = z.object({
   rooms: z.array(roomSchema).optional().default([])
 }).refine(
   (data) => {
-    if (data.type === "villa") {
+    if (data.type === "villa" || data.type === "apartment") {
       return data.totalUnits === 1; 
     }
     return true;
   },
   {
-    message: "For villas, total units must be exactly 1.",
+    message: "For villas and apartments, total units must be exactly 1.",
     path: ["totalUnits"]
   }
 )
@@ -261,7 +261,7 @@ export const propertyDetailsSchema = z.object({
     })
     .optional(),
 
-  villaLocationDescription: z.string().optional(),
+  locationDescription: z.string().optional(),
 
   experiences: z
     .object({
