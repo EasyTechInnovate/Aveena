@@ -1,5 +1,5 @@
 // client\src\pages\BookingPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import HomeSection from "../components/booking/HomeSection";
@@ -70,9 +70,21 @@ function BookingPage() {
     fetchProperty();
   }, [id, navigate]);
 
-  const handleBookingInfoChange = (newInfo) => {
-    setBookingInfo(newInfo);
-  };
+  const handleBookingInfoChange = useCallback((newInfo) => {
+  setBookingInfo((prev) => {
+    const merged = { ...prev, ...newInfo };
+
+    // 🔒 prevent useless state update
+    const isSame =
+      prev.checkIn === merged.checkIn &&
+      prev.checkOut === merged.checkOut &&
+      prev.adults === merged.adults &&
+      prev.childrens === merged.childrens &&
+      prev.rooms === merged.rooms;
+
+    return isSame ? prev : merged;
+  });
+}, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },

@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import RulesAndSpaces from "./RefundPolicy";
 import GuestReviews from "./GuestReviews";
+import Modal from "../common/Modal";
+import Step1 from "../auth/Step1";
+import Step2 from "../auth/Step2";
 
 const TABS = [
   "Overview",
@@ -25,9 +28,12 @@ export default function BookingOverview({
   onBookingInfoChange,
 }) {
   const navigate = useNavigate();
-  const { isAuth, user } = useAuth();
+  const { isAuth, user, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState("Overview");
   const [expanded, setExpanded] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authStep, setAuthStep] = useState(1);
+  const [phoneData, setPhoneData] = useState(null);
 
   // --- REFS FOR SCROLLING ---
   const overviewRef = useRef(null);
@@ -52,43 +58,48 @@ export default function BookingOverview({
   useEffect(() => {
     if (!bookingInfo) return;
 
-    if (bookingInfo.checkIn && bookingInfo.checkIn !== checkInDate) {
-      setCheckInDate(bookingInfo.checkIn);
+    let changed = false;
+
+    if (bookingInfo.checkIn !== checkInDate) {
+      setCheckInDate(bookingInfo.checkIn || "");
+      changed = true;
     }
-    if (bookingInfo.checkOut && bookingInfo.checkOut !== checkOutDate) {
-      setCheckOutDate(bookingInfo.checkOut);
+
+    if (bookingInfo.checkOut !== checkOutDate) {
+      setCheckOutDate(bookingInfo.checkOut || "");
+      changed = true;
     }
-    if (bookingInfo.rooms !== undefined && bookingInfo.rooms !== rooms) {
-      setRooms(bookingInfo.rooms);
+
+    if (bookingInfo.rooms !== rooms) {
+      setRooms(bookingInfo.rooms || 1);
+      changed = true;
     }
 
     setGuests((prev) => {
-      const newAdults =
-        bookingInfo.adults !== undefined ? bookingInfo.adults : prev.adults;
-      const newChildren =
-        bookingInfo.childrens !== undefined
-          ? bookingInfo.childrens
-          : prev.children;
+      const adults = bookingInfo.adults ?? prev.adults;
+      const children = bookingInfo.childrens ?? prev.children;
 
-      if (newAdults === prev.adults && newChildren === prev.children) {
+      if (adults === prev.adults && children === prev.children) {
         return prev;
       }
-      return { adults: newAdults, children: newChildren };
+      return { adults, children };
     });
+
+    if (!changed) return;
   }, [bookingInfo]);
 
   // --- OUTGOING CHANGE HANDLER ---
   useEffect(() => {
-    if (onBookingInfoChange) {
-      onBookingInfoChange({
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        adults: guests.adults,
-        childrens: guests.children,
-        rooms,
-      });
-    }
-  }, [checkInDate, checkOutDate, guests, rooms]);
+    if (!onBookingInfoChange) return;
+
+    onBookingInfoChange({
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      adults: guests.adults,
+      childrens: guests.children,
+      rooms,
+    });
+  }, [checkInDate, checkOutDate, guests.adults, guests.children, rooms]);
 
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
@@ -409,17 +420,21 @@ export default function BookingOverview({
   }, [showDatePicker]);
 
   const handleReserve = () => {
+    // 🔐 If user not logged in → show Step1
     if (!isAuth) {
-      alert("Please login or sign up first");
+      setIsAuthModalOpen(true);
+      setAuthStep(1);
       return;
     }
+
+    // 👤 Profile incomplete → redirect
     if (user && !user.isProfileComplete) {
-      alert("Please complete your profile first");
       navigate("/account");
       return;
     }
+
+    // 📅 Dates missing → open date picker
     if (!checkInDate || !checkOutDate) {
-      // For both desktop and mobile, open the modal if dates aren't selected
       setShowDatePicker("dates");
       return;
     }
@@ -446,6 +461,12 @@ export default function BookingOverview({
         ),
       },
     });
+  };
+
+  const handleAuthComplete = async () => {
+    await refreshProfile();
+    setIsAuthModalOpen(false);
+    setAuthStep(1);
   };
 
   return (
@@ -817,6 +838,35 @@ export default function BookingOverview({
           isMobileModal={true} // Forcing Modal Mode for both screens as requested
         />
       </div>
+
+      <Modal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setAuthStep(1);
+        }}
+      >
+        {authStep === 1 ? (
+          <Step1
+            onNext={({ phone, googleAuth }) => {
+              if (googleAuth) {
+                handleAuthComplete();
+              } else {
+                setPhoneData(phone);
+                setAuthStep(2);
+              }
+            }}
+            onClose={() => setIsAuthModalOpen(false)}
+          />
+        ) : (
+          <Step2
+            phone={phoneData}
+            onBack={() => setAuthStep(1)}
+            onNext={handleAuthComplete}
+            onClose={() => setIsAuthModalOpen(false)}
+          />
+        )}
+      </Modal>
     </section>
   );
 }

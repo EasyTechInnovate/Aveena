@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Step1 from "../auth/Step1";
 import Step2 from "../auth/Step2";
 import Modal from "../common/Modal";
@@ -30,6 +30,21 @@ const Nav = () => {
     setStep(1);
   };
 
+  /* =========================
+     LOCK BODY SCROLL ON MODAL
+     ========================= */
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isModalOpen]);
+
   return (
     <div className="nav bg-white w-full shadow-[0px_10px_50px_0px_#0000000F] fixed top-0 left-0 right-0 z-50">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
@@ -46,9 +61,19 @@ const Nav = () => {
               viewBox="0 0 24 24"
             >
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -104,7 +129,10 @@ const Nav = () => {
             <UserMenu />
           ) : (
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsModalOpen(true);
+              }}
               className="bg-green px-3 py-2 rounded-md text-white"
             >
               Sign In
@@ -115,7 +143,7 @@ const Nav = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white px-4 pb-4 shadow-md">
+        <div className="md:hidden bg-white px-4 pb-4 shadow-md border-t">
           {menuLinks.map((link) => (
             <Link
               key={link.name}
