@@ -9,13 +9,7 @@ import Modal from "../common/Modal";
 import Step1 from "../auth/Step1";
 import Step2 from "../auth/Step2";
 
-const TABS = [
-  "Overview",
-  "Highlights",
-  "Refund Policy",
-  "Spaces",
-  "Reviews"
-];
+const TABS = ["Overview", "Highlights", "Refund Policy", "Spaces", "Reviews"];
 
 export default function BookingOverview({
   property,
@@ -51,6 +45,7 @@ export default function BookingOverview({
 
   // --- FIX: INFINITE LOOP PREVENTION ---
   useEffect(() => {
+    // console.log("property : " , property);
     if (!bookingInfo) return;
 
     let changed = false;
@@ -435,6 +430,7 @@ export default function BookingOverview({
     }
 
     const params = new URLSearchParams({
+      propertyImage: propertyData.coverImage,
       propertyId: property?.property?._id,
       checkIn: checkInDate,
       checkOut: checkOutDate,
@@ -549,7 +545,7 @@ export default function BookingOverview({
             ))}
           </div>
 
-          <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-4 mt-8">
+          {/* <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-4 mt-8">
             {getAmenities()
               .slice(0, 5)
               .map((amenity, i) => (
@@ -569,49 +565,7 @@ export default function BookingOverview({
                   </span>
                 </div>
               ))}
-          </div>
-
-          <div className="mt-12 scroll-mt-36" ref={highlightsRef}>
-            <h3 className="text-lg font-bold text-gray-900 border-l-4 border-pink-400 pl-3 mb-4">
-              The Experience
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                {
-                  img: "/assets/booking/lavida-features.png",
-                  title: "Luxury Villas",
-                },
-                {
-                  img: "/assets/booking/lavida-features1.png",
-                  title: "Gourmet Meals",
-                },
-                {
-                  img: "/assets/booking/lavida-features2.png",
-                  title: "Premium Design",
-                },
-                {
-                  img: "/assets/booking/lavida-features3.png",
-                  title: "Experiences",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="relative group overflow-hidden rounded-lg aspect-4/3 sm:aspect-auto sm:h-40"
-                >
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <span className="text-white font-serif text-center font-medium px-2">
-                      {item.title}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          </div> */}
 
           <div className="mt-10 pt-8 border-t border-gray-100">
             <h3 className="text-lg font-bold border-l-4 border-pink-400 pl-3 mb-2">

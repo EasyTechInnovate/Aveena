@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { XCircle, Star, StarHalf } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
-function ReadMore({ text, maxChars = 100 }) {
+function ReadMore({ text, maxChars = 100}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const shouldTruncate = text.length > maxChars;
 
@@ -37,6 +37,7 @@ export default function GuestReviews({
     "/assets/bedroom.png",
     "/assets/bedroom.png",
   ],
+  propertyDetails
 }) {
   const [showGallery, setShowGallery] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -44,6 +45,9 @@ export default function GuestReviews({
   const [api, setApi] = useState();
   const [current, setCurrent] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
+
+  const [faqs, setFaqs] = useState([])
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   const villas = [
     {
@@ -85,16 +89,19 @@ export default function GuestReviews({
 
   useEffect(() => {
     if (!api) return;
-
+    
     setTotalSlides(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
-
+    
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
-
+  
   useEffect(() => {
+    // set faqs
+    setFaqs(propertyDetails.faqs)
+
     const handleKeyDown = (e) => e.key === "Escape" && setShowGallery(false);
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -103,11 +110,11 @@ export default function GuestReviews({
   return (
     <motion.div>
       <div>
-        <h3 className="text-lg font-semibold mb-6 border-l-4 border-[#F5959E] pl-3">
+        {/* <h3 className="text-lg font-semibold border-l-4 border-[#F5959E] pl-3">
           Guest Reviews
-        </h3>
+        </h3> */}
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
@@ -138,16 +145,16 @@ export default function GuestReviews({
                     fill="#FFA500"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Rating Number */}
-              <div className="mt-2 text-3xl font-bold leading-none">
+              {/* <div className="mt-2 text-3xl font-bold leading-none">
                 {Number(rating).toFixed(1)}
                 <span className="text-sm font-semibold text-gray-500">/5</span>
-              </div>
+              </div> */}
 
               {/* Tagline */}
-              <div className="flex gap-1 items-center">
+              {/* <div className="flex gap-1 items-center">
                 <img
                   src="/assets/booking/guestFav_left_leaf.svg"
                   alt="left leaf"
@@ -159,19 +166,19 @@ export default function GuestReviews({
                   alt="right leaf"
                   className="h-6"
                 />
-              </div>
+              </div> */}
 
               {/* Review Count */}
-              <a
+              {/* <a
                 href="#"
                 className="text-xs text-blue font-bold mt-1 underline"
               >
                 ({count} Reviews)
               </a>
-            </div>
+            </div> */}
 
             {/* Summary */}
-            <div className="flex-1 self-start">
+            {/* <div className="flex-1 self-start">
               <h4 className="text-sm font-semibold mb-1">Summary</h4>
               <ReadMore text={summary} maxChars={60} />
 
@@ -186,10 +193,10 @@ export default function GuestReviews({
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Photos Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+          {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold">Guest Photos</h4>
               <button
@@ -198,10 +205,10 @@ export default function GuestReviews({
               >
                 See all
               </button>
-            </div>
+            </div> */}
 
             {/* Photo Grid */}
-            <div className="grid grid-cols-2 gap-2">
+            {/* <div className="grid grid-cols-2 gap-2">
               <div className="row-span-2">
                 <img
                   src={photos[0]}
@@ -212,8 +219,8 @@ export default function GuestReviews({
                     setShowGallery(true);
                   }}
                 />
-              </div>
-
+              </div> */}
+{/* 
               <div className="grid grid-rows-2 gap-2">
                 {photos.slice(1, 3).map((p, i) => (
                   <img
@@ -230,9 +237,11 @@ export default function GuestReviews({
               </div>
             </div>
           </div>
-        </motion.div>
+        </motion.div> */}
 
-        <div className="py-6">
+
+        {/* Review Section */}
+        {/* <div className="py-6">
           <div className="flex items-center justify-between">
             <div className="flex gap-2 flex-wrap">
               <div className="rounded-full bg-green/10 border border-green px-4 py-1 text-green">
@@ -268,12 +277,12 @@ export default function GuestReviews({
                 <h4 className="text-sm font-medium">amenities</h4>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* <div className="py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
               {/* Review Card 1 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">MM</h4>
@@ -303,9 +312,9 @@ export default function GuestReviews({
                       <span className="text-sm text-gray-500">/5</span>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="flex flex-wrap gap-4 my-4">
+                {/* <div className="flex flex-wrap gap-4 my-4">
                   <div className="flex gap-1 items-center">
                     <img
                       src="/assets/booking/tag-tick.svg"
@@ -336,9 +345,9 @@ export default function GuestReviews({
                       View
                     </h4>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   <ReadMore
                     text="Our experience was Simply Fantastic The property was mich more beautiful than the pictures The staff was very helpful throughout our stay. Highly recommended for families and groups who want a mix of relaxation and luxury."
                     maxChars={100}
@@ -392,10 +401,10 @@ export default function GuestReviews({
                     <h5 className="text-lg font-medium text-gray-500">4</h5>
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Review Card 2 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">IS</h4>
@@ -526,10 +535,10 @@ export default function GuestReviews({
                     <h5 className="text-lg font-medium text-gray-500">5</h5>
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Review Card 3 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">GJ</h4>
@@ -648,10 +657,10 @@ export default function GuestReviews({
                     <h5 className="text-lg font-medium text-gray-500">4</h5>
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Review Card 4 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">RS</h4>
@@ -726,10 +735,10 @@ export default function GuestReviews({
                   </span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* See All Reviews Link */}
-            <div className="text-center mt-8">
+            {/* <div className="text-center mt-8">
               <a
                 href="#"
                 className="text-blue-600 font-medium hover:underline text-lg"
@@ -738,7 +747,7 @@ export default function GuestReviews({
               </a>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Villa Amenities Section */}
         <div className="mt-16">
@@ -1030,7 +1039,7 @@ export default function GuestReviews({
         </div>
 
         {/* Experiences Section */}
-        <div className="mt-16">
+        {/* <div className="mt-16">
           <h3 className="text-2xl font-bold mb-4 border-l-4 border-[#F5959E] pl-3">
             Experiences
           </h3>
@@ -1066,29 +1075,67 @@ export default function GuestReviews({
           <button className="px-4 py-2 text-darkGray text-sm font-medium rounded border-2 border-darkGray transition-colors">
             View Experiences
           </button>
-        </div>
+        </div> */}
 
-        {/* FAQ Section */}
+       {/* FAQ Section */}
         <div className="mt-16">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-            <h3 className="text-2xl font-bold border-l-4 border-[#F5959E] pl-3">
-              FAQ's related to Pranaam - Alibaug
-            </h3>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <svg
-                className="w-5 h-5 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+          <h3 className="text-2xl font-bold mb-6 border-l-4 border-[#F5959E] pl-3">
+            FAQ's related to Pranaam - Alibaug
+          </h3>
+
+          <div className="flex flex-col">
+            {faqs?.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              
+              return (
+                <div key={faq._id || index} className="border-b border-gray-200">
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full flex items-center justify-between py-4 hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <span className="text-lg font-medium text-gray-800">
+                      {faq.question}
+                    </span>
+                    <div
+                      className={`p-2 rounded-full transition-transform duration-300 ${
+                        isOpen ? "rotate-180 bg-gray-100" : ""
+                      }`}
+                    >
+                      {/* Using the exact SVG arrow from your 'Explore stay' section */}
+                      <svg
+                        className="w-5 h-5 text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+                  
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-6 text-gray-600 leading-relaxed text-base">
+                          {faq.answer}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
         </div>
 

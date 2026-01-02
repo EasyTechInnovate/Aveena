@@ -62,6 +62,7 @@ import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Test from "./pages/Test";
+import RefundPolicy from './components/booking/RefundPolicy'
 
 // Component to handle profile completion redirect
 const ProfileCompletionGuard = ({ children }) => {
@@ -127,6 +128,7 @@ const Layout = () => {
               element={<IdentityVerificationPage />}
             />
             <Route path="/customer-support" element={<CustomerSupportPage />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/help-centre" element={<HelpCentre />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/rewards-wallet" element={<RewardsWallet />} />

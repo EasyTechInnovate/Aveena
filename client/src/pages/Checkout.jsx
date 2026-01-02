@@ -1,5 +1,4 @@
 // client/src/pages/Checkout.jsx
-
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,32 +13,52 @@ const Checkout = () => {
   const urlParams = new URLSearchParams(location.search);
   const bookingState = location.state || {};
 
+  // 1. Optimized Data Extraction
   const bookingData = useMemo(() => {
-    const checkIn = urlParams.get("checkIn") || bookingState.checkIn || "";
-    const checkOut = urlParams.get("checkOut") || bookingState.checkOut || "";
-    const adults =
-      parseInt(urlParams.get("adults")) || bookingState.adults || 2;
-    const childrens =
-      parseInt(urlParams.get("childrens")) || bookingState.childrens || 0;
-    const rooms = parseInt(urlParams.get("rooms")) || bookingState.rooms || 1;
-    const propertyId =
-      urlParams.get("propertyId") || bookingState.propertyId || "";
+    // Extract Query Params (Fallback)
+    const qCheckIn = urlParams.get("checkIn");
+    const qCheckOut = urlParams.get("checkOut");
+    const qAdults = urlParams.get("adults");
+    const qChildrens = urlParams.get("childrens");
+    const qRooms = urlParams.get("rooms");
+    const qPropId = urlParams.get("propertyId");
+    const propertyImage = urlParams.get("propertyImage");
 
+    // prioritize state, fallback to query params
+    const checkIn = bookingState.checkIn || qCheckIn || "";
+    const checkOut = bookingState.checkOut || qCheckOut || "";
+    const adults = parseInt(bookingState.adults || qAdults || 2);
+    const childrens = parseInt(bookingState.childrens || qChildrens || 0);
+    const rooms = parseInt(bookingState.rooms || qRooms || 1);
+    
+    // Calculate Nights
     let nights = bookingState.nights;
     if (!nights && checkIn && checkOut) {
-      nights = Math.ceil(
-        (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)
-      );
-    } else if (!nights) {
-      nights = 1;
+      const diff = new Date(checkOut) - new Date(checkIn);
+      nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+    if (!nights || nights < 1) nights = 1;
+
+    // Extract Property Details
+    // Note: Sender spreads property data into state, so we look at root of bookingState
+    const propertyId = bookingState._id || qPropId || "";
+    const propertyName = bookingState.name || bookingState.title || "Property Name Unavailable";
+    
+    // Handle Location (could be string or object)
+    let propertyLocation = "Location Unavailable";
+    if (bookingState.location) {
+        propertyLocation = typeof bookingState.location === 'string' 
+            ? bookingState.location 
+            : bookingState.location.address || bookingState.location.city || "";
     }
 
     return {
       propertyId,
-      property: bookingState.property || null,
-      propertyName: bookingState.propertyName || "",
-      propertyLocation: bookingState.propertyLocation || "",
-      propertyImage: bookingState.propertyImage || "",
+      // If state has ID, assume state constitutes the "property object"
+      propertyObject: bookingState._id ? bookingState : null, 
+      propertyName,
+      propertyLocation,
+      propertyImage,
       checkIn,
       checkOut,
       adults,
@@ -61,37 +80,37 @@ const Checkout = () => {
     discount: 0,
     total: 0,
   });
-  const [property, setProperty] = useState(null);
+  
+  // Store full property object (for API calls or deep access)
+  const [property, setProperty] = useState(bookingData.propertyObject);
 
+  // 2. Logic & Pricing Effect
   useEffect(() => {
+    // Auth Check
     if (!isAuth) {
       navigate("/");
       return;
     }
 
+    // Profile Check
     if (user && !user.isProfileComplete) {
-      alert(
-        "Please complete your profile before proceeding with checkout. You will be redirected to your account page."
-      );
+      alert("Please complete your profile before proceeding with checkout.");
       navigate("/account");
       return;
     }
 
-    if (
-      !bookingData.propertyId ||
-      !bookingData.checkIn ||
-      !bookingData.checkOut
-    ) {
-      navigate("/search");
+    // Basic Validation
+    if (!bookingData.checkIn || !bookingData.checkOut) {
+      navigate("/");
       return;
     }
 
-    const calculatePricing = (prop) => {
-      if (!prop || !bookingData.nights) return;
-
-      const basePrice = prop.basePrice || 0;
-      const base = basePrice * bookingData.nights * (bookingData.rooms || 1);
-      const taxes = base * 0.18;
+    const calculatePricing = (propData) => {
+      if (!propData) return;
+      
+      const pricePerNight = propData.basePrice || propData.price || 0;
+      const base = pricePerNight * bookingData.nights * bookingData.rooms;
+      const taxes = base * 0.18; // 18% Tax
       const total = base + taxes;
 
       setPricing({
@@ -102,27 +121,32 @@ const Checkout = () => {
       });
     };
 
-    if (bookingData.property) {
-      const fullPropertyData = bookingData.property;
-      const prop = fullPropertyData.property || fullPropertyData;
-      setProperty(fullPropertyData);
-      calculatePricing(prop);
-    } else if (bookingData.propertyId) {
-      getPropertyById(bookingData.propertyId)
+    // Scenario A: Data came from State (User clicked Reserve)
+    if (bookingData.propertyObject) {
+        setProperty(bookingData.propertyObject);
+        calculatePricing(bookingData.propertyObject);
+    } 
+    // Scenario B: Page Refresh (State lost, fetch using ID from URL)
+    else if (bookingData.propertyId) {
+        setIsProcessing(true); // Show loading state visually if you want
+        getPropertyById(bookingData.propertyId)
         .then((response) => {
-          if (response.data?.success) {
-            const fullData = response.data.data;
-            setProperty(fullData);
-            const prop = fullData.property || fullData;
-            calculatePricing(prop);
-          }
+            if (response.data?.success) {
+                const fetchedData = response.data.data;
+                // Normalize: API might return { property: {...}, ... } or just {...}
+                const actualProperty = fetchedData.property || fetchedData;
+                
+                setProperty(actualProperty);
+                calculatePricing(actualProperty);
+            }
         })
         .catch((err) => {
-          console.error("Error fetching property:", err);
-          setCouponError("Failed to load property details");
-        });
+            console.error("Error fetching property:", err);
+            setCouponError("Failed to load property details. Please try again.");
+        })
+        .finally(() => setIsProcessing(false));
     }
-  }, [isAuth, bookingData, navigate]);
+  }, [isAuth, navigate, user, bookingData]); // Removed specific props to avoid loops
 
   const handleContinue = async () => {
     if (!termsAccepted) return;
@@ -135,46 +159,34 @@ const Checkout = () => {
         propertyId: bookingData.propertyId,
         checkInDate: bookingData.checkIn,
         checkOutDate: bookingData.checkOut,
-        adults: bookingData.adults || 2,
-        childrens: bookingData.childrens || 0,
-        noOfRooms: bookingData.rooms || 1,
+        adults: bookingData.adults,
+        childrens: bookingData.childrens,
+        noOfRooms: bookingData.rooms,
       };
 
       if (couponCode.trim()) {
         bookingPayload.couponCode = couponCode.trim().toUpperCase();
       }
 
+      // Add Special Request if any
+      if (specialRequests.trim()) {
+          bookingPayload.specialRequests = specialRequests; 
+      }
+
       let response;
       try {
         response = await createBooking(bookingPayload);
       } catch (err) {
-        if (err.response?.status === 404) {
-          throw new Error(
-            "Booking service is currently unavailable. Please try again later."
-          );
-        }
+        // Handle Coupon Failure Specifics
+        const errMsg = err.response?.data?.message?.toLowerCase() || "";
+        const isCouponError = errMsg.includes("coupon") || errMsg.includes("not found");
 
-        if (
-          couponCode.trim() &&
-          (err.response?.data?.message?.toLowerCase().includes("route") ||
-            err.response?.data?.message?.toLowerCase().includes("coupon") ||
-            err.response?.data?.message?.toLowerCase().includes("not found") ||
-            err.response?.status === 404)
-        ) {
+        if (couponCode.trim() && isCouponError) {
           delete bookingPayload.couponCode;
-          setCouponError(
-            "Coupon code could not be applied. Proceeding without coupon."
-          );
-          try {
-            response = await createBooking(bookingPayload);
-          } catch (retryErr) {
-            if (retryErr.response?.status === 404) {
-              throw new Error(
-                "Booking service is currently unavailable. Please try again later."
-              );
-            }
-            throw retryErr;
-          }
+          setCouponError("Coupon invalid or not applicable. Creating booking without coupon.");
+          
+          // Retry without coupon
+          response = await createBooking(bookingPayload);
         } else {
           throw err;
         }
@@ -183,6 +195,7 @@ const Checkout = () => {
       if (response.data?.success) {
         const { payuUrl, params } = response.data.data;
 
+        // Create hidden form for PayU
         const form = document.createElement("form");
         form.method = "POST";
         form.action = payuUrl;
@@ -201,10 +214,11 @@ const Checkout = () => {
         throw new Error(response.data?.message || "Failed to create booking");
       }
     } catch (err) {
+      console.error(err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
-        "Failed to complete booking";
+        "Failed to complete booking process.";
       setCouponError(errorMessage);
       setIsProcessing(false);
     }
@@ -221,7 +235,7 @@ const Checkout = () => {
             <span>Villas</span>
             <span className="mx-2 text-darkGray">&gt;</span>
             <span className="truncate max-w-[150px] md:max-w-xs">
-              {bookingData.propertyName || "Property"}
+              {bookingData.propertyName}
             </span>
             <span className="mx-2 text-darkGray">&gt;</span>
             <span className="text-gray-900 font-medium">Payment</span>
@@ -239,11 +253,10 @@ const Checkout = () => {
                 <div className="flex-1">
                   <div className="border-b-2 pb-4 mb-4">
                     <h1 className="text-lg md:text-xl font-semibold mb-2 leading-tight">
-                      {bookingData.propertyName ||
-                        "UDS Villa - Next to VFS, Walking to Connaught Place"}
+                      {bookingData.propertyName}
                     </h1>
                     <p className="text-gray-600 text-sm">
-                      {bookingData.propertyLocation || "New Delhi"}
+                      {bookingData.propertyLocation}
                     </p>
                   </div>
 
@@ -286,9 +299,7 @@ const Checkout = () => {
                       {/* Nights Pill */}
                       <div className="self-start md:self-center flex items-center bg-darkGreen/10 border border-darkGreen/20 px-3 py-1 rounded-full text-xs md:text-sm text-darkGreen font-medium my-2 md:my-0">
                         <h5>
-                          {bookingData.nights
-                            ? `${bookingData.nights} Night${bookingData.nights > 1 ? "s" : ""}`
-                            : "1 Night"}
+                          {bookingData.nights} Night{bookingData.nights > 1 ? "s" : ""}
                         </h5>
                       </div>
 
@@ -340,8 +351,8 @@ const Checkout = () => {
                           className="w-6"
                         />
                         <h3 className="font-semibold text-gray-900">
-                          {bookingData.rooms || 1} Room
-                          {(bookingData.rooms || 1) > 1 ? "s" : ""}
+                          {bookingData.rooms} Room
+                          {bookingData.rooms > 1 ? "s" : ""}
                         </h3>
                       </div>
                     </div>
@@ -357,18 +368,15 @@ const Checkout = () => {
                         />
                         <div>
                           <h3 className="font-semibold text-gray-900">
-                            {(bookingData.adults || 2) +
-                              (bookingData.childrens || 0)}{" "}
+                            {bookingData.adults + bookingData.childrens}{" "}
                             Guest
-                            {(bookingData.adults || 2) +
-                              (bookingData.childrens || 0) >
-                            1
+                            {bookingData.adults + bookingData.childrens > 1
                               ? "s"
                               : ""}
                           </h3>
                           <p className="text-xs text-gray-500">
-                            ({bookingData.adults || 2} Adult,{" "}
-                            {bookingData.childrens || 0} Children)
+                            ({bookingData.adults} Adult,{" "}
+                            {bookingData.childrens} Children)
                           </p>
                         </div>
                       </div>
@@ -376,7 +384,7 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Right Side Image & Ratings (Desktop: Right, Mobile: Top) */}
+                {/* Right Side Image & Ratings */}
                 <div className="w-full md:w-[240px] shrink-0">
                   <div className="flex flex-wrap items-center gap-3 mb-3 text-xs md:text-sm">
                     <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-green-700 font-bold border border-green-100">
@@ -401,17 +409,11 @@ const Checkout = () => {
                       <span className="font-bold">4.6</span>
                       <span className="text-gray-400">/5</span>
                     </div>
-                    <span className="text-blue font-semibold underline cursor-pointer">
-                      63 Reviews
-                    </span>
                   </div>
                   <img
-                    src={
-                      bookingData.propertyImage ||
-                      "/assets/checkout/Outdoors.png"
-                    }
+                    src={bookingData.propertyImage}
                     alt="Property"
-                    className="w-full h-48 md:h-[220px] object-cover rounded-xl shadow-sm"
+                    className="w-full h-48 md:h-[220px] object-cover rounded-xl shadow-sm bg-gray-200"
                   />
                 </div>
               </div>
@@ -428,8 +430,7 @@ const Checkout = () => {
                 the contact information on the booking confirmation. To make
                 arrangements for check-in please contact the property at least
                 24 hours before arrival using the information on the booking
-                confirmation. Guests must contact the property in advance for
-                check-in instructions.
+                confirmation.
               </p>
             </div>
 
@@ -455,10 +456,10 @@ const Checkout = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
+                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto" onClick={() => navigate('/refund-policy')}>
                   Refund Policy
                 </button>
-                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
+                <button className="px-4 py-2.5 text-darkBlue border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto" onClick={() => navigate('/refund-policy')}>
                   Home Rules and Policy
                 </button>
               </div>
@@ -566,16 +567,10 @@ const Checkout = () => {
                     )}
                     {couponCode && !couponError && (
                       <p className="text-green-600 text-xs mt-2">
-                        Coupon will be applied at payment
+                        Coupon code set. Will be validated on checkout.
                       </p>
                     )}
                   </div>
-                  <a
-                    href="#"
-                    className="block text-center text-blue-600 text-xs mt-3 hover:underline"
-                  >
-                    View more coupons / Apply Voucher
-                  </a>
                 </div>
 
                 {/* Total Payable */}
@@ -739,7 +734,7 @@ const Checkout = () => {
                 </h2>
                 <p className="text-sm text-gray-600 leading-relaxed px-4">
                   Thank you for choosing us. A confirmation email with details
-                  has been sent to you. We look forward to welcoming you!
+                  has been sent to you.
                 </p>
               </div>
 
@@ -747,16 +742,13 @@ const Checkout = () => {
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-6">
                 <div className="flex gap-4 border-b border-gray-200 pb-4 mb-4">
                   <img
-                    src={
-                      bookingData.propertyImage ||
-                      "/assets/checkout/Outdoors.png"
-                    }
+                    src={bookingData.propertyImage}
                     alt="Villa"
                     className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-2">
-                      {bookingData.propertyName || "Property Name"}
+                      {bookingData.propertyName}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
                       {bookingData.propertyLocation}
@@ -767,25 +759,6 @@ const Checkout = () => {
                         {bookingData.nights > 1 ? "s" : ""}
                       </span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase">Check-in</p>
-                    <p className="font-semibold text-gray-900 mt-1">
-                      {bookingData.checkIn
-                        ? new Date(bookingData.checkIn).toLocaleDateString()
-                        : "-"}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 uppercase">Check-out</p>
-                    <p className="font-semibold text-gray-900 mt-1">
-                      {bookingData.checkOut
-                        ? new Date(bookingData.checkOut).toLocaleDateString()
-                        : "-"}
-                    </p>
                   </div>
                 </div>
               </div>
