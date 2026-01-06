@@ -3,25 +3,26 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XCircle, Star, StarHalf } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
+import { getProperties, getRandomProperties } from "../../services";
 
-function ReadMore({ text, maxChars = 100}) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const shouldTruncate = text.length > maxChars;
+// function ReadMore({ text, maxChars = 100}) {
+//   const [isExpanded, setIsExpanded] = useState(false);
+//   const shouldTruncate = text.length > maxChars;
 
-  return (
-    <p className="text-gray-700 leading-relaxed text-lg">
-      {isExpanded || !shouldTruncate ? text : `${text.slice(0, maxChars)}...`}
-      {shouldTruncate && (
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="ml-1 text-gray-500 underline hover:text-gray-700 focus:outline-none"
-        >
-          {isExpanded ? "Read Less" : "Read More"}
-        </button>
-      )}
-    </p>
-  );
-}
+//   return (
+//     <p className="text-gray-700 leading-relaxed text-lg">
+//       {isExpanded || !shouldTruncate ? text : `${text.slice(0, maxChars)}...`}
+//       {shouldTruncate && (
+//         <button
+//           onClick={() => setIsExpanded(!isExpanded)}
+//           className="ml-1 text-gray-500 underline hover:text-gray-700 focus:outline-none"
+//         >
+//           {isExpanded ? "Read Less" : "Read More"}
+//         </button>
+//       )}
+//     </p>
+//   );
+// }
 
 export default function GuestReviews({
   rating = 4.6,
@@ -37,7 +38,7 @@ export default function GuestReviews({
     "/assets/bedroom.png",
     "/assets/bedroom.png",
   ],
-  propertyDetails
+  propertyDetails,
 }) {
   const [showGallery, setShowGallery] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -46,61 +47,83 @@ export default function GuestReviews({
   const [current, setCurrent] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
 
-  const [faqs, setFaqs] = useState([])
+  const [faqs, setFaqs] = useState([]);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-  const villas = [
-    {
-      name: "Moksh Villa",
-      price: "₹40,239",
-      description:
-        "Moksh Villa is special because of its: - Convenient location, easily accessible yet offering tranquility - Surroundings that are enveloped in lush greenery, creating a serene atmosphere - Orchard and cascading waterfalls that add natural beauty to the...",
-      image: "/assets/booking/room.png",
-    },
-    {
-      name: "Jay House",
-      price: "₹40,840",
-      description:
-        "Imagine being cast away in the heart of Alibaug, surrounded by unending greenery and fascinating encounters. Jay House may be one of this city's best-kept secrets. With a large selection of tempting facilities that must be experienced, this spacious vacation house transports you into...",
-      image: "/assets/booking/lavida-features.png",
-    },
-    {
-      name: "Villa Amaaya",
-      price: "₹26,679",
-      description:
-        "Nestled in unending expanses of green verdancy and foliage, Villa Amaaya is a spacious holiday home in the coastal town of Alibaug. Approximately 5 km. away from Kih beach, this villa has everything you would need for a sun-kissed getaway, be it the huge oval-shape...",
-      image: "/assets/booking/lavida-features1.png",
-    },
-    {
-      name: "Villa Serenity",
-      price: "₹35,500",
-      description:
-        "Experience ultimate luxury at Villa Serenity, featuring panoramic ocean views and world-class amenities. This stunning property offers private beach access and personalized concierge services for an unforgettable stay...",
-      image: "/assets/booking/lavida-features2.png",
-    },
-    {
-      name: "Ocean Breeze Villa",
-      price: "₹28,900",
-      description:
-        "Wake up to the sound of waves at Ocean Breeze Villa. This beachfront property combines modern comfort with traditional architecture, offering direct access to pristine beaches and water sports facilities...",
-      image: "/assets/booking/lavida-features3.png",
-    },
-  ];
+  // const villas = [
+  //   {
+  //     name: "Moksh Villa",
+  //     price: "₹40,239",
+  //     description:
+  //       "Moksh Villa is special because of its: - Convenient location, easily accessible yet offering tranquility - Surroundings that are enveloped in lush greenery, creating a serene atmosphere - Orchard and cascading waterfalls that add natural beauty to the...",
+  //     image: "/assets/booking/room.png",
+  //   },
+  //   {
+  //     name: "Jay House",
+  //     price: "₹40,840",
+  //     description:
+  //       "Imagine being cast away in the heart of Alibaug, surrounded by unending greenery and fascinating encounters. Jay House may be one of this city's best-kept secrets. With a large selection of tempting facilities that must be experienced, this spacious vacation house transports you into...",
+  //     image: "/assets/booking/lavida-features.png",
+  //   },
+  //   {
+  //     name: "Villa Amaaya",
+  //     price: "₹26,679",
+  //     description:
+  //       "Nestled in unending expanses of green verdancy and foliage, Villa Amaaya is a spacious holiday home in the coastal town of Alibaug. Approximately 5 km. away from Kih beach, this villa has everything you would need for a sun-kissed getaway, be it the huge oval-shape...",
+  //     image: "/assets/booking/lavida-features1.png",
+  //   },
+  //   {
+  //     name: "Villa Serenity",
+  //     price: "₹35,500",
+  //     description:
+  //       "Experience ultimate luxury at Villa Serenity, featuring panoramic ocean views and world-class amenities. This stunning property offers private beach access and personalized concierge services for an unforgettable stay...",
+  //     image: "/assets/booking/lavida-features2.png",
+  //   },
+  //   {
+  //     name: "Ocean Breeze Villa",
+  //     price: "₹28,900",
+  //     description:
+  //       "Wake up to the sound of waves at Ocean Breeze Villa. This beachfront property combines modern comfort with traditional architecture, offering direct access to pristine beaches and water sports facilities...",
+  //     image: "/assets/booking/lavida-features3.png",
+  //   },
+  // ];
+
+  const [villas, setVillas] = useState([]);
+
+  const fetchProperties = async () => {
+    const response = await getRandomProperties({ limit: 5 });
+    setVillas(response.data.data.properties);
+    setTotalSlides(3) // hard coded
+  };
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
 
   useEffect(() => {
     if (!api) return;
-    
+
+    // total slides from carousel
     setTotalSlides(api.scrollSnapList().length);
+
+    // initial slide index
     setCurrent(api.selectedScrollSnap() + 1);
-    
-    api.on("select", () => {
+
+    // update on slide change
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap() + 1);
-    });
+    };
+
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
   }, [api]);
-  
+
   useEffect(() => {
     // set faqs
-    setFaqs(propertyDetails.faqs)
+    setFaqs(propertyDetails.faqs);
 
     const handleKeyDown = (e) => e.key === "Escape" && setShowGallery(false);
     window.addEventListener("keydown", handleKeyDown);
@@ -147,14 +170,14 @@ export default function GuestReviews({
                 </div>
               </div> */}
 
-              {/* Rating Number */}
-              {/* <div className="mt-2 text-3xl font-bold leading-none">
+        {/* Rating Number */}
+        {/* <div className="mt-2 text-3xl font-bold leading-none">
                 {Number(rating).toFixed(1)}
                 <span className="text-sm font-semibold text-gray-500">/5</span>
               </div> */}
 
-              {/* Tagline */}
-              {/* <div className="flex gap-1 items-center">
+        {/* Tagline */}
+        {/* <div className="flex gap-1 items-center">
                 <img
                   src="/assets/booking/guestFav_left_leaf.svg"
                   alt="left leaf"
@@ -168,8 +191,8 @@ export default function GuestReviews({
                 />
               </div> */}
 
-              {/* Review Count */}
-              {/* <a
+        {/* Review Count */}
+        {/* <a
                 href="#"
                 className="text-xs text-blue font-bold mt-1 underline"
               >
@@ -177,8 +200,8 @@ export default function GuestReviews({
               </a>
             </div> */}
 
-            {/* Summary */}
-            {/* <div className="flex-1 self-start">
+        {/* Summary */}
+        {/* <div className="flex-1 self-start">
               <h4 className="text-sm font-semibold mb-1">Summary</h4>
               <ReadMore text={summary} maxChars={60} />
 
@@ -195,8 +218,8 @@ export default function GuestReviews({
             </div>
           </div> */}
 
-          {/* Photos Card */}
-          {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        {/* Photos Card */}
+        {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold">Guest Photos</h4>
               <button
@@ -207,8 +230,8 @@ export default function GuestReviews({
               </button>
             </div> */}
 
-            {/* Photo Grid */}
-            {/* <div className="grid grid-cols-2 gap-2">
+        {/* Photo Grid */}
+        {/* <div className="grid grid-cols-2 gap-2">
               <div className="row-span-2">
                 <img
                   src={photos[0]}
@@ -220,7 +243,7 @@ export default function GuestReviews({
                   }}
                 />
               </div> */}
-{/* 
+        {/* 
               <div className="grid grid-rows-2 gap-2">
                 {photos.slice(1, 3).map((p, i) => (
                   <img
@@ -238,7 +261,6 @@ export default function GuestReviews({
             </div>
           </div>
         </motion.div> */}
-
 
         {/* Review Section */}
         {/* <div className="py-6">
@@ -279,10 +301,10 @@ export default function GuestReviews({
             </div>
           </div> */}
 
-          {/* <div className="py-6">
+        {/* <div className="py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
-              {/* Review Card 1 */}
-              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        {/* Review Card 1 */}
+        {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">MM</h4>
@@ -314,7 +336,7 @@ export default function GuestReviews({
                   </div>
                 </div> */}
 
-                {/* <div className="flex flex-wrap gap-4 my-4">
+        {/* <div className="flex flex-wrap gap-4 my-4">
                   <div className="flex gap-1 items-center">
                     <img
                       src="/assets/booking/tag-tick.svg"
@@ -347,7 +369,7 @@ export default function GuestReviews({
                   </div>
                 </div> */}
 
-                {/* <div className="mb-4">
+        {/* <div className="mb-4">
                   <ReadMore
                     text="Our experience was Simply Fantastic The property was mich more beautiful than the pictures The staff was very helpful throughout our stay. Highly recommended for families and groups who want a mix of relaxation and luxury."
                     maxChars={100}
@@ -403,8 +425,8 @@ export default function GuestReviews({
                 </div>
               </div> */}
 
-              {/* Review Card 2 */}
-              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        {/* Review Card 2 */}
+        {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">IS</h4>
@@ -537,8 +559,8 @@ export default function GuestReviews({
                 </div>
               </div> */}
 
-              {/* Review Card 3 */}
-              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        {/* Review Card 3 */}
+        {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">GJ</h4>
@@ -659,8 +681,8 @@ export default function GuestReviews({
                 </div>
               </div> */}
 
-              {/* Review Card 4 */}
-              {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        {/* Review Card 4 */}
+        {/* <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="rounded-full w-14 h-14 flex items-center justify-center bg-amber-300">
                     <h4 className="text-xl text-white font-semibold">RS</h4>
@@ -737,8 +759,8 @@ export default function GuestReviews({
               </div>
             </div> */}
 
-            {/* See All Reviews Link */}
-            {/* <div className="text-center mt-8">
+        {/* See All Reviews Link */}
+        {/* <div className="text-center mt-8">
               <a
                 href="#"
                 className="text-blue-600 font-medium hover:underline text-lg"
@@ -1077,7 +1099,7 @@ export default function GuestReviews({
           </button>
         </div> */}
 
-       {/* FAQ Section */}
+        {/* FAQ Section */}
         <div className="mt-16">
           <h3 className="text-2xl font-bold mb-6 border-l-4 border-[#F5959E] pl-3">
             FAQ's related to Pranaam - Alibaug
@@ -1086,9 +1108,12 @@ export default function GuestReviews({
           <div className="flex flex-col">
             {faqs?.map((faq, index) => {
               const isOpen = openFaqIndex === index;
-              
+
               return (
-                <div key={faq._id || index} className="border-b border-gray-200">
+                <div
+                  key={faq._id || index}
+                  className="border-b border-gray-200"
+                >
                   <button
                     onClick={() => setOpenFaqIndex(isOpen ? null : index)}
                     className="w-full flex items-center justify-between py-4 hover:bg-gray-50 transition-colors text-left"
@@ -1117,7 +1142,7 @@ export default function GuestReviews({
                       </svg>
                     </div>
                   </button>
-                  
+
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
@@ -1228,12 +1253,12 @@ export default function GuestReviews({
               {villas.map((villa, index) => (
                 <CarouselItem
                   key={index}
-                  className="pl-2 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3"
+                  className="pl-2 md:pl-6 h-130 basis-full sm:basis-1/2 lg:basis-1/3"
                 >
                   <div className="w-full h-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div className="h-48 relative overflow-hidden">
                       <img
-                        src={villa.image}
+                        src={villa.coverImage}
                         alt={villa.name}
                         className="w-full h-full object-cover object-center"
                       />
@@ -1243,7 +1268,7 @@ export default function GuestReviews({
                         {villa.name}
                       </h4>
                       <p className="text-lg font-semibold mb-3">
-                        {villa.price}{" "}
+                        {villa.basePrice}{" "}
                         <span className="text-sm font-normal text-gray-600">
                           /Night
                         </span>

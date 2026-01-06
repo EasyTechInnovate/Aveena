@@ -1,5 +1,4 @@
 import React from "react";
-import PartnerForm from "./PartnerForm";
 
 const Hero = () => {
   return (
@@ -37,7 +36,6 @@ const Hero = () => {
         />
       </div>
 
-
       <div className="absolute bottom-2/5 flex flex-col gap-3 right-1/4">
         <div className="p-2 pr-8 bg-[#020617] shadow-2xl flex gap-2 rounded-full">
           <div className="bg-green p-4 rounded-full flex items-center justify-center">
@@ -55,7 +53,7 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="p-2 pr-8 bg-[#020617] flex shadow-2xl relative -left-1/2 gap-2 rounded-full">
+        <div className="max-md:left-20 p-2 pr-8 bg-[#020617] flex shadow-2xl relative -left-1/2 gap-2 rounded-full">
           <div className="bg-green p-3 rounded-full flex items-center justify-center">
             <img
               src="/assets/partner/earnings.svg"
@@ -83,14 +81,28 @@ const Hero = () => {
           <p className="text-sm sm:text-md text-center pt-3 sm:pt-4 text-darkBlue max-w-2xl mx-auto">
             Grow revenue, reduce hassle, and deliver great guest experiences
             <br className="hidden sm:block" />
-            with aveenas. Join 1300+ hotel owners pan-India.
+            with aveenas. Join 500+ hotel owners pan-India.
           </p>
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section Button */}
+      <div className="absolute bottom-4 flex justify-center items-center bg-white max-md:bg-white/90 rounded-4xl w-full p-5">
+        <button
+          className="w-70 px-5 py-4 text-white font-bold bg-[#32BA55] hover:bg-[#22943F] rounded-3xl"
+          onClick={() =>
+            window.open(
+              "https://forms.gle/WceuSNHpbFP7FM6n6",
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          Tell us about your property
+        </button>
+      </div>
 
-      <PartnerForm />
+      {/* <PartnerForm /> */}
     </div>
   );
 };

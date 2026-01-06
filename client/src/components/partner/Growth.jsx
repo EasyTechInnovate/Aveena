@@ -41,7 +41,7 @@ const growthData = [
 
 const Growth = () => {
   return (
-    <div className="w-full min-h-screen bg-gray-50 md:pt-54 pt-70 mb-20 px-4">
+    <div className="w-full min-h-screen bg-gray-50 md:pt-30 pt-20 mb-20 px-4">
       <div className="container max-w-7xl mx-auto">
         <h1 className="font-semibold text-4xl mb-16">
           Everything you need to maximise your earnings & <br />
