@@ -20,7 +20,7 @@ const Hero = () => {
         <img
           src="/assets/partner/building1.png"
           alt="partner"
-          className="w-[10vw] md:w-[30vw] lg: object-contain"
+          className="w-[30vw] h-auto md:w-[30vw] lg:object-contain"
         />
 
         <img
@@ -32,7 +32,7 @@ const Hero = () => {
         <img
           src="/assets/partner/building2.png"
           alt="partner"
-          className="w-[10vw] md:w-[30vw] object-contain"
+          className="w-[30vw] md:w-[30vw] object-contain"
         />
       </div>
 
@@ -86,8 +86,8 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Form Section Button */}
-      <div className="absolute bottom-4 flex justify-center items-center bg-white max-md:bg-white/90 rounded-4xl w-full p-5">
+      {/* Form Section Button - CENTERED HERE */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex justify-center items-center bg-white max-md:bg-white/90 rounded-4xl w-[95%] lg:w-[70%] py-2">
         <button
           className="w-70 px-5 py-4 text-white font-bold bg-[#32BA55] hover:bg-[#22943F] rounded-3xl"
           onClick={() =>
@@ -102,7 +102,6 @@ const Hero = () => {
         </button>
       </div>
 
-      {/* <PartnerForm /> */}
     </div>
   );
 };

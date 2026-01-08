@@ -50,7 +50,12 @@ const Growth = () => {
           </span>
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div className="flex justify-center items-center">
+          <img src="/assets/partner/property_owner.png" className="h-70 md:h-140 w-auto rounded-2xl border-2 border-green" />
+        </div>
+
+        <div className="mt-15 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {growthData.map((growth, index) => (
             <div
               key={index}
