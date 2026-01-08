@@ -772,7 +772,7 @@ export default function GuestReviews({
         </div> */}
 
         {/* Villa Amenities Section */}
-        <div className="mt-16">
+        <div className="">
           <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
             Villa Amenities
           </h3>

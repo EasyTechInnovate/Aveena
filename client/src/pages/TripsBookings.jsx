@@ -340,6 +340,7 @@ const TripsBookings = () => {
 
   useEffect(() => {
     if (!isAuth) {
+      alert("Do Sign in")
       navigate('/');
       return;
     }

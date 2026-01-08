@@ -81,7 +81,7 @@ const Nav = () => {
           <div className="max-w-32 md:max-w-40">
             <Link to="/">
               <img
-                src="/assets/logo.png"
+                src="/assets/avenaa_full_logo.png"
                 alt="Avenna Logo"
                 className="w-full h-full object-cover"
               />
