@@ -10,6 +10,8 @@ export default async (latitude, longitude) => {
         const data = await res.json();
         
         if (data.status !== "OK") {
+            console.error(data);
+            
             throw new Error("Failed to fetch location details");
         }
         

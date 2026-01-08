@@ -55,33 +55,33 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             };
 
-            if(!property.isActive) {
+            if (!property.isActive) {
                 return httpError(next, new Error(responseMessage.customMessage('Property is not active for booking.')), req, 400);
             }
 
-            if(property.totalUnits < noOfRooms) {
+            if (property.totalUnits < noOfRooms) {
                 return httpError(next, new Error(responseMessage.customMessage('Not enough rooms available.')), req, 400);
             }
 
-            if(property.capacity.adults < adults || property.capacity.childrens < childrens) {
+            if (property.capacity.adults < adults || property.capacity.childrens < childrens) {
                 return httpError(next, new Error(responseMessage.customMessage('Not enough capacity available.')), req, 400);
             }
 
-            
+
 
             const bookedUnitsPerDate = await bookedDatesModel.find({
                 entityType: 'property',
                 entityId: propertyId,
-                 date: {
-                     $gte: checkIn,
-                     $lt: checkOut
-                 }
+                date: {
+                    $gte: checkIn,
+                    $lt: checkOut
+                }
             })
 
-            if(bookedUnitsPerDate.length > 0) {
+            if (bookedUnitsPerDate.length > 0) {
                 return httpError(next, new Error(responseMessage.customMessage('Dates already booked.')), req, 400);
             }
-            
+
 
             const isInavailable = await availabilityexceptionModel.findOne({
                 entityType: 'property',
@@ -103,7 +103,7 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
             };
 
-            if(!user.isProfileComplete) {
+            if (!user.isProfileComplete) {
                 return httpError(next, new Error(responseMessage.AUTH.PROFILE_NOT_COMPLETE), req, 401);
             }
 
@@ -183,7 +183,7 @@ export default {
                 },
                 couponCode: appliedCoupon ? appliedCoupon.code : undefined,
                 couponId: appliedCoupon ? appliedCoupon._id : undefined
-            }], { session}).then(docs => docs[0]);
+            }], { session }).then(docs => docs[0]);
             const txnid = 'PAYU_' + Date.now();
 
             const transaction = await transactionModel.create([{
@@ -196,7 +196,7 @@ export default {
 
             await session.commitTransaction();
             await session.endSession();
-            
+
 
             const productinfo = JSON.stringify({
                 propertyId: property._id,
@@ -209,7 +209,7 @@ export default {
 
             const hashString = `${config.payu.key}|${txnid}|${finalAmount}|${productinfoString}|${user.firstName}|${user.email}|` + `||||||||||${config.payu.salt}`;
             console.log(hashString);
-            
+
             const hash = crypto.createHash('sha512').update(hashString).digest('hex');
 
             const params = {
@@ -251,7 +251,7 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Booking')), req, 404);
             };
             console.log(txnid);
-            
+
             const verifyHash = crypto.createHash('sha512').update(`${config.payu.key}|verify_payment|${txnid}|${config.payu.salt}`).digest('hex');
 
             const verifyPayload = new URLSearchParams();
@@ -271,18 +271,18 @@ export default {
 
             const tx = verifyData?.transaction_details?.[txnid];
             console.log(tx);
-            
+
             let verified = false;
 
             if (tx) {
-            if (
-                tx.status?.toLowerCase() === "success" 
-            ) {
-                verified = true;
-            }
+                if (
+                    tx.status?.toLowerCase() === "success"
+                ) {
+                    verified = true;
+                }
             }
 
-            if(!verified) {
+            if (!verified) {
 
                 const session = await startSession();
                 session.startTransaction();
@@ -301,7 +301,7 @@ export default {
             await transactionModel.updateOne({ txnId: txnid }, { $set: { status: 'success', paymentMode: mode } }, { session });
             await bookingModel.updateOne({ _id: booking._id }, { $set: { status: 'confirmed' } }, { session });
 
-            for(let i = 0; i < booking.nights; i++) {
+            for (let i = 0; i < booking.nights; i++) {
                 await bookedDatesModel.create([{
                     entityType: 'property',
                     entityId: booking.propertyId,
@@ -331,11 +331,11 @@ export default {
             await session.endSession();
 
 
-            return httpResponse(req, res, 200, responseMessage.SUCCESS, null);
+            return res.redirect(`${config.frontendUrl}/trips-bookings?success=true`);
 
         } catch (error) {
             console.error(error);
-            
+
             return httpError(next, error, req, 500);
         }
     },
@@ -365,7 +365,7 @@ export default {
             await session.commitTransaction();
             await session.endSession();
 
-            return httpResponse(req, res, 200, responseMessage.SUCCESS);
+            return res.redirect(`${config.frontendUrl}/trips-bookings?success=false`);
         } catch (error) {
             return httpError(next, error, req, 500);
         }
@@ -381,14 +381,14 @@ export default {
                 userId,
                 status: { $in: ['confirmed', 'cancelled'] }
             })
-            .populate({
-                path: 'propertyId',
-                select: 'coverImage name address _id description'
-            })
-            .sort({ checkIn: -1 })
-            .skip(skip)
-            .limit(parseInt(limit))
-            .lean();
+                .populate({
+                    path: 'propertyId',
+                    select: 'coverImage name address _id description'
+                })
+                .sort({ checkIn: -1 })
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean();
 
             const total = await bookingModel.countDocuments({
                 userId,
