@@ -10,7 +10,7 @@ const propertySchema = new Schema({
     name: String,
     type: {
         type: String,
-        enum: ['hotel', 'villa', 'apartment'],
+        enum: ['hotel', 'villa', 'apartment', 'resort'],
         required: true
     },
     address: {
@@ -36,6 +36,23 @@ const propertySchema = new Schema({
     amenties: [String],
     description: String,
     coverImage: String,
+    minimumRentalIncome: {
+        type: Number,
+        required: true
+    },
+    saleTarget: {
+        type: Number,
+        required: true
+    },
+    kycDocument: {
+        type: String,
+        required: true
+    },
+    kycVerified: {
+        type: String,
+        enum: ['pending', 'verified', 'rejected'],
+        default: 'pending'
+    },
     capacity: {
         adults: Number,
         childrens: Number

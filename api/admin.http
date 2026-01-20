@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk5NTQ5MjI1MDgxNzMzNWI5MzU2MyIsImlzUHJvZmlsZUNvbXBsZXRlIjp0cnVlLCJpYXQiOjE3Njg4OTgzNDUsImV4cCI6MTc3MDEwNzk0NX0.8JyOyryNbvdlDgn3DT293FO_rjHIZjYIIx3l979Or6k
+
+### Admin Dashboard
+GET {{baseUrl}}{{apiPrefix}}/admin/dashboard
+Authorization: Bearer {{accessToken}}
+
+### Admin Statistics (merged into dashboard but available)
+GET {{baseUrl}}{{apiPrefix}}/admin/statistics
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Bookings
+GET {{baseUrl}}{{apiPrefix}}/admin/bookings?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Bookings - Search and Filter
+GET {{baseUrl}}{{apiPrefix}}/admin/bookings?page=1&limit=10&search=john&status=confirmed
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Customers
+GET {{baseUrl}}{{apiPrefix}}/admin/customers?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Customers - Search
+GET {{baseUrl}}{{apiPrefix}}/admin/customers?page=1&limit=10&search=doe
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Properties
+GET {{baseUrl}}{{apiPrefix}}/admin/properties?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get All Properties - Search
+GET {{baseUrl}}{{apiPrefix}}/admin/properties?page=1&limit=10&search=villa
+Authorization: Bearer {{accessToken}}
+
+### Admin Get Pending KYC Properties
+GET {{baseUrl}}{{apiPrefix}}/admin/pending-kyc-properties?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get Property Owners
+GET {{baseUrl}}{{apiPrefix}}/admin/property-owners?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get Property Owners - Search
+GET {{baseUrl}}{{apiPrefix}}/admin/property-owners?page=1&limit=10&search=smith
+Authorization: Bearer {{accessToken}}
+
+### Approve KYC
+@propertyId = your_property_id_here
+PATCH {{baseUrl}}{{apiPrefix}}/admin/approve-kyc/{{propertyId}}
+Authorization: Bearer {{accessToken}}
+
+### Reject KYC
+PATCH {{baseUrl}}{{apiPrefix}}/admin/reject-kyc/{{propertyId}}
+Authorization: Bearer {{accessToken}}

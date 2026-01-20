@@ -14,9 +14,9 @@ export default {
     createProperty: async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const { propertyName, type, address, location, basePrice, totalUnits, amenties, description, coverImage, capacity, noOfRooms, noOfBaths, rooms } = req.body;
+            const { propertyName, type, address, location, basePrice, totalUnits, amenties, description, coverImage, capacity, noOfRooms, noOfBaths, rooms, minimumRentalIncome, saleTarget, kycDocument } = req.body;
 
-            if(type === 'hotel' && rooms.length === 0) {
+            if (type === 'hotel' && rooms.length === 0) {
                 return httpError(next, new Error(responseMessage.customMessage('Rooms are required.')), req, 400);
 
             }
@@ -47,11 +47,14 @@ export default {
                 amenties,
                 description,
                 coverImage,
+                minimumRentalIncome,
+                saleTarget,
+                kycDocument,
                 locationId: locationDetails.locationId
             })
 
-            if(type === 'hotel') {
-                for(const room of rooms) {
+            if (type === 'hotel') {
+                for (const room of rooms) {
                     await roomModel.create({
                         propertyId: property._id,
                         title: room.title,
@@ -108,8 +111,8 @@ export default {
             }
 
             const isDetailsComplete = propertyDetails.propertyMedia.length > 0 &&
-                                      propertyDetails.spaces.length > 0 &&
-                                      propertyDetails.villaLocationDescription;
+                propertyDetails.spaces.length > 0 &&
+                propertyDetails.villaLocationDescription;
 
             if (isDetailsComplete && !property.isActive) {
                 property.isActive = true;
@@ -124,7 +127,7 @@ export default {
     updateProperty: async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const { propertyId, propertyName, address, location, basePrice, totalUnits, amenties, description, coverImage, capacity, noOfRooms, noOfBaths } = req.body;
+            const { propertyId, propertyName, address, location, basePrice, totalUnits, amenties, description, coverImage, capacity, noOfRooms, noOfBaths, minimumRentalIncome, saleTarget, kycDocument } = req.body;
 
             const property = await propertyModel.findOne({ _id: propertyId, ownerId: userId });
 
@@ -140,6 +143,9 @@ export default {
             if (coverImage !== undefined) property.coverImage = coverImage;
             if (noOfRooms !== undefined) property.noOfRooms = noOfRooms;
             if (noOfBaths !== undefined) property.noOfBaths = noOfBaths;
+            if (minimumRentalIncome !== undefined) property.minimumRentalIncome = minimumRentalIncome;
+            if (saleTarget !== undefined) property.saleTarget = saleTarget;
+            if (kycDocument !== undefined) property.kycDocument = kycDocument;
 
             if (address !== undefined) {
                 if (address.fullAddress !== undefined) property.address.fullAddress = address.fullAddress;
@@ -173,7 +179,7 @@ export default {
             const trimmedWhereTo = whereTo.split(",")[0].trim();
             const locationIds = await getLocationIds(trimmedWhereTo);
 
-            if(locationIds.length === 0) {
+            if (locationIds.length === 0) {
                 return httpResponse(req, res, 200, responseMessage.SUCCESS, []);
             };
 
@@ -224,11 +230,11 @@ export default {
                                     }
                                 }
                             }
-                                                                      
-                        ],  
+
+                        ],
                         as: 'bookings'
                     }
-                }, 
+                },
                 {
                     $addFields: {
                         bookedUnits: {
@@ -242,7 +248,7 @@ export default {
                             $subtract: ["$totalUnits", "$bookedUnits"]
                         }
                     }
-                }, 
+                },
                 {
                     $match: {
                         $expr: {
@@ -254,8 +260,8 @@ export default {
                     $sort: sortBy === 'price_low_to_high'
                         ? { basePrice: 1 }
                         : sortBy === 'price_high_to_low'
-                        ? { basePrice: -1 }
-                        : { createdAt: -1 }
+                            ? { basePrice: -1 }
+                            : { createdAt: -1 }
                 },
                 { $skip: skip },
                 { $limit: Number(limit) },
@@ -352,7 +358,7 @@ export default {
         try {
             const { id } = req.params;
 
-            if(!id) {
+            if (!id) {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             }
 
@@ -393,8 +399,8 @@ export default {
                 }
 
                 const isDetailsComplete = propertyDetails.propertyMedia.length > 0 &&
-                                          propertyDetails.spaces.length > 0 &&
-                                          propertyDetails.villaLocationDescription;
+                    propertyDetails.spaces.length > 0 &&
+                    propertyDetails.villaLocationDescription;
 
                 if (!isDetailsComplete) {
                     return httpError(next, new Error(responseMessage.customMessage('Complete property details before activating')), req, 400);

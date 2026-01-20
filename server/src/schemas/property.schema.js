@@ -93,12 +93,12 @@ export const createPropertySchema = z.object({
       required_error: "Adults capacity is required.",
       invalid_type_error: "Adults capacity must be a number."
     })
-    .positive("Adults capacity must be a positive number."),
+      .positive("Adults capacity must be a positive number."),
     childrens: z.number({
       required_error: "Children capacity is required.",
       invalid_type_error: "Children capacity must be a number."
     })
-    .nonnegative("Children capacity must be a nonnegetive number.")
+      .nonnegative("Children capacity must be a nonnegetive number.")
   }),
 
   noOfRooms: z
@@ -151,11 +151,23 @@ export const createPropertySchema = z.object({
       invalid_type_error: "Cover image must be a string."
     })
     .url("Cover image must be a valid URL."),
-  rooms: z.array(roomSchema).optional().default([])
+  minimumRentalIncome: z.number({
+    required_error: "Minimum rental income is required.",
+    invalid_type_error: "Minimum rental income must be a number."
+  }).positive("Minimum rental income must be a positive number."),
+  saleTarget: z.number({
+    required_error: "Sale target is required.",
+    invalid_type_error: "Sale target must be a number."
+  }).positive("Sale target must be a positive number."),
+  kycDocument: z.string({
+    required_error: "KYC document is required.",
+    invalid_type_error: "KYC document must be a string."
+  }).url("KYC document must be a valid URL."),
+  rooms: z.array(roomSchema).optional().default([]),
 }).refine(
   (data) => {
     if (data.type === "villa" || data.type === "apartment") {
-      return data.totalUnits === 1; 
+      return data.totalUnits === 1;
     }
     return true;
   },
@@ -316,6 +328,9 @@ export const updatePropertySchema = z.object({
   amenties: z.array(z.string()).optional(),
   description: z.string().min(5, "Description must be at least 5 characters.").optional(),
   coverImage: z.string().url("Cover image must be a valid URL.").optional(),
+  minimumRentalIncome: z.number().positive("Minimum rental income must be a positive number.").optional(),
+  saleTarget: z.number().positive("Sale target must be a positive number.").optional(),
+  kycDocument: z.string().url("KYC document must be a valid URL.").optional(),
 });
 
 export const getRandomPropertiesSchema = z.object({

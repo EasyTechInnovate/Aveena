@@ -5,6 +5,8 @@ import authRouter from './auth.router.js';
 import locationRouter from './location.router.js';
 import bookingRouter from './booking.router.js';
 import couponRouter from './coupon.router.js';
+import propertyOwnerRouter from './propertyOwner.router.js';
+import adminRouter from './admin.router.js';
 
 const router = Router()
 
@@ -17,5 +19,7 @@ router.use('/properties', propertyRouter);
 router.use('/locations', locationRouter);
 router.use('/bookings', bookingRouter);
 router.use('/coupons', couponRouter);
+router.use('/property-owner', propertyOwnerRouter);
+router.use('/admin', adminRouter);
 
 export default router
