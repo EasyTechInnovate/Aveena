@@ -38,6 +38,7 @@ export default function GuestReviews({
     "/assets/bedroom.png",
     "/assets/bedroom.png",
   ],
+  propertyLocation,
   propertyDetails,
 }) {
   const [showGallery, setShowGallery] = useState(false);
@@ -93,10 +94,11 @@ export default function GuestReviews({
   const fetchProperties = async () => {
     const response = await getRandomProperties({ limit: 5 });
     setVillas(response.data.data.properties);
-    setTotalSlides(3) // hard coded
+    setTotalSlides(3); // hard coded
   };
 
   useEffect(() => {
+    console.log(propertyLocation);
     fetchProperties();
   }, []);
 
@@ -992,17 +994,18 @@ export default function GuestReviews({
         {/* Meals Section */}
 
         {/* Villa Location Section */}
-        <div className="mt-16">
+        {/* Villa Location Section */}
+        <div className="mt-16 w-full">
           <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
             Villa Location
           </h3>
 
           {/* Location Card with Map */}
-          <div className="bg-gray-50 rounded-lg mb-8">
-            {/* Embedded Map */}
-            <div className="w-lg h-80 rounded-xl overflow-hidden">
+          {/* Removed bg-gray-50, added max-w to decrease width on desktop, w-full for mobile */}
+          <div className="mb-8 w-full md:max-w-3xl">
+            <div className="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.234567890123!2d72.8791234567890!3d18.7654321098765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c8b8b8b8b8b8%3A0x1234567890abcdef!2sAlibaug%2C%20Maharashtra%2C%20India!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+                src={`https://maps.google.com/maps?q=${propertyLocation?.latitude},${propertyLocation?.longitude}&hl=en&z=14&output=embed`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -1015,8 +1018,8 @@ export default function GuestReviews({
           </div>
 
           {/* Description */}
-          <div className="mb-6">
-            <p className="text-gray-700 leading-relaxed">
+          <div className="mb-6 w-full md:max-w-3xl">
+            <p className="text-gray-700 leading-relaxed text-sm md:text-base">
               {isLocationExpanded ? (
                 <>
                   An ideal getaway from the city's chaotic life, Alibaug shares
@@ -1050,7 +1053,7 @@ export default function GuestReviews({
             </p>
             <button
               onClick={() => setIsLocationExpanded(!isLocationExpanded)}
-              className="text-blue-600 hover:underline mt-2 inline-block focus:outline-none"
+              className="text-blue-600 hover:underline mt-2 inline-block focus:outline-none font-medium"
             >
               {isLocationExpanded ? "Read Less" : "Read More"}
             </button>
