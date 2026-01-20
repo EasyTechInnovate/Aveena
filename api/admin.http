@@ -54,3 +54,7 @@ Authorization: Bearer {{accessToken}}
 ### Reject KYC
 PATCH {{baseUrl}}{{apiPrefix}}/admin/reject-kyc/{{propertyId}}
 Authorization: Bearer {{accessToken}}
+
+### Admin Get Property by ID
+GET {{baseUrl}}{{apiPrefix}}/admin/properties/{{propertyId}}
+Authorization: Bearer {{accessToken}}

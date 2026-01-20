@@ -22,3 +22,8 @@ Authorization: Bearer {{accessToken}}
 @bookingId = 694a83b76f01168908dfcbb1
 GET {{baseUrl}}{{apiPrefix}}/property-owner/bookings/{{bookingId}}
 Authorization: Bearer {{accessToken}}
+
+### Property Owner Get Property by ID
+@propertyId = your_property_id_here
+GET {{baseUrl}}{{apiPrefix}}/property-owner/properties/{{propertyId}}
+Authorization: Bearer {{accessToken}}

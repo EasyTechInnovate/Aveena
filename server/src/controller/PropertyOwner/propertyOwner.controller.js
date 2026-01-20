@@ -1,6 +1,7 @@
 import bookingModel from "../../models/booking.model.js";
 import propertyModel from "../../models/property.model.js";
 import transactionModel from "../../models/transaction.model.js";
+import propertyDetailsModel from "../../models/propertyDetails.model.js";
 import httpError from "../../util/httpError.js";
 import httpResponse from "../../util/httpResponse.js";
 import responseMessage from "../../constant/responseMessage.js";
@@ -142,6 +143,27 @@ export default {
             return httpError(next, error, req, 500);
         }
     },
+    getPropertyById: async (req, res, next) => {
+        try {
+            const { userId } = req.user;
+            const { id } = req.params;
+
+            const property = await propertyModel.findOne({ _id: id, ownerId: userId }).lean();
+
+            if (!property) {
+                return httpError(next, new Error(responseMessage.PROPERTY_NOT_FOUND), req, 404);
+            }
+
+            const details = await propertyDetailsModel.findOne({ propertyId: id }).lean();
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                ...property,
+                details: details || null
+            });
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
     properties: async (req, res, next) => {
         try {
             const { userId } = req.user;
@@ -271,7 +293,6 @@ export default {
                         checkOut: 1,
                         guests: 1,
                         status: 1,
-                        // priceBreakdown: 1,
                         "customer.firstName": 1,
                         "customer.lastName": 1,
                         "customer.email": 1,

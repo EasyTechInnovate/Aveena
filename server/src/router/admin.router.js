@@ -14,6 +14,7 @@ router.get('/statistics', adminController.statistics);
 router.get('/bookings', validator(getRandomPropertiesSchema, "query"), adminController.bookings);
 router.get('/customers', validator(getRandomPropertiesSchema, "query"), adminController.customers);
 router.get('/properties', validator(getRandomPropertiesSchema, "query"), adminController.properties);
+router.get('/properties/:id', validator(getPropertyByIdSchema, "params"), adminController.getPropertyById);
 router.get('/property-owners', validator(getRandomPropertiesSchema, "query"), adminController.propertyOwners);
 router.patch('/approve-kyc/:id', validator(getPropertyByIdSchema, "params"), adminController.verifyKyc);
 router.patch('/reject-kyc/:id', validator(getPropertyByIdSchema, "params"), adminController.rejectKyc);

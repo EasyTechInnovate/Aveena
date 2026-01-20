@@ -48,6 +48,11 @@ const config = {
         authKey: process.env.MSG91_AUTH_KEY,
         smsTemplateId: process.env.MSG91_SMS_TEMPLATE_ID,
         emailTemplateId: process.env.MSG91_EMAIL_TEMPLATE_ID
+    },
+    imageKit: {
+        publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+        privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+        urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
     }
 }
 

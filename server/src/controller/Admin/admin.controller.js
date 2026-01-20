@@ -1,6 +1,7 @@
 import bookingModel from "../../models/booking.model.js";
 import propertyModel from "../../models/property.model.js";
 import userModel from "../../models/user.model.js";
+import propertyDetailsModel from "../../models/propertyDetails.model.js";
 import httpError from "../../util/httpError.js";
 import httpResponse from "../../util/httpResponse.js";
 import responseMessage from "../../constant/responseMessage.js";
@@ -701,6 +702,26 @@ export default {
                     limit: parseInt(limit),
                     totalPages: Math.ceil(total / limit)
                 }
+            });
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+    getPropertyById: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+
+            const property = await propertyModel.findById(id).lean();
+
+            if (!property) {
+                return httpError(next, new Error(responseMessage.PROPERTY_NOT_FOUND), req, 404);
+            }
+
+            const details = await propertyDetailsModel.findOne({ propertyId: id }).lean();
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                ...property,
+                details: details || null
             });
         } catch (error) {
             return httpError(next, error, req, 500);

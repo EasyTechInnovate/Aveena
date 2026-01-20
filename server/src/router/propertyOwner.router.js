@@ -12,6 +12,7 @@ router.get('/dashboard', propertyOwnerController.dashboard);
 router.get('/bookings', validator(getRandomPropertiesSchema, "query"), propertyOwnerController.bookings);
 router.get('/bookings/:id', propertyOwnerController.getBookingById);
 router.get('/properties', validator(getRandomPropertiesSchema, "query"), propertyOwnerController.properties);
+router.get('/properties/:id', validator(getPropertyByIdSchema, "params"), propertyOwnerController.getPropertyById);
 router.get('/statistics', propertyOwnerController.statistics);
 
 export default router;
