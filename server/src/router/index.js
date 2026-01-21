@@ -8,6 +8,7 @@ import couponRouter from './coupon.router.js';
 import propertyOwnerRouter from './propertyOwner.router.js';
 import adminRouter from './admin.router.js';
 import mediaRouter from './media.router.js';
+import reviewRouter from './review.router.js';
 
 const router = Router()
 
@@ -23,5 +24,6 @@ router.use('/coupons', couponRouter);
 router.use('/property-owner', propertyOwnerRouter);
 router.use('/admin', adminRouter);
 router.use('/media', mediaRouter);
+router.use('/reviews', reviewRouter);
 
 export default router

@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /api/v1
+@accessToken = your_access_token_here
+
+### Create Review
+POST {{baseUrl}}{{apiPrefix}}/reviews
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "propertyId": "property_id_here",
+    "bookingId": "booking_id_here",
+    "rating": 5,
+    "review": "Amazing stay! The food was delicious.",
+    "images": [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg"
+    ],
+    "highlightedPoints": ["Food", "Cleanliness", "Staff"]
+}
+
+### Get All Reviews
+GET {{baseUrl}}{{apiPrefix}}/reviews?page=1&limit=10
+
+### Get Review Images
+GET {{baseUrl}}{{apiPrefix}}/reviews/images?page=1&limit=10
+
+### Get Property Reviews
+GET {{baseUrl}}{{apiPrefix}}/reviews/property_id_here?page=1&limit=5
+
+### Mark Review Helpful
+PATCH {{baseUrl}}{{apiPrefix}}/reviews/review_id_here/helpful

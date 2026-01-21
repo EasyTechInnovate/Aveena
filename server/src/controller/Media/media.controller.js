@@ -4,7 +4,7 @@ import httpResponse from "../../util/httpResponse.js";
 import httpError from "../../util/httpError.js";
 import responseMessage from "../../constant/responseMessage.js";
 
-const imagekit = new ImageKit({
+export const imagekit = new ImageKit({
     publicKey: config.imageKit.publicKey,
     privateKey: config.imageKit.privateKey,
     urlEndpoint: config.imageKit.urlEndpoint

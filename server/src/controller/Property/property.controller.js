@@ -1,3 +1,4 @@
+import { deleteImageFromUrl } from "../../util/deleteImage.js";
 import responseMessage from "../../constant/responseMessage.js";
 import propertyModel from "../../models/property.model.js";
 import propertyDetailsModel from "../../models/propertyDetails.model.js";
@@ -7,8 +8,6 @@ import getLocationIds from "../../util/getLocationIds.js";
 import httpError from "../../util/httpError.js"
 import httpResponse from "../../util/httpResponse.js";
 import maintainLocationHierarchy from "../../util/maintainLocationHierarchy.js";
-
-
 
 export default {
     createProperty: async (req, res, next) => {
@@ -91,7 +90,17 @@ export default {
             let propertyDetails = await propertyDetailsModel.findOne({ propertyId });
 
             if (propertyDetails) {
-                if (propertyMedia !== undefined) propertyDetails.propertyMedia = propertyMedia;
+                if (propertyMedia !== undefined) {
+                    const oldMediaUrls = propertyDetails.propertyMedia.map(m => m.url);
+                    const newMediaUrls = propertyMedia.map(m => m.url);
+
+                    const removedUrls = oldMediaUrls.filter(url => !newMediaUrls.includes(url));
+
+                    removedUrls.forEach(url => deleteImageFromUrl(url));
+
+                    propertyDetails.propertyMedia = propertyMedia;
+                }
+
                 if (spaces !== undefined) propertyDetails.spaces = spaces;
                 if (meals !== undefined) propertyDetails.meals = meals;
                 if (locationDescription !== undefined) propertyDetails.villaLocationDescription = locationDescription;
@@ -140,7 +149,14 @@ export default {
             if (totalUnits !== undefined) property.totalUnits = totalUnits;
             if (amenties !== undefined) property.amenties = amenties;
             if (description !== undefined) property.description = description;
-            if (coverImage !== undefined) property.coverImage = coverImage;
+
+            if (coverImage !== undefined) {
+                if (property.coverImage && property.coverImage !== coverImage) {
+                    deleteImageFromUrl(property.coverImage);
+                }
+                property.coverImage = coverImage;
+            }
+
             if (noOfRooms !== undefined) property.noOfRooms = noOfRooms;
             if (noOfBaths !== undefined) property.noOfBaths = noOfBaths;
             if (minimumRentalIncome !== undefined) property.minimumRentalIncome = minimumRentalIncome;
