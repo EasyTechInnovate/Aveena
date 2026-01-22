@@ -726,5 +726,34 @@ export default {
         } catch (error) {
             return httpError(next, error, req, 500);
         }
+    },
+    createPropertyOwner: async (req, res, next) => {
+        try {
+            const { firstName, lastName, email, phone } = req.body;
+
+            const existingUser = await userModel.findOne({
+                $or: [
+                    { email: email },
+                    { 'phone.number': phone?.number }
+                ]
+            });
+
+            if (existingUser) {
+                return httpError(next, new Error(responseMessage.ERROR.ALREADY_EXISTS('User with this email or phone')), req, 400);
+            }
+
+            const propertyOwner = await userModel.create({
+                firstName,
+                lastName,
+                email,
+                phone,
+                type: 'property_owner',
+                authProvider: 'email'
+            });
+
+            return httpResponse(req, res, 201, responseMessage.CREATED, propertyOwner);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
     }
 }

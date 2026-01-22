@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+@accessToken = your_access_token_here
+@propertyId = 67584bd83344158428805f15
+
+### Toggle Wishlist
+PATCH {{baseUrl}}{{apiPrefix}}/user/wishlist/toggle/{{propertyId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Get Wishlist
+GET {{baseUrl}}{{apiPrefix}}/user/wishlist?page=1&limit=10
+Authorization: Bearer {{accessToken}}

@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:5000
-@apiPrefix = /api/v1
+@apiPrefix = /v1
 
 ### Send OTP with Email
 POST {{baseUrl}}{{apiPrefix}}/auth/send-otp
@@ -36,7 +36,7 @@ Content-Type: application/json
 {
   "phone": {
     "countryCode": "+91",
-    "number": "1234567890"
+    "number": "9653092873"
   },
   "verificationCode": "123456"
 }

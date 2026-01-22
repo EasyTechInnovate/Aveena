@@ -58,3 +58,18 @@ Authorization: Bearer {{accessToken}}
 ### Admin Get Property by ID
 GET {{baseUrl}}{{apiPrefix}}/admin/properties/{{propertyId}}
 Authorization: Bearer {{accessToken}}
+
+### Create Property Owner
+POST {{baseUrl}}{{apiPrefix}}/admin/property-owners
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane.smith@example.com",
+    "phone": {
+        "countryCode": "+91",
+        "number": "9876543211"
+    }
+}

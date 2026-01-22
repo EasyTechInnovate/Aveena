@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 
 const userSchema = new Schema({
-    
+
     firstName: {
         type: String,
         minlength: 2,
@@ -109,7 +109,11 @@ const userSchema = new Schema({
         type: String,
         enum: ['email', 'phone', 'google'],
         default: 'email'
-    }
+    },
+    wishlist: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Property'
+    }]
 }, { timestamps: true });
 
 

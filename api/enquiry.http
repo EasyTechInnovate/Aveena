@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+
+### Create Enquiry
+POST {{baseUrl}}{{apiPrefix}}/enquiries
+Content-Type: application/json
+
+{
+    "fullName": "John Doe",
+    "phoneNumber": "+919876543210",
+    "hotelName": "Grand Hotel",
+    "cityName": "Mumbai"
+}
+
+### Get All Enquiries (Paginated)
+GET {{baseUrl}}{{apiPrefix}}/enquiries?page=1&limit=10

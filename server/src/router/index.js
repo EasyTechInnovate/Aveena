@@ -9,6 +9,8 @@ import propertyOwnerRouter from './propertyOwner.router.js';
 import adminRouter from './admin.router.js';
 import mediaRouter from './media.router.js';
 import reviewRouter from './review.router.js';
+import userRouter from './user.router.js';
+import enquiryRouter from './enquiry.router.js';
 
 const router = Router()
 
@@ -25,5 +27,7 @@ router.use('/property-owner', propertyOwnerRouter);
 router.use('/admin', adminRouter);
 router.use('/media', mediaRouter);
 router.use('/reviews', reviewRouter);
+router.use('/user', userRouter);
+router.use('/enquiries', enquiryRouter);
 
 export default router
