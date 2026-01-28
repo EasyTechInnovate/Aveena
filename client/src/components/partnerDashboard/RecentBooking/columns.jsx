@@ -13,34 +13,66 @@ import {
 const columnHelper = createColumnHelper()
 
 export const columns = [
-  columnHelper.accessor("id", {
+  columnHelper.accessor("_id", {
     header: "ID",
+    cell: (info) => <span className="font-medium">#{info.getValue().slice(-6)}</span>,
   }),
 
-  columnHelper.accessor("customername", {
+  columnHelper.accessor("customer", {
     header: "Customer Name",
+    cell: (info) => {
+      const { firstName, lastName } = info.getValue() || {}
+      return <span className="font-medium">{firstName} {lastName}</span>
+    },
   }),
 
-  columnHelper.accessor("Checkindate", {
+  columnHelper.accessor("checkIn", {
     header: "Check- in Date",
+    cell: (info) => {
+      const date = new Date(info.getValue())
+      return <span>{date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+    },
   }),
 
-  columnHelper.accessor("Checkoutdate", {
+  columnHelper.accessor("checkOut", {
     header: "Check- Out Date",
+    cell: (info) => {
+      const date = new Date(info.getValue())
+      return <span>{date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+    },
   }),
 
-  columnHelper.accessor("rooms", {
+  columnHelper.accessor("noOfRooms", {
     header: "No. of Rooms",
+    cell: (info) => <span>{info.getValue()} Rooms</span>,
   }),
 
   columnHelper.accessor("guests", {
     header: "Guests",
+    cell: (info) => {
+      const { adults } = info.getValue() || { adults: 0 }
+      return <span>{adults} Adults</span>
+    },
   }),
 
-  columnHelper.accessor("paymentStatus", {
+  columnHelper.accessor("status", {
     header: "Payment Status",
+    cell: (info) => {
+      const status = info.getValue()
+      const styles = status === "confirmed" 
+        ? "bg-green-100 text-green-700 hover:bg-green-100 border-transparent" 
+        : "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-transparent"
+      
+      return (
+        <Badge className={`capitalize ${styles}`} variant="outline">
+          {status === 'confirmed' ? 'Advance Paid' : status}
+        </Badge>
+      )
+    },
   }),
-  columnHelper.accessor("action", {
+
+  columnHelper.display({
+    id: "action",
     header: "",
     cell: ({ row }) => {
       const rowData = row.original
@@ -59,7 +91,6 @@ export const columns = [
             <DropdownMenuItem
               onClick={() => {
                 console.log("Cancel booking:", rowData)
-                // wire to cancel flow
               }}
               className="cursor-pointer py-3 text-[15px]"
             >
@@ -70,7 +101,6 @@ export const columns = [
             <DropdownMenuItem
               onClick={() => {
                 console.log("View details:", rowData)
-                // open details drawer/modal
               }}
               className="cursor-pointer py-3 text-[15px]"
             >
@@ -81,5 +111,5 @@ export const columns = [
         </DropdownMenu>
       )
     },
-  })
+  }),
 ]

@@ -2,35 +2,35 @@
 @apiPrefix = /v1
 @accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk5NTQ5MjI1MDgxNzMzNWI5MzU2MyIsImlzUHJvZmlsZUNvbXBsZXRlIjp0cnVlLCJpYXQiOjE3Njg4OTgzNDUsImV4cCI6MTc3MDEwNzk0NX0.8JyOyryNbvdlDgn3DT293FO_rjHIZjYIIx3l979Or6k
 
-### Admin Dashboard
+### Admin Dashboard *
 GET {{baseUrl}}{{apiPrefix}}/admin/dashboard
 Authorization: Bearer {{accessToken}}
 
-### Admin Statistics (merged into dashboard but available)
+### Admin Statistics (merged into dashboard but available) *
 GET {{baseUrl}}{{apiPrefix}}/admin/statistics
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Bookings
+### Admin Get All Bookings *
 GET {{baseUrl}}{{apiPrefix}}/admin/bookings?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Bookings - Search and Filter
+### Admin Get All Bookings - Search and Filter *
 GET {{baseUrl}}{{apiPrefix}}/admin/bookings?page=1&limit=10&search=john&status=confirmed
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Customers
+### Admin Get All Customers *
 GET {{baseUrl}}{{apiPrefix}}/admin/customers?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Customers - Search
+### Admin Get All Customers - Search *
 GET {{baseUrl}}{{apiPrefix}}/admin/customers?page=1&limit=10&search=doe
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Properties
+### Admin Get All Properties *
 GET {{baseUrl}}{{apiPrefix}}/admin/properties?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
-### Admin Get All Properties - Search
+### Admin Get All Properties - Search *
 GET {{baseUrl}}{{apiPrefix}}/admin/properties?page=1&limit=10&search=villa
 Authorization: Bearer {{accessToken}}
 
@@ -38,11 +38,11 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}{{apiPrefix}}/admin/pending-kyc-properties?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
-### Admin Get Property Owners
+### Admin Get Property Owners *
 GET {{baseUrl}}{{apiPrefix}}/admin/property-owners?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
-### Admin Get Property Owners - Search
+### Admin Get Property Owners - Search *
 GET {{baseUrl}}{{apiPrefix}}/admin/property-owners?page=1&limit=10&search=smith
 Authorization: Bearer {{accessToken}}
 

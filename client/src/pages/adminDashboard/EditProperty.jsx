@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import Sidebar from '../../components/admin/Sidebar'
 import ManagePropertySidebar from '../../components/admin/ManagePropertySidebar'
@@ -13,6 +13,31 @@ const EditProperty = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState(searchParams.get('section') || 'owner-info')
+
+  useEffect(() => {
+    const fetchPropertyById = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/properties/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        const jsonResponse = await response.json();
+        console.log("Property By ID Data:", jsonResponse);
+
+      } catch (error) {
+        console.error("Error fetching property by ID:", error);
+      }
+    };
+
+    if (id) {
+      fetchPropertyById();
+    }
+  }, [id]);
 
   const handleCancel = () => {
     navigate('/dashboard/admin/property')

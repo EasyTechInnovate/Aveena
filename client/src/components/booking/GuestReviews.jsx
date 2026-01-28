@@ -39,6 +39,7 @@ export default function GuestReviews({
     "/assets/bedroom.png",
   ],
   propertyDetails,
+  propertyLocation,
 }) {
   const [showGallery, setShowGallery] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -93,7 +94,7 @@ export default function GuestReviews({
   const fetchProperties = async () => {
     const response = await getRandomProperties({ limit: 5 });
     setVillas(response.data.data.properties);
-    setTotalSlides(3) // hard coded
+    setTotalSlides(3); // hard coded
   };
 
   useEffect(() => {
@@ -1002,7 +1003,7 @@ export default function GuestReviews({
             {/* Embedded Map */}
             <div className="w-lg h-80 rounded-xl overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.234567890123!2d72.8791234567890!3d18.7654321098765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c8b8b8b8b8b8%3A0x1234567890abcdef!2sAlibaug%2C%20Maharashtra%2C%20India!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+                src={`https://maps.google.com/maps?q=${propertyLocation?.latitude},${propertyLocation?.longitude}&hl=en&z=14&output=embed`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -1013,6 +1014,8 @@ export default function GuestReviews({
               ></iframe>
             </div>
           </div>
+
+          {/* {console.log("porpertyLocation", propertyLocation)} */}
 
           {/* Description */}
           <div className="mb-6">

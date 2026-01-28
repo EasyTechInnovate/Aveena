@@ -19,41 +19,25 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table'
+// ! ( Help Center data ) is not comming with api with response
 
-// Chart data matching the design
-const revenueData = [
-  { name: 'Jan', value: 20000 },
-  { name: 'Feb', value: 30000 },
-  { name: 'Mar', value: 10000 },
-  { name: 'Apr', value: 30000 },
-  { name: 'May', value: 45000 },
-  { name: 'Jun', value: 25000 },
-  { name: 'Jul', value: 40000 },
-  { name: 'Aug', value: 8000 },
-  { name: 'Sep', value: 20000 },
-  { name: 'Oct', value: 44000 },
-  { name: 'Nov', value: 48000 },
-  { name: 'Dec', value: 15000 },
-]
 
-// Sample ticket data for Help Center
-const ticketData = [
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'On Hold', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'In Progress', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'Resolved', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'On Hold', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'In Progress', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'Resolved', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'On Hold', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'In Progress', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'Resolved', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'On Hold', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'In Progress', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'Resolved', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'On Hold', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'In Progress', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-  { id: '#123', customer: 'Kathryn Murphy', subject: 'Payment Is not Refund', status: 'Resolved', created: 'Jun 10, 2016', updated: 'Jun 10, 2016' },
-]
+// const revenueData = [
+//   { name: 'Jan', value: 20000 },
+//   { name: 'Feb', value: 30000 },
+//   { name: 'Mar', value: 10000 },
+//   { name: 'Apr', value: 30000 },
+//   { name: 'May', value: 45000 },
+//   { name: 'Jun', value: 25000 },
+//   { name: 'Jul', value: 40000 },
+//   { name: 'Aug', value: 8000 },
+//   { name: 'Sep', value: 20000 },
+//   { name: 'Oct', value: 44000 },
+//   { name: 'Nov', value: 48000 },
+//   { name: 'Dec', value: 15000 },
+// ]
+
+// const ticketData = [ ...hardcoded tickets... ]
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -68,8 +52,14 @@ const getStatusColor = (status) => {
   }
 }
 
-const Dashboard = () => {
+const Dashboard = ({ revenueChart, recentBookings, recentProperties, tickets = [] }) => {
   const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredTickets = tickets.filter(ticket =>
+    ticket.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
     <div className="space-y-6">
       {/* Chart Section */}
@@ -80,9 +70,7 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold text-gray-800">Net Revenue</h2>
           </div>
 
-          {/* Dropdown and Button */}
           <div className="flex gap-3 items-center">
-            {/* Yearly Dropdown */}
             <div className="relative">
               <select className="appearance-none border border-gray-300 rounded-lg py-2 pl-4 pr-8 text-sm text-gray-700 focus:outline-none bg-white">
                 <option>Yearly</option>
@@ -93,73 +81,50 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* View All Button */}
             <button className="bg-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-darkGreen transition-colors">
               View All
             </button>
           </div>
         </div>
 
-        {/* Chart */}
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={revenueData}
+              data={revenueChart}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="name"
-                stroke="#6b7280"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
-              />
+              <XAxis dataKey="name" stroke="#6b7280" />
               <YAxis
                 stroke="#6b7280"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
                 tickFormatter={(v) => `${v / 1000}K`}
-                domain={[0, 60000]}
-                ticks={[0, 10000, 20000, 30000, 40000, 50000, 60000]}
               />
               <Tooltip
-                formatter={(value) => [`$${value.toLocaleString()}`, 'Net Revenue']}
-                contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                }}
+                formatter={(value) => [`₹${value.toLocaleString()}`, 'Net Revenue']}
               />
               <Line
                 type="monotone"
                 dataKey="value"
                 stroke="#32BA55"
                 strokeWidth={2}
-                dot={{
-                  r: 6,
-                  fill: 'none',
-                  stroke: '#32BA55',
-                  strokeWidth: 2,
-                }}
-                activeDot={{ r: 8 }}
+                dot={{ r: 6 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Tables Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentBooking />
-        <RecentProperty />
+        <RecentBooking recentBookings={recentBookings} />
+        <RecentProperty recentProperties={recentProperties} />
       </div>
 
       {/* Help Center Section */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Help Center</h1>
-          
+
           <div className="flex gap-3">
-            {/* Search Bar */}
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -170,11 +135,10 @@ const Dashboard = () => {
                 placeholder="Search Ticket"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green w-64"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none w-64"
               />
             </div>
 
-            {/* Filters Button */}
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               Filters
               <ChevronDown size={18} />
@@ -182,37 +146,34 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-b">
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Ticket Id</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Customer Name</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Subject</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Status</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Created Date</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap">Last Update</TableHead>
-                <TableHead className="font-semibold text-gray-800 whitespace-nowrap"></TableHead>
+              <TableRow>
+                <TableHead>Ticket Id</TableHead>
+                <TableHead>Customer Name</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created Date</TableHead>
+                <TableHead>Last Update</TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ticketData.map((ticket, index) => (
-                <TableRow key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <TableCell className="text-gray-700 whitespace-nowrap">{ticket.id}</TableCell>
-                  <TableCell className="text-gray-700 whitespace-nowrap">{ticket.customer}</TableCell>
-                  <TableCell className="text-gray-700 whitespace-nowrap">{ticket.subject}</TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
+              {filteredTickets.map((ticket, index) => (
+                <TableRow key={index}>
+                  <TableCell>{ticket.id}</TableCell>
+                  <TableCell>{ticket.customer}</TableCell>
+                  <TableCell>{ticket.subject}</TableCell>
+                  <TableCell>
+                    <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(ticket.status)}`}>
                       {ticket.status}
                     </span>
                   </TableCell>
-                  <TableCell className="text-gray-700 whitespace-nowrap">{ticket.created}</TableCell>
-                  <TableCell className="text-gray-700 whitespace-nowrap">{ticket.updated}</TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                      <MoreVertical size={18} className="text-gray-600" />
-                    </button>
+                  <TableCell>{ticket.created}</TableCell>
+                  <TableCell>{ticket.updated}</TableCell>
+                  <TableCell>
+                    <MoreVertical size={18} />
                   </TableCell>
                 </TableRow>
               ))}

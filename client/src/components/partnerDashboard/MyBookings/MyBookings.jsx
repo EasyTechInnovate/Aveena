@@ -2,7 +2,7 @@ import React from "react";
 import BookingTablePage from "./Table";
 import { ChevronDown } from "lucide-react";
 
-const MyBookingList = () => {
+const MyBookingList = ({bookings, pagination}) => {
   return (
     <div className="border-2 border-gray-200 bg-white p-6 rounded-2xl">
       {/* Header Section */}
@@ -28,7 +28,7 @@ const MyBookingList = () => {
       </div>
 
       {/* Table */}
-      <BookingTablePage />
+      <BookingTablePage bookings={bookings} pagination={pagination} />
     </div>
   );
 };

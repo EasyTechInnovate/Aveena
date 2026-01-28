@@ -1,29 +1,6 @@
 import React from "react";
 
 const ViewPropertyPhotos = ({ propertyData }) => {
-  // Mock image data - in real app, fetch from propertyData
-  const photos = [
-    {
-      id: 1,
-      url: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop",
-      alt: "Villa exterior with outdoor dining area"
-    },
-    {
-      id: 2,
-      url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop",
-      alt: "Villa with pool at dusk"
-    },
-    {
-      id: 3,
-      url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300&fit=crop",
-      alt: "Villa with pool at dusk"
-    },
-    {
-      id: 4,
-      url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&h=300&fit=crop",
-      alt: "Villa with pool at dusk"
-    }
-  ];
 
   return (
     <div className="border-2 border-[#DFE0E480] bg-white p-8 rounded-2xl shadow-sm">
@@ -37,9 +14,9 @@ const ViewPropertyPhotos = ({ propertyData }) => {
 
       {/* Photo Gallery */}
       <div className="grid grid-cols-4 gap-4">
-        {photos.map((photo) => (
+        {propertyData.propertyMedia?.map((photo, index) => (
           <div
-            key={photo.id}
+            key={index}
             className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 bg-gray-100"
           >
             <img

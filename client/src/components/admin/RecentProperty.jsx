@@ -7,17 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table'
+// ! ( Mini Rental amoount ) is not comming with api with response
 
-// Recent Property data
-const recentProperties = [
-  { name: 'UDS Villa - Next to.....', type: 'Villa', income: '₹19,824', status: 'Pending' },
-  { name: 'UDS Villa - Next to.....', type: 'Villa', income: '₹19,824', status: 'Pending' },
-  { name: 'UDS Villa - Next to.....', type: 'Villa', income: '₹19,824', status: 'Pending' },
-  { name: 'UDS Villa - Next to.....', type: 'Villa', income: '₹19,824', status: 'Pending' },
-  { name: 'UDS Villa - Next to.....', type: 'Villa', income: '₹19,824', status: 'Pending' },
-]
+// const recentProperties = [
+//   { name: 'UDS Villa', type: 'Villa', income: '₹19,824', status: 'Pending' },
+// ]
 
-const RecentProperty = () => {
+
+const RecentProperty = ({ recentProperties }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
@@ -30,21 +27,40 @@ const RecentProperty = () => {
       <Table>
         <TableHeader>
           <TableRow className="border-b">
-            <TableHead className="font-semibold text-gray-800">Property Name</TableHead>
-            <TableHead className="font-semibold text-gray-800">Property Type</TableHead>
-            <TableHead className="font-semibold text-gray-800">Min. Rental Income</TableHead>
-            <TableHead className="font-semibold text-gray-800">Status</TableHead>
+            <TableHead>Property Name</TableHead>
+            <TableHead>Property Type</TableHead>
+            <TableHead>KYC Status</TableHead>
+            <TableHead>Active</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recentProperties.map((property, index) => (
             <TableRow key={index} className="border-b border-gray-200">
-              <TableCell className="text-gray-700">{property.name}</TableCell>
-              <TableCell className="text-gray-700">{property.type}</TableCell>
-              <TableCell className="text-gray-700">{property.income}</TableCell>
+              <TableCell className="text-gray-700">
+                {property.name}
+              </TableCell>
+
+              <TableCell className="text-gray-700 capitalize">
+                {property.type}
+              </TableCell>
+
               <TableCell>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-gray-800">
-                  {property.status}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                  ${property.kycVerified === 'verified'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                  {property.kycVerified}
+                </span>
+              </TableCell>
+
+              <TableCell>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                  ${property.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                  }`}>
+                  {property.isActive ? 'Active' : 'Inactive'}
                 </span>
               </TableCell>
             </TableRow>
@@ -56,4 +72,3 @@ const RecentProperty = () => {
 }
 
 export default RecentProperty
-
