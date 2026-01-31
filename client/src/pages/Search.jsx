@@ -1,19 +1,20 @@
-import Result from "../components/search/Result";
-// import Filter from "../components/search/Filter";
 import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Result from "../components/search/Result";
 import LocationSelector from "../components/common/LocationSelector";
 import DatePicker from "../components/common/DatePicker";
 import TravelerSelector from "../components/common/TravelerSelector";
-import { getFilteredProperties } from "../services";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import FilterChips from "../components/search/FilterChips";
 import SortDropdown from "../components/search/SortDropdown";
-// import SearchTabs from "../components/search/SearchTabs";
 import Pagination from "../components/common/Pagination";
 
-// Helper function to parse URL parameters
+import { getFilteredProperties } from "../services";
+
+/* -------------------------------- helpers -------------------------------- */
+
 const parseUrlParams = (searchString) => {
   const params = new URLSearchParams(searchString);
   return {
@@ -27,49 +28,45 @@ const parseUrlParams = (searchString) => {
   };
 };
 
-// Helper function to build query string
 const buildQueryString = (params) => {
-  const queryParams = new URLSearchParams();
-  
+  const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      queryParams.set(key, value.toString());
+      query.set(key, value);
     }
   });
-  
-  return queryParams.toString();
+  return query.toString();
 };
 
-// Map frontend sortBy to API sortBy
 const mapSortByToAPI = (sortBy) => {
-  const sortMap = {
+  const map = {
     "price-low": "price_low_to_high",
     "price-high": "price_high_to_low",
-    // rating/distance are not supported by backend sort; map to recommended
-    "rating": "recommended",
-    "distance": "recommended",
-    "recommended": "recommended",
+    recommended: "recommended",
+    rating: "recommended",
+    distance: "recommended",
   };
-  return sortMap[sortBy] || "recommended";
+  return map[sortBy] || "recommended";
 };
 
-// Default filters structure
 const DEFAULT_FILTERS = {
-  // API supports only property name search as a filter
   propertySearch: "",
 };
+
+/* -------------------------------- component -------------------------------- */
 
 const Search = () => {
   const locationHook = useLocation();
   const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const [properties, setProperties] = useState([]);
   const [totalResults, setTotalResults] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
-  // Search parameters state
+  const [currentPage, setCurrentPage] = useState(1);
+
   const [searchParams, setSearchParams] = useState({
     location: "",
     checkIn: "",
@@ -78,39 +75,25 @@ const Search = () => {
     childrens: 0,
     rooms: 1,
   });
-  
-  // UI state
+
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sortBy, setSortBy] = useState("recommended");
-  // NOTE: Tabs UI removed from page; keeping state commented for future use if needed.
-  // const [activeTab, setActiveTab] = useState("all-stay");
 
-  // Parse URL parameters on mount and when URL changes
+  /* ---------------------------- sync URL params ---------------------------- */
+
   useEffect(() => {
-    const parsedParams = parseUrlParams(locationHook.search);
-    setSearchParams(prev => ({
-      ...prev,
-      ...parsedParams,
-    }));
-    setCurrentPage(parsedParams.page);
+    const parsed = parseUrlParams(locationHook.search);
+    setSearchParams((prev) => ({ ...prev, ...parsed }));
+    setCurrentPage(parsed.page);
   }, [locationHook.search]);
 
-  // Fetch properties when dependencies change
-  useEffect(() => {
-    // Only fetch if we have required parameters
-    if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
-      fetchProperties();
-    }
-  }, [searchParams.location, searchParams.checkIn, searchParams.checkOut, currentPage, sortBy, filters.propertySearch]);
+  /* ----------------------------- fetch properties ---------------------------- */
 
-  // Fetch properties with current parameters
   const fetchProperties = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      // Build API parameters - Only use filters supported by the API
-      // API supports: whereTo, checkIn, checkOut, adults, childrens, rooms, page, limit, sortBy, search
       const apiParams = {
         whereTo: searchParams.location,
         checkIn: searchParams.checkIn,
@@ -122,79 +105,25 @@ const Search = () => {
         limit: 10,
         sortBy: mapSortByToAPI(sortBy),
       };
-      
-      // Add property search if available (API supports 'search' parameter)
+
       if (filters.propertySearch) {
         apiParams.search = filters.propertySearch;
       }
-      
-      // NOTE: The following filters are NOT supported by the API and are commented out:
-      // - minPrice/maxPrice (price range filtering)
-      // - amenities
-      // - propertyType
-      // - starRating/rating
-      // - All other selectedFilters
-      
-      // // Add price filter if set - NOT SUPPORTED BY API
-      // if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
-      //   if (filters.priceRange.min > 0) {
-      //     apiParams.minPrice = filters.priceRange.min;
-      //   }
-      //   if (filters.priceRange.max > 0) {
-      //     apiParams.maxPrice = filters.priceRange.max;
-      //   }
-      // }
-      
-      // // Add other selected filters - NOT SUPPORTED BY API
-      // const additionalFilters = {};
-      // Object.entries(filters.selectedFilters || {}).forEach(([key, values]) => {
-      //   if (values && values.length > 0) {
-      //     switch (key) {
-      //       case "amenities":
-      //         additionalFilters.amenities = values.join(",");
-      //         break;
-      //       case "propertyType":
-      //         additionalFilters.propertyType = values.join(",");
-      //         break;
-      //       case "starRating":
-      //         if (values.length > 0) {
-      //           additionalFilters.rating = Math.min(...values);
-      //         }
-      //         break;
-      //       default:
-      //         additionalFilters[key] = values.join(",");
-      //     }
-      //   }
-      // });
-      
-      // // Apply tab-based filtering - NOT SUPPORTED BY API
-      // if (!additionalFilters.propertyType) {
-      //   if (activeTab === "hotels") {
-      //     additionalFilters.propertyType = "hotel";
-      //   } else if (activeTab === "homes") {
-      //     additionalFilters.propertyType = "villa,apartment,home";
-      //   }
-      // }
-      
-      // Make API call - only pass apiParams, no additionalFilters
-      const response = await getFilteredProperties(apiParams, {});
-      
-      if (response.data?.success) {
-        const data = response.data.data;
-        setProperties(data.properties || []);
-        setTotalResults(data.pagination?.total || 0);
-        setTotalPages(data.pagination?.totalPages || 1);
-        
-        // Ensure current page is valid
-        if (currentPage > (data.pagination?.totalPages || 1)) {
-          setCurrentPage(1);
-        }
-      } else {
+
+      const response = await getFilteredProperties(apiParams);
+
+      if (!response.data?.success) {
         throw new Error(response.data?.message || "Failed to fetch properties");
       }
+
+      const data = response.data.data;
+
+      setProperties(data.properties || []);
+      setTotalResults(data.pagination?.total || 0);
+      setTotalPages(data.pagination?.totalPages || 1);
     } catch (err) {
-      console.error("Error fetching properties:", err);
-      setError(err.message || "An error occurred while fetching properties");
+      console.error(err);
+      setError(err.message || "Something went wrong");
       setProperties([]);
       setTotalResults(0);
       setTotalPages(1);
@@ -203,24 +132,32 @@ const Search = () => {
     }
   }, [searchParams, currentPage, sortBy, filters.propertySearch]);
 
-  // Handle main search form submission
+  /* --------------------------- trigger fetch logic --------------------------- */
+
+  useEffect(() => {
+    if (searchParams.location && searchParams.checkIn && searchParams.checkOut) {
+      fetchProperties();
+    }
+  }, [
+    searchParams.location,
+    searchParams.checkIn,
+    searchParams.checkOut,
+    currentPage,
+    sortBy,
+    filters.propertySearch,
+  ]);
+
+  /* -------------------------------- handlers -------------------------------- */
+
   const handleSearch = () => {
-    // Validate required fields
-    if (!searchParams.location) {
-      alert("Please select a location.");
+    if (!searchParams.location || !searchParams.checkIn || !searchParams.checkOut) {
+      alert("Please fill all required fields");
       return;
     }
 
-    if (!searchParams.checkIn || !searchParams.checkOut) {
-      alert("Please select both check-in and check-out dates.");
-      return;
-    }
-
-    // Reset to first page on new search
     setCurrentPage(1);
-    
-    // Build URL parameters
-    const queryParams = buildQueryString({
+
+    const query = buildQueryString({
       location: searchParams.location,
       checkIn: searchParams.checkIn,
       checkOut: searchParams.checkOut,
@@ -229,343 +166,133 @@ const Search = () => {
       rooms: searchParams.rooms,
       page: 1,
     });
-    
-    // Update URL without page reload
-    navigate(`/search?${queryParams}`, { replace: true });
-    
-    // Reset filters on new search
+
+    navigate(`/search?${query}`, { replace: true });
     setFilters(DEFAULT_FILTERS);
   };
 
-  // Update individual search parameters
   const updateSearchParam = (key, value) => {
-    setSearchParams(prev => ({
-      ...prev,
-      [key]: value,
-    }));
+    setSearchParams((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Handle filters change
-  const handleFiltersChange = useCallback((newFilters) => {
-    setFilters(newFilters);
-    // Reset to first page when filters change
-    setCurrentPage(1);
-  }, []);
-
-  // Handle sort change
-  const handleSortChange = (newSortBy) => {
-    setSortBy(newSortBy);
-    setCurrentPage(1);
-  };
-
-  // Tabs are currently disabled/hidden from the UI.
-  // const handleTabChange = (tab) => {
-  //   setActiveTab(tab);
-  //   setCurrentPage(1);
-  // };
-
-  // Remove individual filter
-  const removeFilter = (filterKey) => {
-    setFilters(prev => ({
-      ...prev,
-      propertySearch: filterKey === "propertySearch" ? "" : prev.propertySearch,
-    }));
-    setCurrentPage(1);
-  };
-
-  // Remove all filters
-  const removeAllFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-    setCurrentPage(1);
-  };
-
-  // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    
-    // Update URL with new page
-    const queryParams = buildQueryString({
-      location: searchParams.location,
-      checkIn: searchParams.checkIn,
-      checkOut: searchParams.checkOut,
-      adults: searchParams.adults,
-      childrens: searchParams.childrens,
-      rooms: searchParams.rooms,
+
+    const query = buildQueryString({
+      ...searchParams,
       page,
     });
-    
-    navigate(`/search?${queryParams}`, { replace: true });
+
+    navigate(`/search?${query}`, { replace: true });
   };
 
-  // Get active filter chips for display - Only show supported filters
-  const getActiveFilterChips = () => {
-    const chips = [];
-    
-    // Add property search chip (API supports 'search' parameter)
-    if (filters.propertySearch) {
-      chips.push({
-        key: "propertySearch",
-        value: filters.propertySearch,
-        label: `Search: ${filters.propertySearch}`,
-      });
-    }
-    
-    // NOTE: The following filters are NOT supported by the API and are commented out:
-    // - Price range (minPrice/maxPrice not in API)
-    // - All selectedFilters (amenities, propertyType, etc. not in API)
-    
-    // // Add price range chip - NOT SUPPORTED BY API
-    // if (filters.priceRange?.min > 0 || filters.priceRange?.max > 0) {
-    //   chips.push({
-    //     key: "priceRange",
-    //     value: `${filters.priceRange.min}-${filters.priceRange.max}`,
-    //     label: `Price: ₹${filters.priceRange.min} - ₹${filters.priceRange.max}`,
-    //   });
-    // }
-    
-    // // Add other selected filters - NOT SUPPORTED BY API
-    // Object.entries(filters.selectedFilters).forEach(([filterKey, filterValues]) => {
-    //   if (filterValues && filterValues.length > 0) {
-    //     filterValues.forEach(value => {
-    //       chips.push({
-    //         key: filterKey,
-    //         value,
-    //         label: `${filterKey}: ${value}`,
-    //       });
-    //     });
-    //   }
-    // });
-    
-    return chips;
-  };
+  const activeFilterChips = filters.propertySearch
+    ? [
+        {
+          key: "propertySearch",
+          label: `Search: ${filters.propertySearch}`,
+        },
+      ]
+    : [];
 
-  const activeFilterChips = getActiveFilterChips();
+  /* ---------------------------------- UI ---------------------------------- */
 
   return (
     <>
       {/* Search Header */}
-      <div className="w-full bg-[url('/assets/search/herobg.png')] bg-no-repeat bg-cover bg-center p-4 md:p-8 pt-24 md:pt-30">
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl p-4 md:p-6 flex flex-col md:flex-row gap-4 shadow-lg">
-          {/* Location Selector */}
-          <div className="flex-1">
-            <LocationSelector
-              value={searchParams.location}
-              onChange={(value) => updateSearchParam("location", value)}
-              placeholder="Mumbai, Maharashtra, India"
-            />
-          </div>
+      <div className="bg-cover bg-center p-6 pt-28 bg-[url('/assets/search/herobg.png')]">
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl p-6 flex flex-col md:flex-row gap-4 shadow-lg">
+          <LocationSelector
+            value={searchParams.location}
+            onChange={(v) => updateSearchParam("location", v)}
+          />
 
-          {/* Date Picker */}
-          <div className="flex-1">
-            <DatePicker
-              value={{ checkIn: searchParams.checkIn, checkOut: searchParams.checkOut }}
-              onChange={(dates) => {
-                updateSearchParam("checkIn", dates.checkIn);
-                updateSearchParam("checkOut", dates.checkOut);
-              }}
-            />
-          </div>
+          <DatePicker
+            value={{
+              checkIn: searchParams.checkIn,
+              checkOut: searchParams.checkOut,
+            }}
+            onChange={(d) => {
+              updateSearchParam("checkIn", d.checkIn);
+              updateSearchParam("checkOut", d.checkOut);
+            }}
+          />
 
-          {/* Traveler Selector */}
-          <div className="flex-1">
-            <TravelerSelector
-              value={{
-                adults: searchParams.adults,
-                childrens: searchParams.childrens,
-                rooms: searchParams.rooms,
-              }}
-              onChange={(travelers) => {
-                updateSearchParam("adults", travelers.adults);
-                updateSearchParam("childrens", travelers.childrens);
-                updateSearchParam("rooms", travelers.rooms);
-              }}
-            />
-          </div>
+          <TravelerSelector
+            value={{
+              adults: searchParams.adults,
+              childrens: searchParams.childrens,
+              rooms: searchParams.rooms,
+            }}
+            onChange={(v) => {
+              updateSearchParam("adults", v.adults);
+              updateSearchParam("childrens", v.childrens);
+              updateSearchParam("rooms", v.rooms);
+            }}
+          />
 
-          {/* Search Button */}
-          <div className="flex-1 md:flex-none">
-            <button
-              onClick={handleSearch}
-              disabled={isLoading || !searchParams.location || !searchParams.checkIn || !searchParams.checkOut}
-              className={`
-                w-full md:w-auto flex items-center justify-center gap-3 bg-green px-6 py-4 
-                rounded-xl text-white font-medium hover:bg-darkGreen transition-all duration-300
-                disabled:opacity-50 disabled:cursor-not-allowed
-                shadow-md hover:shadow-lg
-              `}
-            >
-              {isLoading ? (
-                <>
-                  <LoadingSpinner size="small" color="white" />
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <img
-                    src="/assets/search.svg"
-                    alt="search stay"
-                    className="w-5 h-5"
-                  />
-                  Search Stays
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleSearch}
+            disabled={isLoading}
+            className="bg-green text-white px-6 py-4 rounded-xl hover:bg-darkGreen"
+          >
+            {isLoading ? "Searching..." : "Search Stays"}
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filters Sidebar - temporarily removed as per requirement */}
-          {/*
-          <aside className="lg:w-1/4">
-            <Filter 
-              onFiltersChange={handleFiltersChange}
-              currentFilters={filters}
-            />
-          </aside>
-          */}
+      {/* Results */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="bg-gray-50 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between gap-4">
+          <input
+            type="text"
+            value={filters.propertySearch}
+            onChange={(e) =>
+              setFilters({ propertySearch: e.target.value })
+            }
+            placeholder="Search by property name"
+            className="border rounded-full px-4 py-2 text-sm w-full md:w-1/2"
+          />
 
-          {/* Results Section */}
-          <main className="w-full lg:w-full">
-            {/* Tabs removed from search page */}
-            {/*
-            <SearchTabs
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-            />
-            */}
+          <SortDropdown value={sortBy} onChange={setSortBy} />
+        </div>
 
-            {/* Filters Bar */}
-            <div className="mt-6 bg-gray-50 px-5 py-4 rounded-xl shadow-sm">
-              <div className="space-y-4">
-                {/* Results Info + chips on one line */}
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-sm font-medium text-darkBlue">
-                    {isLoading ? (
-                      "Searching properties..."
-                    ) : (
-                      <>
-                        {totalResults} propert{totalResults === 1 ? "y" : "ies"} found
-                        {activeFilterChips.length > 0 && (
-                          <span className="text-gray-600">
-                            {" "}• {activeFilterChips.length} filter{activeFilterChips.length > 1 ? "s" : ""} applied
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </h4>
+        {activeFilterChips.length > 0 && (
+          <FilterChips
+            chips={activeFilterChips}
+            onRemove={() => setFilters(DEFAULT_FILTERS)}
+            onRemoveAll={() => setFilters(DEFAULT_FILTERS)}
+          />
+        )}
 
-                  {/* Filter Chips */}
-                  {activeFilterChips.length > 0 && (
-                    <FilterChips
-                      chips={activeFilterChips}
-                      onRemove={removeFilter}
-                      onRemoveAll={removeAllFilters}
-                    />
-                  )}
-                </div>
+        {error && <ErrorMessage message={error} onRetry={fetchProperties} />}
 
-                {/* Search + Sort row */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  {/* Search by property name - wide on desktop */}
-                  <div className="w-full md:flex-1">
-                    <div className="py-2 px-4 flex items-center gap-2 border rounded-full bg-white shadow-sm">
-                      <img src="/assets/search/search.svg" alt="search property" className="w-4 h-4" />
-                      <input
-                        type="text"
-                        value={filters.propertySearch}
-                        onChange={(e) =>
-                          setFilters(prev => ({
-                            ...prev,
-                            propertySearch: e.target.value,
-                          }))
-                        }
-                        className="py-1 outline-0 w-full text-sm"
-                        placeholder="Search by property name"
-                      />
-                    </div>
-                  </div>
+        {isLoading && (
+          <div className="py-20 flex justify-center">
+            <LoadingSpinner size="large" />
+          </div>
+        )}
 
-                  {/* Sort Dropdown aligned to the right */}
-                  <div className="w-full md:w-auto md:ml-3">
-                    <SortDropdown
-                      value={sortBy}
-                      onChange={handleSortChange}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Error State */}
-            {error && !isLoading && (
-              <ErrorMessage 
-                message={error}
-                onRetry={fetchProperties}
-                className="mt-6"
-              />
-            )}
-
-            {/* Loading State */}
-            {isLoading && (
-              <div className="flex justify-center items-center py-20">
-                <div className="text-center">
-                  <LoadingSpinner size="large" />
-                  <p className="mt-4 text-darkBlue">Finding the best properties for you...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Results */}
-            {!isLoading && !error && (
+        {!isLoading && !error && (
+          <>
+            {properties.length > 0 ? (
               <>
-                {properties.length > 0 ? (
-                  <>
-                    <div className="mt-6">
-                      <Result 
-                        properties={properties}
-                        filters={{
-                          ...filters,
-                          checkIn: searchParams.checkIn,
-                          checkOut: searchParams.checkOut,
-                          adults: searchParams.adults,
-                          childrens: searchParams.childrens,
-                          rooms: searchParams.rooms
-                        }}
-                        sortBy={sortBy}
-                      />
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div className="mt-8">
-                        <Pagination
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          onPageChange={handlePageChange}
-                        />
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="mt-10 text-center py-12">
-<h3 className="text-sm text-gray-400">No Result Found.</h3>
-                    {activeFilterChips.length > 0 && (
-                      <button
-                        onClick={removeAllFilters}
-                        className="mt-4 px-6 py-2 bg-green text-white rounded-lg hover:bg-darkGreen transition-colors"
-                      >
-                        Clear All Filters
-                      </button>
-                    )}
-                  </div>
+                <Result properties={properties} />
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
                 )}
               </>
+            ) : (
+              <p className="text-center text-gray-400 py-20">
+                No properties found
+              </p>
             )}
-          </main>
-        </div>
+          </>
+        )}
       </div>
     </>
   );

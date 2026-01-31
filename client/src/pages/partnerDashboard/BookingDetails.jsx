@@ -71,7 +71,7 @@ const BookingDetailsPage = () => {
   return (
     <div className="w-full flex justify-between relative">
       <Sidebar />
-      <div className="ml-[280px] mt-[80px] max-w-7xl w-full p-6 bg-[#F8FAFC] min-h-[calc(100vh-80px)]">
+      <div className="ml-[280px] mt-20 max-w-7xl w-full p-6 bg-[#F8FAFC] min-h-[calc(100vh-80px)]">
         <div className="flex justify-between items-center mb-8">
           <div className="text-sm text-gray-600">
             <a href="/dashboard/bookings" className="text-green hover:underline">
@@ -169,14 +169,6 @@ const BookingDetailsPage = () => {
               <div className="flex justify-between py-3 border-b">
                 <span>Promo Discount</span>
                 <span className="text-red-600">-₹{promoDiscount.toLocaleString("en-IN")}</span>
-              </div>
-              <div className="flex justify-between py-3 border-b">
-                <span>Advanced Paid</span>
-                <span>₹{advancedPaid.toLocaleString("en-IN")}</span>
-              </div>
-              <div className="flex justify-between py-3 border-b">
-                <span>Rest Of Payment</span>
-                <span>₹{restOfPayment.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between pt-4 mt-2 border-t-2">
                 <span className="font-semibold">Total Payment</span>

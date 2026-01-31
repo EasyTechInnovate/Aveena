@@ -385,7 +385,7 @@ const Checkout = () => {
                 </div>
 
                 {/* Right Side Image & Ratings */}
-                <div className="w-full md:w-[240px] shrink-0">
+                <div className="w-full md:w-60 shrink-0">
                   <div className="flex flex-wrap items-center gap-3 mb-3 text-xs md:text-sm">
                     <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-green-700 font-bold border border-green-100">
                       <img
@@ -706,7 +706,7 @@ const Checkout = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-9999 p-4"
             onClick={() => setShowConfirmation(false)}
           >
             <motion.div

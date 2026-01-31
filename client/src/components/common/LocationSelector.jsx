@@ -18,6 +18,7 @@ const LocationSelector = ({ value, onChange, className = "" }) => {
     try {
       setLoading(true);
       const res = await getPopularLocations();
+      console.log("Popular Locations:", res);
       setLocations(res.data.data || []);
     } catch (err) {
       console.error("Error fetching popular locations", err);
