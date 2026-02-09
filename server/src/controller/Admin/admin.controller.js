@@ -2,6 +2,7 @@ import bookingModel from "../../models/booking.model.js";
 import propertyModel from "../../models/property.model.js";
 import userModel from "../../models/user.model.js";
 import propertyDetailsModel from "../../models/propertyDetails.model.js";
+import mongoose from "mongoose";
 import httpError from "../../util/httpError.js";
 import httpResponse from "../../util/httpResponse.js";
 import responseMessage from "../../constant/responseMessage.js";
@@ -727,6 +728,24 @@ export default {
             return httpError(next, error, req, 500);
         }
     },
+    getPropertyOwnerById: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+
+            const propertyOwner = await userModel.findOne({
+                _id: id,
+                type: 'property_owner'
+            });
+
+            if (!propertyOwner) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property Owner')), req, 404);
+            }
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, propertyOwner);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
     createPropertyOwner: async (req, res, next) => {
         try {
             const { firstName, lastName, email, phone } = req.body;
@@ -752,6 +771,79 @@ export default {
             });
 
             return httpResponse(req, res, 201, responseMessage.CREATED, propertyOwner);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+    getPropertiesByOwnerId: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const { page = 1, limit = 10, search } = req.query;
+            const skip = (Number(page) - 1) * Number(limit);
+
+            const matchQuery = { ownerId: new mongoose.Types.ObjectId(id) };
+
+            if (search) {
+                const searchRegex = { $regex: search, $options: 'i' };
+                matchQuery.name = searchRegex;
+            }
+
+            const pipeline = [
+                { $match: matchQuery },
+                { $sort: { createdAt: -1 } },
+                {
+                    $lookup: {
+                        from: 'bookings',
+                        localField: '_id',
+                        foreignField: 'propertyId',
+                        as: 'bookings'
+                    }
+                },
+                {
+                    $addFields: {
+                        totalBookings: { $size: '$bookings' }
+                    }
+                },
+                {
+                    $facet: {
+                        metadata: [{ $count: "total" }],
+                        data: [
+                            { $skip: skip },
+                            { $limit: Number(limit) },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: 1,
+                                    type: 1,
+                                    minimumRentalIncome: 1,
+                                    saleTarget: 1,
+                                    isActive: 1,
+                                    kycVerified: 1,
+                                    totalBookings: 1,
+                                    coverImage: 1,
+                                    address: 1
+                                }
+                            }
+                        ]
+                    }
+                }
+            ];
+
+            const result = await propertyModel.aggregate(pipeline);
+
+            const properties = result[0].data;
+            const total = result[0].metadata[0] ? result[0].metadata[0].total : 0;
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                properties,
+                pagination: {
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(total / limit)
+                }
+            });
+
         } catch (error) {
             return httpError(next, error, req, 500);
         }

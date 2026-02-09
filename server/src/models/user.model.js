@@ -81,7 +81,7 @@ const userSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['customer', 'admin', 'property_owner'],
+        enum: ['customer', 'admin', 'property_owner', 'team_member'],
         default: 'customer'
     },
     aadhaarCard: {
@@ -113,7 +113,66 @@ const userSchema = new Schema({
     wishlist: [{
         type: Schema.Types.ObjectId,
         ref: 'Property'
-    }]
+    }],
+    password: {
+        type: String,
+        select: false
+    },
+    teamId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    roleLabel: {
+        type: String,
+        default: null
+    },
+    permissions: {
+        dashboard: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        analytics: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        allBookings: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        allCustomers: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        allProperty: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        propertyOwner: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        pendingKYC: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        offer: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        teamManagement: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        helpCenter: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        },
+        profile: {
+            read: { type: Boolean, default: false },
+            edit: { type: Boolean, default: false }
+        }
+    }
 }, { timestamps: true });
 
 

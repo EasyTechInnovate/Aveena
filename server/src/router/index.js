@@ -11,6 +11,8 @@ import mediaRouter from './media.router.js';
 import reviewRouter from './review.router.js';
 import userRouter from './user.router.js';
 import enquiryRouter from './enquiry.router.js';
+import teamRouter from './team.router.js';
+import helpCenterRouter from './helpCenter.router.js';
 
 const router = Router()
 
@@ -29,5 +31,7 @@ router.use('/media', mediaRouter);
 router.use('/reviews', reviewRouter);
 router.use('/user', userRouter);
 router.use('/enquiries', enquiryRouter);
+router.use('/team', teamRouter);
+router.use('/help-center', helpCenterRouter);
 
 export default router
