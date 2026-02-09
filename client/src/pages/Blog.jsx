@@ -1,5 +1,6 @@
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const category = [
   "Destination",
@@ -45,6 +46,7 @@ const blogPosts = [
 ];
 
 const Blog = () => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(2);
   const totalPages = 15;
 
@@ -52,11 +54,11 @@ const Blog = () => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  const pages = [1, 2, 3, 4, 5, "...", totalPages];
+  const pages = [1, 2, 3, "...", totalPages];
 
   return (
-    <>
-      <div className="bg-light py-20 pt-30">
+    <div className="px-5 bg-light">
+      <div className=" py-20 pt-30">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-darkBlue text-3xl font-bold mb-4">Blog</h1>
           <p className="text-md">
@@ -118,7 +120,7 @@ const Blog = () => {
                   <p>{post.description}</p>
                 </div>
 
-                <button className="flex gap-2 items-center text-[#1E1E1E] pt-6 text-xl hover:border-b-2 cursor-pointer border-[#1E1E1E]">
+                <button className="flex gap-2 items-center text-[#1E1E1E] pt-6 text-xl hover:border-b-2 cursor-pointer border-[#1E1E1E]" onClick={() => navigate(`/blog/details`)}>
                   Visit Post <img src="/assets/blog/arrow.svg" alt="" />
                 </button>
               </div>
@@ -166,7 +168,7 @@ const Blog = () => {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

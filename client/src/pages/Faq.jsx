@@ -51,7 +51,7 @@ const Faq = () => {
 
   return (
     <>
-      <div className="bg-light py-30 pt-30">
+      <div className="bg-light py-30 px-5 pt-30">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-darkBlue font-bold text-3xl mb-4">
             Frequently Asked Questions
@@ -64,7 +64,7 @@ const Faq = () => {
         </div>
       </div>
 
-      <div>
+      <div className="px-5 py-1">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-3xl mx-auto mt-8">
             {faqs.map((item, i) => (

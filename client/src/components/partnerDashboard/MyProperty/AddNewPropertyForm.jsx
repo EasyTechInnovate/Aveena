@@ -36,7 +36,7 @@ const AddNewPropertyForm = ({ onCancel }) => {
         title="Details Submitted Successfully"
         message="Your details have been submitted successfully and are now awaiting admin approval. You’ll be notified once your account is approved. If your personal KYC is still pending, please complete it to avoid delays."
         linkText="Update KYC"
-        linkHref="/update-kyc"
+        linkHref="/dashboard/kyc"
       />
     )}
    

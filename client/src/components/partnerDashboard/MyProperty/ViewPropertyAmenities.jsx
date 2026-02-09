@@ -42,6 +42,8 @@ const ViewPropertyAmenities = ({ propertyData }) => {
         </p>
       </div>
 
+      {console.log("Property Data in Amenities:", propertyData.amenties)}
+
       {/* Amenities Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Column - General Amenities */}
