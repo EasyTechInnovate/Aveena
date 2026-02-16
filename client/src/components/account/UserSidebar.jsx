@@ -18,7 +18,7 @@ const UserSidebar = ({ onNavigate }) => {
 
   return (
     <>
-      <div className="w-full md:flex-1 flex flex-col gap-6 md:max-w-xs">
+      <div className="w-full md:flex-1 flex flex-col gap-6 md:max-w-xs mb-5">
         <div className="p-4 sm:p-6 rounded-2xl border flex flex-col gap-2">
           <h2 className="font-semibold text-sm sm:text-base">Manage account</h2>
 

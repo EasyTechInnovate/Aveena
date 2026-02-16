@@ -45,11 +45,13 @@ const ViewProperty = () => {
           city: "New Delhi",
           state: "Delhi",
           postalCode: property?.address?.zipCode,
-          minRentalIncome: "50000",
-          salesTarget: "100000",
+          minRentalIncome: "-1",
+          salesTarget: "-1",
+          basePrice : property?.basePrice,
           description: property?.description || "",
           amenties: property?.amenties || [],
           propertyMedia: propertyDetails?.propertyMedia || [],
+          faqs: propertyDetails?.faqs || [],
         });
       } catch (error) {
         console.error("Error fetching property by ID:", error);
@@ -81,7 +83,7 @@ const ViewProperty = () => {
   return (
     <div className="w-full flex justify-between relative">
       <Sidebar />
-      <div className="ml-[280px] mt-[80px] max-w-7xl w-full p-6 bg-[#F8FAFC] min-h-[calc(100vh-80px)]">
+      <div className="ml-[280px] mt-20 max-w-7xl w-full p-6 bg-[#F8FAFC] min-h-[calc(100vh-80px)]">
         {/* Breadcrumb Navigation */}
         <div className="mb-6">
           <div className="bg-[#F0F9F4] rounded-lg p-4">
@@ -108,7 +110,7 @@ const ViewProperty = () => {
         {/* Main Content Area */}
         <div className="flex gap-6">
           {/* Left Sidebar - Property Details */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <PropertyDetailsSidebar
               activeSection={activeSection}
               onSectionChange={handleSectionChange}

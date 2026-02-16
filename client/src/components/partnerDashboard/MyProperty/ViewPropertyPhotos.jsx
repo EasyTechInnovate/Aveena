@@ -17,7 +17,7 @@ const ViewPropertyPhotos = ({ propertyData }) => {
         {propertyData.propertyMedia?.map((photo, index) => (
           <div
             key={index}
-            className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 bg-gray-100"
+            className="relative w-full aspect-4/3 rounded-lg overflow-hidden border border-gray-200 bg-gray-100"
           >
             <img
               src={photo.url}

@@ -9,7 +9,7 @@ const ViewPropertyPrice = ({ propertyData }) => {
     <div className="border-2 border-[#DFE0E480] bg-white p-8 rounded-2xl shadow-sm">
       {/* Header */}
       <div className="mb-8">
-        <h2 className="font-semibold text-xl mb-2">Property Photos</h2>
+        <h2 className="font-semibold text-xl mb-2">Property Price</h2>
         <p className="text-gray-500 text-sm">
           You can Only view details you can't change any information
         </p>
@@ -28,7 +28,7 @@ const ViewPropertyPrice = ({ propertyData }) => {
             <input
               type="text"
               disabled
-              value="₹37,000"
+              value={propertyData.basePrice}
               className="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 text-gray-700 cursor-not-allowed"
             />
             <p className="text-gray-600 text-sm mt-2">

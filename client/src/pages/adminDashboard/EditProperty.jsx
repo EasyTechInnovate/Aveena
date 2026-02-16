@@ -26,8 +26,21 @@ const EditProperty = () => {
           }
         );
 
+        const owner = await fetch(
+          `${import.meta.env.VITE_API_URL}/property-owner/properties/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        
+
         const jsonResponse = await response.json();
+        const jsonOwner = await owner.json();
         console.log("Property By ID Data:", jsonResponse);
+        console.log("Owner By porperty ID :", jsonOwner);
 
       } catch (error) {
         console.error("Error fetching property by ID:", error);
@@ -134,7 +147,7 @@ const EditProperty = () => {
 
       <div className="flex w-full bg-[#F8FAFC] p-6 gap-6">
         {/* Manage Property Navigation - Left side of content area */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <ManagePropertySidebar 
             activeSection={activeSection}
             onSectionChange={handleSectionChange}
