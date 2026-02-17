@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,10 +7,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts'
-import { ChevronDown, Search, MoreVertical } from 'lucide-react'
-import RecentBooking from './RecentBooking'
-import RecentProperty from './RecentProperty'
+} from "recharts";
+import { ChevronDown, Search, MoreVertical } from "lucide-react";
+import RecentBooking from "./RecentBooking";
+import RecentProperty from "./RecentProperty";
 import {
   Table,
   TableBody,
@@ -18,9 +18,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table'
+} from "../ui/table";
 // ! ( Help Center data ) is not comming with api with response
-
 
 // const revenueData = [
 //   { name: 'Jan', value: 20000 },
@@ -41,24 +40,49 @@ import {
 
 const getStatusColor = (status) => {
   switch (status) {
-    case 'On Hold':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'In Progress':
-      return 'bg-orange-100 text-orange-800'
-    case 'Resolved':
-      return 'bg-green-100 text-green-800'
+    case "On Hold":
+      return "bg-yellow-100 text-yellow-800";
+    case "In Progress":
+      return "bg-orange-100 text-orange-800";
+    case "Resolved":
+      return "bg-green-100 text-green-800";
     default:
-      return 'bg-gray-100 text-gray-800'
+      return "bg-gray-100 text-gray-800";
   }
-}
+};
 
-const Dashboard = ({ revenueChart, recentBookings, recentProperties, tickets = [] }) => {
-  const [searchTerm, setSearchTerm] = useState('')
+const Dashboard = ({
+  revenueChart,
+  recentBookings,
+  recentProperties,
+  tickets = [],
+}) => {
+  
+  const fetchHelpTickets = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/help-center?page=1&limit=10`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
+    const jsonResponse = await response.json();
 
-  const filteredTickets = tickets.filter(ticket =>
-    ticket.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    console.log("Help Center Tickets:", jsonResponse);
+  };
+
+  useEffect(() => {
+    fetchHelpTickets();
+  }, []);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredTickets = tickets.filter(
+    (ticket) =>
+      ticket.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <div className="space-y-6">
@@ -95,12 +119,12 @@ const Dashboard = ({ revenueChart, recentBookings, recentProperties, tickets = [
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="name" stroke="#6b7280" />
-              <YAxis
-                stroke="#6b7280"
-                tickFormatter={(v) => `${v / 1000}K`}
-              />
+              <YAxis stroke="#6b7280" tickFormatter={(v) => `${v / 1000}K`} />
               <Tooltip
-                formatter={(value) => [`₹${value.toLocaleString()}`, 'Net Revenue']}
+                formatter={(value) => [
+                  `₹${value.toLocaleString()}`,
+                  "Net Revenue",
+                ]}
               />
               <Line
                 type="monotone"
@@ -166,7 +190,9 @@ const Dashboard = ({ revenueChart, recentBookings, recentProperties, tickets = [
                   <TableCell>{ticket.customer}</TableCell>
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell>
-                    <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(ticket.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs ${getStatusColor(ticket.status)}`}
+                    >
                       {ticket.status}
                     </span>
                   </TableCell>
@@ -182,7 +208,7 @@ const Dashboard = ({ revenueChart, recentBookings, recentProperties, tickets = [
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
