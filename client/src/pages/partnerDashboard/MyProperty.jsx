@@ -23,7 +23,7 @@ const MyProperty = () => {
           },
         }
       );
-
+      
       const response = await data.json();
       console.log("fetchMyProperties : ",  response);
       setProperties(response.data.properties);
@@ -39,6 +39,10 @@ const MyProperty = () => {
 
   const handlePageChange = (newPage) => {
     fetchMyProperties(newPage);
+  };
+
+  const handleFormSuccess = () => {
+    fetchMyProperties(1);
   };
 
   return (
@@ -64,7 +68,12 @@ const MyProperty = () => {
           </div>
         )}
 
-        {showForm && <AddNewPropertyForm onCancel={() => setShowForm(false)} />}
+        {showForm && (
+          <AddNewPropertyForm 
+            onCancel={() => setShowForm(false)} 
+            onSuccess={handleFormSuccess}
+          />
+        )}
       </div>
     </div>
   );
