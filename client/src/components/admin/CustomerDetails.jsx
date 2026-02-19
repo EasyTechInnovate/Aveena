@@ -35,22 +35,22 @@ const CustomerDetails = ({ customer, onClose }) => {
     { label: "Address", value: address, colSpan: 2 },
   ];
 
-  const fetchBookings = async() => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/property-owners/65d8f9a2b1c3d4e5f6789012`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      }
-    )
+  // const fetchBookings = async() => {
+  //   const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/property-owners/65d8f9a2b1c3d4e5f6789012`,
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  //       },
+  //     }
+  //   )
 
-    const jsonResponse = await response.json();
-    console.log(jsonResponse)
-  } 
+  //   const jsonResponse = await response.json();
+  //   console.log(jsonResponse)
+  // } 
 
-  useEffect(() => {
-    fetchBookings();
-  },[])
+  // useEffect(() => {
+  //   fetchBookings();
+  // },[])
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
