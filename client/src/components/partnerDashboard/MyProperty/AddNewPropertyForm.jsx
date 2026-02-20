@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import SuccessMessage from "../../common/SuccessMessage";
-import { Check } from "lucide-react";
+import { Check, UploadCloud } from "lucide-react";
+import UploadPropertyMedia from "./UploadPropertyMedia";
+import { uploadToImageKit } from "../../../utils/uploadImage";
 
 const availableAmenities = [
   "Lawn",
@@ -25,7 +26,9 @@ const availableAmenities = [
 
 const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [createdPropertyId, setCreatedPropertyId] = useState(null);
   
   const [formData, setFormData] = useState({
     propertyType: "apartment",
@@ -69,6 +72,25 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
     });
   };
 
+  const handleCoverImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+
+    try {
+      const imageUrl = await uploadToImageKit(file);
+      
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, coverImage: imageUrl }));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -95,7 +117,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
         totalUnits: Number(formData.totalUnits) || 1,
         amenties: formData.amenties,
         description: formData.description || "New Property Listing",
-        coverImage: formData.coverImage || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+        coverImage: formData.coverImage,
         minimumRentalIncome: Number(formData.minRentalIncome),
         saleTarget: Number(formData.salesTarget),
         kycDocument: formData.kycDocument || "https://example.com/kyc.pdf"
@@ -113,8 +135,9 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
       );
 
       if (response.ok) {
+        const data = await response.json();
+        setCreatedPropertyId(data?.data?.property?._id || data?.property?._id);
         setSubmitted(true);
-        if (onSuccess) onSuccess();
       } else {
         console.error("Failed to create property");
       }
@@ -128,20 +151,13 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
   return (
     <>
       {submitted ? (
-        <div className="flex flex-col gap-4">
-          <SuccessMessage
-            title="Details Submitted Successfully"
-            message="Your details have been submitted successfully and are now awaiting admin approval. You’ll be notified once your account is approved."
-            linkText="Go to Dashboard"
-            linkHref="/dashboard"
-          />
-          <button
-            onClick={onCancel}
-            className="self-end bg-gray-200 px-4 py-2 rounded-lg text-sm font-medium"
-          >
-            Close
-          </button>
-        </div>
+        <UploadPropertyMedia 
+          propertyId={createdPropertyId} 
+          onComplete={() => {
+            if (onSuccess) onSuccess();
+            onCancel();
+          }} 
+        />
       ) : (
         <form
           onSubmit={handleSubmit}
@@ -161,7 +177,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 value={formData.propertyName}
                 onChange={handleChange}
                 placeholder="Ocean View Villa"
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -171,11 +187,11 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 name="propertyType"
                 value={formData.propertyType}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2 bg-white"
+                className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-500 outline-none"
               >
                 <option value="apartment">Apartment</option>
                 <option value="villa">Villa</option>
-                <option value="home">Home</option>
+                <option value="hotel">Hotel</option>
               </select>
             </div>
           </div>
@@ -187,7 +203,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               value={formData.description}
               onChange={handleChange}
               placeholder="Beautiful 2BHK villa with ocean view..."
-              className="w-full border rounded-lg p-2 min-h-20"
+              className="w-full border rounded-lg p-2 min-h-20 focus:ring-2 focus:ring-green-500 outline-none"
               required
             />
           </div>
@@ -199,7 +215,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2 bg-white"
+                className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-500 outline-none"
                 required
               >
                 <option value="">Select Country</option>
@@ -214,7 +230,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="Street Address (e.g., 123 Beach Road)"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -226,14 +242,14 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               placeholder="Apt, Suite, etc."
               value={formData.apt}
               onChange={handleChange}
-              className="border rounded-lg p-2"
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
             />
             <input
               name="city"
               placeholder="City"
               value={formData.city}
               onChange={handleChange}
-              className="border rounded-lg p-2"
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
               required
             />
             <input
@@ -241,7 +257,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               placeholder="State"
               value={formData.state}
               onChange={handleChange}
-              className="border rounded-lg p-2"
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
               required
             />
             <input
@@ -249,7 +265,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               placeholder="Postal Code"
               value={formData.postalCode}
               onChange={handleChange}
-              className="border rounded-lg p-2"
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
               required
             />
           </div>
@@ -263,7 +279,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="Latitude (e.g., 15.2993)"
                 value={formData.latitude}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -275,7 +291,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="Longitude (e.g., 74.1240)"
                 value={formData.longitude}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -285,23 +301,23 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
             <div>
               <label className="block text-sm mb-1">Adults</label>
-              <input name="adults" type="number" placeholder="4" value={formData.adults} onChange={handleChange} className="w-full border rounded-lg p-2" required />
+              <input name="adults" type="number" placeholder="4" value={formData.adults} onChange={handleChange} className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none" required />
             </div>
             <div>
               <label className="block text-sm mb-1">Children</label>
-              <input name="childrens" type="number" placeholder="2" value={formData.childrens} onChange={handleChange} className="w-full border rounded-lg p-2" required />
+              <input name="childrens" type="number" placeholder="2" value={formData.childrens} onChange={handleChange} className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none" required />
             </div>
             <div>
               <label className="block text-sm mb-1">Rooms</label>
-              <input name="noOfRooms" type="number" placeholder="2" value={formData.noOfRooms} onChange={handleChange} className="w-full border rounded-lg p-2" required />
+              <input name="noOfRooms" type="number" placeholder="2" value={formData.noOfRooms} onChange={handleChange} className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none" required />
             </div>
             <div>
               <label className="block text-sm mb-1">Baths</label>
-              <input name="noOfBaths" type="number" placeholder="2" value={formData.noOfBaths} onChange={handleChange} className="w-full border rounded-lg p-2" required />
+              <input name="noOfBaths" type="number" placeholder="2" value={formData.noOfBaths} onChange={handleChange} className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none" required />
             </div>
             <div>
               <label className="block text-sm mb-1">Total Units</label>
-              <input name="totalUnits" type="number" placeholder="1" value={formData.totalUnits} onChange={handleChange} className="w-full border rounded-lg p-2 bg-gray-50" title="Must be 1 for Villas/Apartments" required />
+              <input name="totalUnits" type="number" placeholder="1" value={formData.totalUnits} onChange={handleChange} className="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none" required />
             </div>
           </div>
 
@@ -312,21 +328,25 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               return (
                 <label key={amenity} className="flex items-center gap-3 cursor-pointer group">
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-colors border ${
                       isChecked
-                        ? "bg-green border-green"
+                        ? "bg-[#22C55E] border-[#22C55E]"
                         : "border-gray-300 bg-white group-hover:border-gray-400"
                     }`}
                   >
-                    {isChecked && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                    {isChecked && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                   </div>
+                  
+                  {/* 👇 THIS IS THE MISSING PIECE 👇 */}
                   <input
                     type="checkbox"
                     className="hidden"
                     checked={isChecked}
                     onChange={() => handleAmenityToggle(amenity)}
                   />
-                  <span className="text-gray-700 text-sm select-none">{amenity}</span>
+                  {/* 👆 ======================= 👆 */}
+
+                  <span className="text-gray-700 text-[15px] select-none">{amenity}</span>
                 </label>
               );
             })}
@@ -342,7 +362,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="5000"
                 value={formData.basePrice}
                 onChange={handleChange}
-                className="border rounded-lg p-2 w-full"
+                className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -354,7 +374,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="50000"
                 value={formData.minRentalIncome}
                 onChange={handleChange}
-                className="border rounded-lg p-2 w-full"
+                className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
@@ -366,34 +386,45 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 placeholder="200000"
                 value={formData.salesTarget}
                 onChange={handleChange}
-                className="border rounded-lg p-2 w-full"
+                className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
                 required
               />
             </div>
           </div>
 
           <h3 className="font-semibold mb-3 text-lg text-darkBlue">Media & Documents</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <label className="block font-semibold mb-1">Cover Image URL</label>
-              <input
-                name="coverImage"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={formData.coverImage}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2"
-              />
+              <label className="block font-semibold mb-2">Upload Cover Image</label>
+              <div className="flex items-center gap-4">
+                <label className="cursor-pointer bg-gray-50 border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors">
+                  <UploadCloud className="w-5 h-5 text-gray-600" />
+                  <span>Choose Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverImageUpload}
+                  />
+                </label>
+                {isUploadingImage && <span className="text-sm text-green-600 animate-pulse">Uploading...</span>}
+              </div>
+              {formData.coverImage && (
+                <div className="mt-3">
+                  <img src={formData.coverImage} alt="Cover Preview" className="h-24 w-32 object-cover rounded-lg border" />
+                </div>
+              )}
             </div>
+            
             <div>
-              <label className="block font-semibold mb-1">KYC Document URL</label>
+              <label className="block font-semibold mb-2">KYC Document URL</label>
               <input
                 name="kycDocument"
                 type="url"
                 placeholder="https://example.com/kyc.pdf"
                 value={formData.kycDocument}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none"
               />
             </div>
           </div>
@@ -403,16 +434,16 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               type="button"
               onClick={onCancel}
               className="border border-gray-400 px-6 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-50"
-              disabled={isLoading}
+              disabled={isLoading || isUploadingImage}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="bg-green hover:bg-darkGreen px-8 py-2 rounded-lg text-white font-medium disabled:opacity-50 transition-colors"
-              disabled={isLoading}
+              disabled={isLoading || isUploadingImage || !formData.coverImage}
             >
-              {isLoading ? "Submitting..." : "Submit Property"}
+              {isLoading ? "Submitting..." : "Proceed to Photos"}
             </button>
           </div>
         </form>
