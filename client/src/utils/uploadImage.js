@@ -1,40 +1,45 @@
+import ImageKit from "imagekit-javascript";
+
+const imagekit = new ImageKit({
+  publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,
+  urlEndpoint: import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT,
+});
+
 export const uploadToImageKit = async (file) => {
   if (!file) return null;
 
-  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
-  const privateKey = import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY;
-
-  console.log("Public Key Loaded:", !!publicKey);
-  console.log("Private Key Loaded:", !!privateKey);
-
-  if (!privateKey) {
-    console.error("Missing ImageKit Private Key in .env file!");
-    return null;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("fileName", file.name);
-  formData.append("publicKey", publicKey);
-
-  const encodedKey = btoa(privateKey + ":"); 
-
   try {
-    const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
-      method: "POST",
+    const authRes = await fetch(`${import.meta.env.VITE_API_URL}/media/auth`, {
+      method: "GET",
       headers: {
-        Authorization: `Basic ${encodedKey}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-      body: formData,
     });
 
-    const data = await response.json();
-    
-    if (response.ok) {
-      return data.url; 
-    } else {
-      throw new Error(data.message || "Upload failed");
+    const authResponse = await authRes.json();
+
+    if (!authRes.ok) {
+      throw new Error(`Backend error: ${authResponse.message || 'Unknown error'}`);
     }
+
+    const token = authResponse?.data?.token || authResponse?.token;
+    const expire = authResponse?.data?.expire || authResponse?.expire;
+    const signature = authResponse?.data?.signature || authResponse?.signature;
+
+    if (!token || !expire || !signature) {
+      throw new Error("Missing auth params! Look at the 🔥 FULL BACKEND RESPONSE log above to see what went wrong.");
+    }
+
+    const response = await imagekit.upload({
+      file: file,
+      fileName: file.name,
+      token: token,
+      expire: expire,
+      signature: signature,
+    });
+
+    return response.url;
+
   } catch (error) {
     console.error("ImageKit upload error:", error);
     return null;
