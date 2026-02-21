@@ -106,8 +106,17 @@ export default function BookingOverview({
   const handleTabClick = (tab) => {
     setActiveTab(tab);
 
+    // 1. Special case for Overview: Always scroll to top
+    if (tab === "Overview") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      return;
+    }
+
     const sectionMap = {
-      Overview: overviewRef,
+      // Overview is handled above
       Highlights: highlightsRef,
       "Refund Policy": refundPolicyRef,
       Spaces: spacesRef,
@@ -117,7 +126,9 @@ export default function BookingOverview({
     const targetRef = sectionMap[tab];
 
     if (targetRef && targetRef.current) {
-      const offset = 160;
+      // 2. Adjust offset based on your sticky header height + tabs height
+      // Header is ~60px, Tabs are ~50px, plus some breathing room.
+      const offset = 140;
       const elementPosition = targetRef.current.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
 
@@ -520,6 +531,35 @@ export default function BookingOverview({
             </button>
           </div>
 
+          {/* --- ATTACH HIGHLIGHTS REF HERE --- */}
+          <div
+            ref={highlightsRef}
+            className="flex flex-wrap gap-2 mt-4 scroll-mt-32"
+          >
+            {[
+              {
+                icon: "/assets/booking/user.svg",
+                text: `Up to ${propertyData.capacity?.adults || 10} Guests`,
+              },
+              {
+                icon: "/assets/booking/room.svg",
+                text: `${propertyData.noOfRooms || 3} Rooms`,
+              },
+              {
+                icon: "/assets/booking/bath.svg",
+                text: `${propertyData.noOfBaths || 2} Baths`,
+              },
+            ].map((tag, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-blue-50 text-blue-900 px-3 py-1.5 rounded text-xs md:text-sm font-medium"
+              >
+                <img src={tag.icon} alt="" className="w-3.5 h-3.5 opacity-70" />
+                {tag.text}
+              </div>
+            ))}
+          </div>
+
           <div className="flex flex-wrap gap-2 mt-4">
             {[
               {
@@ -582,17 +622,13 @@ export default function BookingOverview({
             </button>
           </div>
 
-          <div className="mt-10 scroll-mt-36" ref={spacesRef}>
-            {/* Spaces placeholder */}
-          </div>
-
           <div ref={refundPolicyRef} className="mt-8 pt-4 scroll-mt-36">
-            <RulesAndSpaces propertyDetails={propertyDetails} />
+            <RulesAndSpaces propertyDetails={propertyDetails} ref={spacesRef} />
           </div>
           <div ref={reviewsRef} className="mt-8 pt-4 scroll-mt-36">
             <GuestReviews
-              propertyDetails={propertyDetails}
               propertyLocation={propertyData.location}
+              propertyDetails={propertyDetails}
             />
           </div>
         </div>
