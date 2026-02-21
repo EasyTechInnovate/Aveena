@@ -38,7 +38,6 @@ export default function GuestReviews({
     "/assets/bedroom.png",
     "/assets/bedroom.png",
   ],
-  propertyLocation,
   propertyDetails,
   propertyLocation,
 }) {
