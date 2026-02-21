@@ -3,7 +3,7 @@
 @accessToken = your_access_token_here
 
 ### Create Booking
-POST {{baseUrl}}{{apiPrefix}}/booking
+POST {{baseUrl}}{{apiPrefix}}/bookings
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -17,7 +17,7 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### Create Booking with Coupon
-POST {{baseUrl}}{{apiPrefix}}/booking
+POST {{baseUrl}}{{apiPrefix}}/bookings
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -32,7 +32,7 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### Payment Success
-POST {{baseUrl}}{{apiPrefix}}/booking/payment-success
+POST {{baseUrl}}{{apiPrefix}}/bookings/payment-success
 Content-Type: application/json
 
 {
@@ -41,7 +41,7 @@ Content-Type: application/json
 }
 
 ### Payment Failure
-POST {{baseUrl}}{{apiPrefix}}/booking/payment-failure
+POST {{baseUrl}}{{apiPrefix}}/bookings/payment-failure
 Content-Type: application/json
 
 {
@@ -49,13 +49,13 @@ Content-Type: application/json
 }
 
 ### Get My Bookings
-GET {{baseUrl}}{{apiPrefix}}/booking/my-bookings?page=1&limit=10
+GET {{baseUrl}}{{apiPrefix}}/bookings/my-bookings?page=1&limit=10
 Authorization: Bearer {{accessToken}}
 
 ### Get My Bookings - Page 2
-GET {{baseUrl}}{{apiPrefix}}/booking/my-bookings?page=2&limit=10
+GET {{baseUrl}}{{apiPrefix}}/bookings/my-bookings?page=2&limit=10
 Authorization: Bearer {{accessToken}}
 
 ### Get Already Booked Dates for a Property
-GET {{baseUrl}}{{apiPrefix}}/booking/already-booked-dates/property_id_here?startDate=2025-12-05&endDate=2025-12-31
+GET {{baseUrl}}{{apiPrefix}}/bookings/already-booked-dates/property_id_here?startDate=2025-12-05&endDate=2025-12-31
 Content-Type: application/json

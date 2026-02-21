@@ -1,0 +1,29 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk5NTQ5MjI1MDgxNzMzNWI5MzU2MyIsImlzUHJvZmlsZUNvbXBsZXRlIjp0cnVlLCJpYXQiOjE3Njg4OTgzNDUsImV4cCI6MTc3MDEwNzk0NX0.8JyOyryNbvdlDgn3DT293FO_rjHIZjYIIx3l979Or6k
+
+### Property Owner Dashboard *
+GET {{baseUrl}}{{apiPrefix}}/property-owner/dashboard
+Authorization: Bearer {{accessToken}}
+
+### Property Owner Statistics
+GET {{baseUrl}}{{apiPrefix}}/property-owner/statistics
+Authorization: Bearer {{accessToken}}
+
+### Property Owner Properties *
+GET {{baseUrl}}{{apiPrefix}}/property-owner/properties?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Property Owner Bookings *
+GET {{baseUrl}}{{apiPrefix}}/property-owner/bookings?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Property Owner Booking Details
+@bookingId = 694a83b76f01168908dfcbb1
+GET {{baseUrl}}{{apiPrefix}}/property-owner/bookings/{{bookingId}}
+Authorization: Bearer {{accessToken}}
+
+### Property Owner Get Property by ID
+@propertyId = your_property_id_here
+GET {{baseUrl}}{{apiPrefix}}/property-owner/properties/{{propertyId}}
+Authorization: Bearer {{accessToken}}

@@ -33,7 +33,7 @@ function Step1({ onNext, onClose }) {
       });
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to send OTP. Please try again."
+        err.response?.data?.message || "Failed to send OTP. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -57,7 +57,7 @@ function Step1({ onNext, onClose }) {
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Failed to login with Google."
+          "Failed to login with Google.",
       );
     } finally {
       setGoogleLoading(false);
@@ -72,16 +72,16 @@ function Step1({ onNext, onClose }) {
 
   /* ================= ANIMATIONS ================= */
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
+    hidden: { opacity: 0, scale: 0.96 },
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.1 },
+      transition: { duration: 0.35, ease: "easeOut", staggerChildren: 0.08 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 16 },
     visible: { opacity: 1, y: 0 },
   };
 
@@ -93,36 +93,36 @@ function Step1({ onNext, onClose }) {
       animate="visible"
     >
       {/* LEFT IMAGE */}
-      <motion.div className="hidden md:flex w-1/2 p-4">
+      <motion.div className="hidden md:flex w-1/2 p-3">
         <img
           src="/assets/auth/left.png"
           alt="auth"
-          className="object-cover w-full h-full rounded-lg"
+          className="object-cover w-full h-full rounded-xl"
         />
       </motion.div>
 
       {/* RIGHT FORM */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 relative">
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-8 relative">
         {/* CLOSE */}
         <motion.button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold"
+          className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl leading-none"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
         >
           ×
         </motion.button>
 
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mx-auto">
           <motion.h2
-            className="text-2xl font-semibold mb-3"
+            className="text-2xl font-semibold mb-2"
             variants={itemVariants}
           >
             Sign in or create an account
           </motion.h2>
 
           <motion.p
-            className="mb-6 text-sm text-gray-600"
+            className="mb-5 text-sm text-gray-600 leading-relaxed"
             variants={itemVariants}
           >
             Unlock a world of travel with one account across Expedia,
@@ -134,40 +134,50 @@ function Step1({ onNext, onClose }) {
             className="flex items-center border rounded-lg overflow-hidden mb-3"
             variants={itemVariants}
           >
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="p-3 bg-transparent outline-none border-r text-sm"
-            >
-              <option value="+91">+91</option>
-              <option value="+1">+1</option>
-              <option value="+44">+44</option>
-              <option value="+61">+61</option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="appearance-none px-3 py-2 pr-6 bg-transparent outline-none border-r text-sm"
+              >
+                <option value="+91">+91</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+                <option value="+61">+61</option>
+              </select>
+
+              <svg
+                className="absolute right-1.5 w-3 h-3 text-gray-500 pointer-events-none"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M5.5 7.5L10 12l4.5-4.5" />
+              </svg>
+            </div>
 
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Enter mobile number"
-              className="w-full p-3 outline-none text-sm"
+              className="w-full px-3 py-2.5 outline-none text-sm"
             />
           </motion.div>
 
           {error && (
             <motion.p
-              className="text-red-500 text-sm mb-3"
+              className="text-red-500 text-xs mb-3"
               variants={itemVariants}
             >
               {error}
             </motion.p>
           )}
 
-          {/* OTP */}
+          {/* OTP BUTTON */}
           <motion.button
             onClick={handleSendOtp}
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium mb-5 transition ${
+            className={`w-full py-2.5 rounded-lg font-medium mb-4 transition ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green hover:bg-darkGreen text-white"
@@ -178,34 +188,10 @@ function Step1({ onNext, onClose }) {
           </motion.button>
 
           {/* SOCIAL */}
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"
-            variants={itemVariants}
-          >
-            <motion.button
-              onClick={login}
-              disabled={googleLoading || loading}
-              className={`flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm ${
-                googleLoading || loading
-                  ? "bg-gray-100 opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-50 transition"
-              }`}
-            >
-              <FaGoogle className="text-lg" />
-              <span>{googleLoading ? "Loading..." : "Google"}</span>
-            </motion.button>
-
-            <motion.button
-              disabled
-              className="flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm opacity-60 cursor-not-allowed"
-            >
-              <MdEmail className="text-lg" />
-              <span>Email</span>
-            </motion.button>
-          </motion.div>
+          {/* <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5" variants={itemVariants} > <motion.button onClick={login} disabled={googleLoading || loading} className={flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm ${ googleLoading || loading ? "bg-gray-100 opacity-50 cursor-not-allowed" : "hover:bg-gray-50 transition" }} > <FaGoogle className="text-lg" /> <span>{googleLoading ? "Loading..." : "Google"}</span> </motion.button> <motion.button disabled className="flex items-center justify-center gap-2 w-full rounded-lg border px-4 py-3 text-sm opacity-60 cursor-not-allowed" > <MdEmail className="text-lg" /> <span>Email</span> </motion.button> </motion.div> */}
 
           <motion.p
-            className="text-xs text-gray-500 text-center"
+            className="text-[11px] text-gray-500 text-center leading-relaxed"
             variants={itemVariants}
           >
             By continuing, you agree to the Terms and Privacy Policy.

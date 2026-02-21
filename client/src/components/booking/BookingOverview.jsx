@@ -189,7 +189,7 @@ export default function BookingOverview({
         setSelectedEndDate(endDate);
         if (startDate)
           setCurrentMonth(
-            new Date(startDate.getFullYear(), startDate.getMonth(), 1)
+            new Date(startDate.getFullYear(), startDate.getMonth(), 1),
           );
       }
     }, [isOpen]);
@@ -268,11 +268,11 @@ export default function BookingOverview({
       if (selectedStartDate && selectedEndDate) {
         const offsetStart = new Date(
           selectedStartDate.getTime() -
-            selectedStartDate.getTimezoneOffset() * 60000
+            selectedStartDate.getTimezoneOffset() * 60000,
         );
         const offsetEnd = new Date(
           selectedEndDate.getTime() -
-            selectedEndDate.getTimezoneOffset() * 60000
+            selectedEndDate.getTimezoneOffset() * 60000,
         );
         const checkIn = offsetStart.toISOString().split("T")[0];
         const checkOut = offsetEnd.toISOString().split("T")[0];
@@ -459,7 +459,7 @@ export default function BookingOverview({
         childrens: guests.children,
         rooms,
         nights: Math.ceil(
-          (new Date(checkOutDate) - new Date(checkInDate)) / 86400000
+          (new Date(checkOutDate) - new Date(checkInDate)) / 86400000,
         ),
       },
     });
@@ -711,7 +711,7 @@ export default function BookingOverview({
                               e.stopPropagation();
                               handleGuestChange(
                                 type === "children" ? "children" : "adults",
-                                -1
+                                -1,
                               );
                             }}
                             className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
@@ -730,7 +730,7 @@ export default function BookingOverview({
                               e.stopPropagation();
                               handleGuestChange(
                                 type === "children" ? "children" : "adults",
-                                1
+                                1,
                               );
                             }}
                             className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"

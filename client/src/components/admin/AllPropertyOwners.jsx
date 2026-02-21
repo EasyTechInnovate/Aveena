@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Table,
@@ -88,6 +88,29 @@ const AllPropertyOwners = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [allPropertyOwners, setAllPropertyOwners] = useState(generatePropertyOwnerData())
   const itemsPerPage = 12
+
+  useEffect(() => {
+      const allPropertyOwners = async () => {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/admin/property-owners?page=1&limit=10`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
+  
+          const jsonResponse = await response.json();
+  
+          console.log("All Property Owners Data:", jsonResponse);
+        } catch (error) {
+          console.error("Error fetching properties:", error);
+        }
+      };
+  
+      allPropertyOwners();
+    }, []);
 
   // Filter property owners based on search term
   const filteredPropertyOwners = allPropertyOwners.filter((owner) =>

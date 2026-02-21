@@ -31,3 +31,68 @@ Authorization: Bearer {{accessToken}}
 
 GET {{baseUrl}}{{apiPrefix}}/properties/{{propertyId}}
 Authorization: Bearer {{accessToken}}
+
+### Create Property
+POST {{baseUrl}}{{apiPrefix}}/properties
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyName": "Ocean View Villa",
+  "type": "villa",
+  "address": {
+    "fullAddress": "123 Beach Road, Goa",
+    "zipCode": "403001"
+  },
+  "location": {
+    "latitude": 15.2993,
+    "longitude": 74.1240
+  },
+  "capacity": {
+    "adults": 4,
+    "childrens": 2
+  },
+  "noOfRooms": 2,
+  "noOfBaths": 2,
+  "basePrice": 5000,
+  "totalUnits": 1,
+  "amenties": ["Wifi", "Pool", "AC"],
+  "description": "Beautiful 2BHK villa with ocean view",
+  "coverImage": "https://example.com/image.jpg",
+  "minimumRentalIncome": 50000,
+  "saleTarget": 200000,
+  "kycDocument": "https://example.com/kyc.pdf"
+}
+
+### Update Property (Basic Info)
+PUT {{baseUrl}}{{apiPrefix}}/properties
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyId": "{{propertyId}}",
+  "propertyName": "Ocean View Villa Updated",
+  "basePrice": 5500
+}
+
+### Update Property Details (Media, Spaces, etc.)
+PUT {{baseUrl}}{{apiPrefix}}/properties/details
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyId": "{{propertyId}}",
+  "locationDescription": "Located near the famous Baga beach.",
+  "faqs": [
+    { "question": "Is breakfast included?", "answer": "Yes" }
+  ]
+}
+
+### Toggle Property Active Status
+PATCH {{baseUrl}}{{apiPrefix}}/properties/toggle-active
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "propertyId": "{{propertyId}}"
+}

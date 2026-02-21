@@ -8,16 +8,11 @@ import {
   TableRow,
 } from '../ui/table'
 
-// Recent Booking data
-const recentBookings = [
-  { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
-  { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
-  { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
-  { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
-  { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
-]
+// const recentBookings = [
+//   { id: '#123', customerName: 'Kathryn Murphy', checkIn: 'Wed 3 Sep 2025', guests: '2 Adults' },
+// ]
 
-const RecentBooking = () => {
+const RecentBooking = ({ recentBookings }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
@@ -30,19 +25,31 @@ const RecentBooking = () => {
       <Table>
         <TableHeader>
           <TableRow className="border-b">
-            <TableHead className="font-semibold text-gray-800">ID</TableHead>
-            <TableHead className="font-semibold text-gray-800">Customer Name</TableHead>
-            <TableHead className="font-semibold text-gray-800">Check-in Date</TableHead>
-            <TableHead className="font-semibold text-gray-800">Guests</TableHead>
+            <TableHead>ID</TableHead>
+            <TableHead>Customer Name</TableHead>
+            <TableHead>Check-in Date</TableHead>
+            <TableHead>Guests</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recentBookings.map((booking, index) => (
             <TableRow key={index} className="border-b border-gray-200">
-              <TableCell className="text-gray-700">{booking.id}</TableCell>
-              <TableCell className="text-gray-700">{booking.customerName}</TableCell>
-              <TableCell className="text-gray-700">{booking.checkIn}</TableCell>
-              <TableCell className="text-gray-700">{booking.guests}</TableCell>
+              <TableCell className="text-gray-700">
+                {booking._id}
+              </TableCell>
+
+              <TableCell className="text-gray-700">
+                {booking.customer?.firstName} {booking.customer?.lastName}
+              </TableCell>
+
+              <TableCell className="text-gray-700">
+                {new Date(booking.checkIn).toLocaleDateString()}
+              </TableCell>
+
+              <TableCell className="text-gray-700">
+                {booking.guests?.adults} Adults
+                {booking.guests?.children > 0 && `, ${booking.guests.children} Children`}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -52,4 +59,3 @@ const RecentBooking = () => {
 }
 
 export default RecentBooking
-

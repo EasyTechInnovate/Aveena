@@ -13,47 +13,80 @@ import {
 const columnHelper = createColumnHelper()
 
 export const columns = [
-  columnHelper.accessor("propertyName", {
+  columnHelper.accessor("name", {
     header: "Property Name",
+    cell: (info) => <span className="font-medium">{info.getValue()}</span>,
   }),
 
-  columnHelper.accessor("propertyType", {
+  columnHelper.accessor("type", {
     header: "Property Type",
+    cell: (info) => <span className="capitalize">{info.getValue()}</span>,
   }),
 
   columnHelper.accessor("minRentalIncome", {
     header: "Min. Rental Income",
+    cell: () => "N/A", 
   }),
 
   columnHelper.accessor("salesTarget", {
     header: "Sales Target",
+    cell: () => "N/A",
   }),
 
-  columnHelper.accessor("status", {
+  columnHelper.accessor("isActive", {
     header: "Status",
     cell: info => {
-      const value = info.getValue()
-      let variant = "outline"
+      const isActive = info.getValue()
+      const value = isActive ? "Active" : "Inactive"
+      
+      // Define styles based on status
+      let styles = "bg-gray-100 text-gray-800"
+      if (value === "Active" || value === "Approved") {
+        styles = "bg-green-100 text-green-700 hover:bg-green-100 border-transparent"
+      } else if (value === "Pending") {
+        styles = "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-transparent"
+      } else if (value === "Rejected") {
+        styles = "bg-red-100 text-red-700 hover:bg-red-100 border-transparent"
+      }
 
-      // Handle both "Active"/"Inactive" and "Approved"/"Pending"/"Rejected" statuses
-      if (value === "Approved" || value === "Active") variant = "success"
-      else if (value === "Pending") variant = "warning"
-      else if (value === "Rejected") variant = "destructive"
-      else if (value === "Inactive") variant = "secondary"
-
-      return <Badge variant={variant}>{value}</Badge>
+      return (
+        <Badge className={`capitalize ${styles}`} variant="outline">
+          {value}
+        </Badge>
+      )
     },
   }),
 
-  columnHelper.accessor("kycStatus", {
+  columnHelper.accessor("kycVerified", {
     header: "KYC Status",
+    cell: (info) => {
+      const status = info.getValue() || "N/A"
+      
+      let styles = "bg-gray-100 text-gray-800" // Default/N/A
+      
+      if (status === "verified" || status === "approved") {
+        styles = "bg-green-100 text-green-700 hover:bg-green-100 border-transparent"
+      } else if (status === "pending") {
+        styles = "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-transparent"
+      } else if (status === "rejected") {
+        styles = "bg-red-100 text-red-700 hover:bg-red-100 border-transparent"
+      }
+
+      if (status === "N/A") return <span>N/A</span>
+
+      return (
+        <Badge className={`capitalize ${styles}`} variant="outline">
+          {status}
+        </Badge>
+      )
+    },
   }),
 
   columnHelper.accessor("action", {
     header: "",
     cell: ({ row }) => {
       const rowData = row.original
-      const status = rowData.status
+      const isActive = rowData.isActive
 
       return (
         <DropdownMenu>
@@ -69,20 +102,19 @@ export const columns = [
             <DropdownMenuItem
               onClick={() => {
                 console.log("View property:", rowData)
-                // Add your view action here
               }}
               className="cursor-pointer py-3 text-[15px]"
             >
               <Eye className="mr-2 h-4 w-4" />
               View Property
             </DropdownMenuItem>
-            {(status === "Approved" || status === "Active") && (
+            
+            {(isActive) && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     console.log("Upload KYC Details:", rowData)
-                    // Navigate to KYC upload page or open modal
                   }}
                   className="cursor-pointer py-3 text-[15px]"
                 >

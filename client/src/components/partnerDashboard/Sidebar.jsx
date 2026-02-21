@@ -1,7 +1,9 @@
+import { useAuth } from "../../context/AuthContext";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+    const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -14,7 +16,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="fixed top-[80px] left-0 h-[calc(100vh-80px)] w-[280px] flex flex-col px-6 py-10 border-r-2 bg-white z-40 overflow-y-auto">
+    <div className="fixed top-20 left-0 h-[calc(100vh-80px)] w-[280px] flex flex-col px-6 py-10 border-r-2 bg-white z-40 overflow-y-auto">
       <div className="flex flex-col gap-4">
         <div
           className={`flex items-center gap-4 px-6 py-4 w-full rounded cursor-pointer ${
@@ -117,7 +119,7 @@ const Sidebar = () => {
       <div className="flex flex-col gap-4 mt-auto">
          <div
           className={`flex items-center gap-4 px-6 py-4 w-full rounded cursor-pointer`}
-          onClick={() => handleNavigation("/help")}
+          onClick={() => handleNavigation("/help-centre")}
         >
           <img
             src="/assets/partnerDashboard/user.svg"
@@ -135,7 +137,10 @@ const Sidebar = () => {
             alt="user"
           />
 
-          <h3>Logout</h3>
+          <button onClick={() => {
+                logout();
+                navigate("/");
+          }}>Logout</button>
         </div>
 
 

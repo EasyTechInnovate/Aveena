@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, ChevronDown, ChevronRight, Search, MoreVertical } from 'lucide-react'
 import {
@@ -18,6 +18,24 @@ import {
 
 const EditPropertyOwner = ({ ownerId }) => {
   const navigate = useNavigate()
+
+  const fetchOwner = async () => {
+  
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      )
+      const jsonResponse = await response.json()
+  
+      console.log('Owner info by ownerId Bookings:', jsonResponse)
+    }
+  
+    useEffect(() => {
+      fetchOwner()
+    }, [])
   
   // Mock data - in real app, this would come from an API
   const [formData, setFormData] = useState({
@@ -67,7 +85,7 @@ const EditPropertyOwner = ({ ownerId }) => {
         {/* Profile Information */}
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
               <span className="text-white text-2xl font-semibold">
                 {getInitials(ownerName)}
               </span>

@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:5000
-@apiPrefix = /api/v1
+@apiPrefix = /v1
 
 ### Send OTP with Email
 POST {{baseUrl}}{{apiPrefix}}/auth/send-otp
@@ -36,7 +36,7 @@ Content-Type: application/json
 {
   "phone": {
     "countryCode": "+91",
-    "number": "1234567890"
+    "number": "9653092873"
   },
   "verificationCode": "123456"
 }
@@ -72,3 +72,17 @@ Authorization: Bearer {{accessToken}}
 ### Get Profile
 GET {{baseUrl}}{{apiPrefix}}/auth/profile
 Authorization: Bearer {{accessToken}}
+
+### Google Auth URL
+GET {{baseUrl}}{{apiPrefix}}/auth/google/url
+
+### Google Auth Callback
+GET {{baseUrl}}{{apiPrefix}}/auth/google/callback?code=some_code
+
+### Google Login (Exchange Code)
+POST {{baseUrl}}{{apiPrefix}}/auth/google/login
+Content-Type: application/json
+
+{
+  "code": "auth_code_from_google"
+}

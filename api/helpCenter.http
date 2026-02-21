@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1/help-center
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk5NTQ5MjI1MDgxNzMzNWI5MzU2MyIsImlzUHJvZmlsZUNvbXBsZXRlIjp0cnVlLCJpYXQiOjE3Njg4OTgzNDUsImV4cCI6MTc3MDEwNzk0NX0.8JyOyryNbvdlDgn3DT293FO_rjHIZjYIIx3l979Or6k
+
+### Create Ticket
+POST {{baseUrl}}{{apiPrefix}}/
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "subject": "Issue with booking payment",
+    "message": "I tried to pay for a booking but it failed. Transaction ID is 12345.",
+    "mediaUrls": []
+}
+
+### Get All Tickets
+GET {{baseUrl}}{{apiPrefix}}?page=1&limit=10&status=open
+Authorization: Bearer {{accessToken}}
+
+### Get Ticket By ID
+@ticketId = TKT-XXXXXXXX
+GET {{baseUrl}}{{apiPrefix}}/{{ticketId}}
+Authorization: Bearer {{accessToken}}
+
+### Get Ticket Messages
+GET {{baseUrl}}{{apiPrefix}}/{{ticketId}}/messages?page=1&limit=20
+Authorization: Bearer {{accessToken}}
+
+### Reply to Ticket
+POST {{baseUrl}}{{apiPrefix}}/{{ticketId}}/reply
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "message": "Here is the screenshot of the error.",
+    "mediaUrls": ["https://example.com/screenshot.png"]
+}
+
+### Update Ticket Status (Admin/Support only)
+PATCH {{baseUrl}}{{apiPrefix}}/{{ticketId}}/status
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "status": "in_progress"
+}
+
+### Close Ticket
+PATCH {{baseUrl}}{{apiPrefix}}/{{ticketId}}/close
+Authorization: Bearer {{accessToken}}

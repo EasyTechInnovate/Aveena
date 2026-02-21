@@ -38,10 +38,11 @@ const ViewPropertyInformation = ({ propertyData }) => {
           className="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 text-gray-700 cursor-not-allowed"
           value={property.propertyType}
         >
-          <option>Homes</option>
-          <option>Apartments</option>
-          <option>Offices</option>
-          <option>Villas</option>
+          <option value="homes">Home</option>
+          <option value="apartment">Apartment</option>
+          <option value="offices">Office</option>
+          <option value="villas">Villa</option>
+          <option value="villa">Villa</option>
         </select>
       </div>
 

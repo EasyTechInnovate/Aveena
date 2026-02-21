@@ -2,8 +2,8 @@ import React from "react";
 
 const BlogDetails = () => {
   return (
-    <>
-      <div className="bg-light py-20 pt-20">
+    <div className="mt-20">
+      <div className="bg-light py-20 pt-20 px-2">
         <h1 className="text-darkBlue text-center text-3xl font-semibold">
           Brand Guidelines Creative Design.
         </h1>
@@ -16,8 +16,12 @@ const BlogDetails = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto">
-        <img src="/assets/blog/thumbnail.png" alt="" />
+      <div className="px-5 mt-5 max-w-7xl mx-auto">
+        <img
+          src="/assets/blog/thumbnail.png"
+          alt=""
+          className="h-40 md:h-90 w-full object-cover rounded-2xl"
+        />
 
         <div className="py-4">
           <h1 className="text-darkBlue text-xl font-bold mb-2">
@@ -76,11 +80,11 @@ const BlogDetails = () => {
         <img
           src="/assets/blog/content3.png"
           alt=""
-          className="rounded-2xl my-4"
+          className="my-3 mt-10 h-40 md:h-90 w-full object-cover rounded-2xl"
         />
 
-        <div>
-          <p className="text-sm leading-6 mt-4">
+        <div className="my-5 ">
+          <p className="text-sm leading-6">
             Velit litora tortor diam netus elit habitasse.Pellentesque mattis
             viverra erat, at lacinia elit. Quisque convallis pharetra metus
             finibus volutpat. Vestibulum ante ipsum primis in faucibus orci
@@ -101,7 +105,7 @@ const BlogDetails = () => {
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

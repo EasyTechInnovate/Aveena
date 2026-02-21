@@ -40,6 +40,7 @@ export default function GuestReviews({
   ],
   propertyLocation,
   propertyDetails,
+  propertyLocation,
 }) {
   const [showGallery, setShowGallery] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -1016,6 +1017,8 @@ export default function GuestReviews({
               ></iframe>
             </div>
           </div>
+
+          {/* {console.log("porpertyLocation", propertyLocation)} */}
 
           {/* Description */}
           <div className="mb-6 w-full md:max-w-3xl">

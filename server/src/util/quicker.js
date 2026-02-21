@@ -35,8 +35,14 @@ export default {
     compareOtp: (otp, hashedOtp) => {
         return bcrypt.compareSync(otp, hashedOtp);
     },
+    hashPassword: (password) => {
+        return bcrypt.hashSync(password, 10);
+    },
+    comparePassword: (password, hashedPassword) => {
+        return bcrypt.compareSync(password, hashedPassword);
+    },
     generateToken: (data) => {
-        const token =  jwt.sign(data, config.jwt.secret, {
+        const token = jwt.sign(data, config.jwt.secret, {
             expiresIn: config.jwt.expiresIn
         });
         return token;

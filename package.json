@@ -40,6 +40,8 @@
     "prettier": "3.5.3"
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "imagekit": "^6.0.0",
+    "imagekit-javascript": "^4.0.1"
   }
 }
