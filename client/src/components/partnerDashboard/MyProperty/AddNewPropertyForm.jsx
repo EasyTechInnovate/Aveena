@@ -30,6 +30,8 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
   const [submitted, setSubmitted] = useState(false);
   const [createdPropertyId, setCreatedPropertyId] = useState(null);
   
+  const [errorMessage, setErrorMessage] = useState(""); 
+  
   const [formData, setFormData] = useState({
     propertyType: "apartment",
     propertyName: "",
@@ -58,6 +60,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (errorMessage) setErrorMessage(""); 
   };
 
   const handleAmenityToggle = (amenity) => {
@@ -77,6 +80,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
     if (!file) return;
 
     setIsUploadingImage(true);
+    setErrorMessage(""); 
 
     try {
       const imageUrl = await uploadToImageKit(file);
@@ -86,6 +90,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
       }
     } catch (error) {
       console.error(error);
+      setErrorMessage("Failed to upload cover image. Please try again.");
     } finally {
       setIsUploadingImage(false);
     }
@@ -94,8 +99,10 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(""); 
 
     try {
+      // 👇 Reverted to your exact working payload structure
       const payload = {
         propertyName: formData.propertyName,
         type: formData.propertyType.toLowerCase(),
@@ -111,7 +118,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
           adults: Number(formData.adults) || 1,
           childrens: Number(formData.childrens) || 0
         },
-        noOfRooms: Number(formData.noOfRooms) || 1,
+        noOfRooms: Number(formData.noOfRooms) || 1, 
         noOfBaths: Number(formData.noOfBaths) || 1,
         basePrice: Number(formData.basePrice) || 0,
         totalUnits: Number(formData.totalUnits) || 1,
@@ -134,15 +141,20 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
         }
       );
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
-        setCreatedPropertyId(data?.data?.property?._id || data?.property?._id);
+        // 👇 FIXED: This uses a bulletproof fallback to grab the ID no matter how the backend sends it!
+        const newId = data?.data?.propertyId || data?.data?.property?._id || data?.property?._id;
+        setCreatedPropertyId(newId);
         setSubmitted(true);
       } else {
-        console.error("Failed to create property");
+        setErrorMessage(data?.message || "Failed to create property. Please check your inputs.");
+        console.error("Failed to create property:", data);
       }
     } catch (error) {
       console.error(error);
+      setErrorMessage("A network error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -337,14 +349,12 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                     {isChecked && <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />}
                   </div>
                   
-                  {/* 👇 THIS IS THE MISSING PIECE 👇 */}
                   <input
                     type="checkbox"
                     className="hidden"
                     checked={isChecked}
                     onChange={() => handleAmenityToggle(amenity)}
                   />
-                  {/* 👆 ======================= 👆 */}
 
                   <span className="text-gray-700 text-[15px] select-none">{amenity}</span>
                 </label>
@@ -428,6 +438,12 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
               />
             </div>
           </div>
+
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium">
+              ⚠️ {errorMessage}
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button

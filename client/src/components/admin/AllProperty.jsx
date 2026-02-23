@@ -155,8 +155,8 @@ const AllProperty = () => {
                   >
                     <TableCell>{property.name || "N/A"}</TableCell>
                     <TableCell>{property.type || "N/A"}</TableCell>
-                    <TableCell>₹ {property.minRentalIncome || "N/A"}</TableCell>
-                    <TableCell>₹ {property.salesTarget || "N/A"}</TableCell>
+                    <TableCell>₹ {property.minimumRentalIncome || "N/A"}</TableCell>
+                    <TableCell>₹ {property.saleTarget || "N/A"}</TableCell>
                     <TableCell>{property.totalBookings ?? "N/A"}</TableCell>
 
                     {/* Status */}
