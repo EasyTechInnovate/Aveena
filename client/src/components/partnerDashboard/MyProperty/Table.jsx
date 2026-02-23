@@ -9,8 +9,8 @@ const BookingTablePage = ({ properties, pagination, onPageChange }) => {
     id: item._id,
     propertyName: item.name,
     propertyType: item.type,
-    minRentalIncome: "N/A", 
-    salesTarget: "N/A",   
+    minRentalIncome: item.minimumRentalIncome || "N/A", 
+    salesTarget: item.saleTarget || "N/A",   
     status: item.isActive ? "Active" : "Inactive", 
     kycStatus: item.kycVerified,
   })) || [];

@@ -15,6 +15,7 @@ const EditProperty = () => {
   const [activeSection, setActiveSection] = useState(searchParams.get('section') || 'owner-info')
 
   useEffect(() => {
+    console.log('Property ID from URL:', id)
     const fetchPropertyById = async () => {
       try {
         const response = await fetch(
