@@ -407,21 +407,21 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             }
 
-            if (!property.isActive) {
-                const propertyDetails = await propertyDetailsModel.findOne({ propertyId });
+            // if (!property.isActive) {
+            //     const propertyDetails = await propertyDetailsModel.findOne({ propertyId });
 
-                if (!propertyDetails) {
-                    return httpError(next, new Error(responseMessage.customMessage('Complete property details before activating')), req, 400);
-                }
+            //     if (!propertyDetails) {
+            //         return httpError(next, new Error(responseMessage.customMessage('Complete property details before activating')), req, 400);
+            //     }
 
-                const isDetailsComplete = propertyDetails.propertyMedia.length > 0 &&
-                    propertyDetails.spaces.length > 0 &&
-                    propertyDetails.villaLocationDescription;
+            //     const isDetailsComplete = propertyDetails.propertyMedia.length > 0 &&
+            //         propertyDetails.spaces.length > 0 &&
+            //         propertyDetails.villaLocationDescription;
 
-                if (!isDetailsComplete) {
-                    return httpError(next, new Error(responseMessage.customMessage('Complete property details before activating')), req, 400);
-                }
-            }
+            //     if (!isDetailsComplete) {
+            //         return httpError(next, new Error(responseMessage.customMessage('Complete property details before activating')), req, 400);
+            //     }
+            // }
 
             property.isActive = !property.isActive;
             await property.save();

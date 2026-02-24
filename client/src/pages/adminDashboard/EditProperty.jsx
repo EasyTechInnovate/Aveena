@@ -16,7 +16,7 @@ const EditProperty = () => {
 
   useEffect(() => {
     console.log('Property ID from URL:', id)
-    const fetchPropertyById = async () => {
+    const fetchProperty_OwnerById = async () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/properties/${id}`,
@@ -49,7 +49,7 @@ const EditProperty = () => {
     };
 
     if (id) {
-      fetchPropertyById();
+      fetchProperty_OwnerById();
     }
   }, [id]);
 

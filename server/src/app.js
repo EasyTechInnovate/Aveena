@@ -46,15 +46,13 @@ res.send(`<!DOCTYPE html>
 </body>
 </html>
 
-
-
 `);
 })
 
 app.use(cors({
   origin: ["http://localhost:5173", "https://avenaa.co.in"],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(
