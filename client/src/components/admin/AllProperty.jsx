@@ -53,7 +53,7 @@ const AllProperty = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-          },
+          }
         );
 
         const jsonResponse = await response.json();
@@ -71,6 +71,52 @@ const AllProperty = () => {
 
     fetchProperties();
   }, [searchTerm, pagination.page]);
+
+  // 👇 ADDED: Function to handle the Toggle Switch API
+  const handleToggleActive = async (propertyId) => {
+    // 1. Optimistic Update: Flip the switch instantly on the UI for a snappy feel
+    setProperties((prev) =>
+      prev.map((p) =>
+        p._id === propertyId ? { ...p, isActive: !p.isActive } : p
+      )
+    );
+
+    try {
+      // 2. Fire the API
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/properties/toggle-active`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({ propertyId: propertyId }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // 3. If it fails, revert the switch back to its original state
+        setProperties((prev) =>
+          prev.map((p) =>
+            p._id === propertyId ? { ...p, isActive: !p.isActive } : p
+          )
+        );
+        alert(data.message || "Failed to toggle property status.");
+      }
+    } catch (error) {
+      console.error("Error toggling status:", error);
+      // Revert on network error
+      setProperties((prev) =>
+        prev.map((p) =>
+          p._id === propertyId ? { ...p, isActive: !p.isActive } : p
+        )
+      );
+      alert("A network error occurred while toggling the status.");
+    }
+  };
 
   const handleMarkAsVerified = (propertyId) => {
     setSelectedPropertyId(propertyId);
@@ -142,6 +188,8 @@ const AllProperty = () => {
                 <TableHead>Total Bookings</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-center">KYC Status</TableHead>
+                {/* 👇 ADDED: New Column Header for the Toggle Switch */}
+                <TableHead className="text-center">Live</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -179,6 +227,24 @@ const AllProperty = () => {
                       </span>
                     </TableCell>
 
+                    {/* 👇 ADDED: The Toggle Switch Cell 👇 */}
+                    <TableCell className="text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(property._id)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                          property.isActive ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                      >
+                        <span className="sr-only">Toggle active status</span>
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            property.isActive ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </TableCell>
+
                     {/* Actions */}
                     <TableCell>
                       <DropdownMenu>
@@ -210,7 +276,7 @@ const AllProperty = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     No properties found
                   </TableCell>
                 </TableRow>
