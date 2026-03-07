@@ -141,9 +141,9 @@ const Layout = () => {
             <Route
               path="/dashboard/partner"
               element={
-                <ProtectedRoute>
+                // <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
+                // </ProtectedRoute>
               }
             />
 
