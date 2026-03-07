@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Table,
   TableBody,
@@ -13,109 +13,128 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { MoreVertical, Calendar } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import RightDrawer from '../common/RightDrawer'
 
-// Sample offer data matching the UI
-const generateOfferData = () => {
-  return [
-    {
-      id: 1,
-      promocodeName: 'Biggest Festival',
-      promoCode: 'DIWALI0025',
-      value: '10%',
-      activeDate: 'Wed 3 Sep 2025',
-      endDate: 'Wed 3 Sep 2025',
-      used: '2',
-      limitUser: '50',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      promocodeName: 'Biggest Festival',
-      promoCode: 'DIWALI0025',
-      value: '10%',
-      activeDate: 'Wed 3 Sep 2025',
-      endDate: 'Wed 3 Sep 2025',
-      used: '2',
-      limitUser: '50',
-      status: 'Active',
-    },
-    {
-      id: 3,
-      promocodeName: 'Biggest Festival',
-      promoCode: 'DIWALI0025',
-      value: '10%',
-      activeDate: 'Wed 3 Sep 2025',
-      endDate: 'Wed 3 Sep 2025',
-      used: '2',
-      limitUser: '50',
-      status: 'Active',
-    },
-    {
-      id: 4,
-      promocodeName: 'Biggest Festival',
-      promoCode: 'DIWALI0025',
-      value: '10%',
-      activeDate: 'Wed 3 Sep 2025',
-      endDate: 'Wed 3 Sep 2025',
-      used: '2',
-      limitUser: '50',
-      status: 'Active',
-    },
-    {
-      id: 5,
-      promocodeName: 'Biggest Festival',
-      promoCode: 'DIWALI0025',
-      value: '10%',
-      activeDate: 'Wed 3 Sep 2025',
-      endDate: 'Wed 3 Sep 2025',
-      used: '50',
-      limitUser: '50',
-      status: 'Expired',
-    },
-  ]
+const authHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  'Content-Type': 'application/json',
+})
+
+const emptyForm = {
+  offerName: '',
+  promocodeName: '',
+  discountType: 'percentage',
+  discountValue: '',
+  startingDate: '',
+  endDate: '',
+  limitUser: '',
+  minBookingAmount: '',
 }
 
 const Offer = () => {
-  const [offers, setOffers] = useState(generateOfferData())
+  const [offers, setOffers] = useState([])
+  const [loading, setLoading] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    offerName: 'Biggest Festival',
-    promocodeName: 'DIWALI0025',
-    discountValue: '10',
-    startingDate: 'Wed 3 Sep 2025',
-    endDate: 'Wed 3 Sep 2025',
-    limitUser: '50',
-  })
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState(emptyForm)
 
-  const handleDelete = (offerId) => {
-    if (window.confirm('Are you sure you want to delete this offer?')) {
-      setOffers((prev) => prev.filter((offer) => offer.id !== offerId))
+  // GET /coupons?page=1&limit=50
+  const fetchCoupons = async () => {
+    setLoading(true)
+    const url = `${import.meta.env.VITE_API_URL}/coupons?page=1&limit=50`
+    console.log('[GET] Fetch Coupons:', url)
+    try {
+      const response = await fetch(url, { headers: authHeaders() })
+      const json = await response.json()
+      console.log('[GET] Fetch Coupons Response:', json)
+      if (json.success && json.data) {
+        setOffers(json.data.coupons || json.data || [])
+      }
+    } catch (err) {
+      console.error('[GET] Fetch Coupons Error:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleEdit = (offerId) => {
-    // TODO: Implement edit functionality
-    console.log('Edit offer:', offerId)
+  useEffect(() => { fetchCoupons() }, [])
+
+  // PATCH /coupons/toggle-status
+  const handleToggleStatus = async (couponId) => {
+    const url = `${import.meta.env.VITE_API_URL}/coupons/toggle-status`
+    console.log('[PATCH] Toggle Coupon Status:', url, { couponId })
+    try {
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({ couponId }),
+      })
+      const json = await response.json()
+      console.log('[PATCH] Toggle Coupon Status Response:', json)
+      fetchCoupons()
+    } catch (err) {
+      console.error('[PATCH] Toggle Coupon Status Error:', err)
+    }
   }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving offer:', formData)
-    setIsModalOpen(false)
+  // POST /coupons
+  const handleSave = async () => {
+    if (!formData.promocodeName || !formData.discountValue || !formData.startingDate || !formData.endDate) {
+      alert('Please fill in all required fields.')
+      return
+    }
+    setSaving(true)
+    const url = `${import.meta.env.VITE_API_URL}/coupons`
+    const payload = {
+      code: formData.promocodeName.toUpperCase(),
+      description: formData.offerName,
+      discountType: formData.discountType || 'percentage',
+      discountValue: Number(formData.discountValue),
+      minBookingAmount: Number(formData.minBookingAmount) || 0,
+      validFrom: formData.startingDate,
+      validUntil: formData.endDate,
+      usageLimit: Number(formData.limitUser) || 100,
+      userUsageLimit: 1,
+      applicableFor: 'all',
+    }
+    console.log('[POST] Create Coupon:', url, payload)
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      })
+      const json = await response.json()
+      console.log('[POST] Create Coupon Response:', json)
+      if (json.success) {
+        setIsModalOpen(false)
+        setFormData(emptyForm)
+        fetchCoupons()
+      } else {
+        alert(json.message || 'Failed to create coupon.')
+      }
+    } catch (err) {
+      console.error('[POST] Create Coupon Error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCancel = () => {
     setIsModalOpen(false)
+    setFormData(emptyForm)
+  }
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—'
+    try { return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }
+    catch { return dateStr }
   }
 
   return (
@@ -166,72 +185,63 @@ const Offer = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {offers.length > 0 ? (
-                offers.map((offer) => (
-                  <TableRow
-                    key={offer.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {offer.promocodeName}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-50 border border-green-300 text-green-800">
-                        {offer.promoCode}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
-                      {offer.value}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {offer.activeDate}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {offer.endDate}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
-                      {offer.used}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
-                      {offer.limitUser}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${
-                          offer.status === 'Active'
-                            ? 'bg-green-400 text-green-800'
-                            : 'bg-red-500 text-white'
-                        }`}
-                      >
-                        {offer.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                            <MoreVertical size={18} className="text-gray-600" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem
-                            onClick={() => handleEdit(offer.id)}
-                            className="cursor-pointer py-2 text-sm text-gray-700"
-                          >
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => handleDelete(offer.id)}
-                            className="cursor-pointer py-2 text-sm text-red-600"
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center text-gray-500 py-10">Loading...</TableCell>
+                </TableRow>
+              ) : offers.length > 0 ? (
+                offers.map((offer) => {
+                  const isActive = offer.isActive !== false
+                  return (
+                    <TableRow key={offer._id || offer.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                        {offer.description || offer.code}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-50 border border-green-300 text-green-800">
+                          {offer.code}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
+                        {offer.discountValue}{offer.discountType === 'percentage' ? '%' : '₹'}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                        {formatDate(offer.validFrom)}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                        {formatDate(offer.validUntil)}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
+                        {offer.usedCount ?? offer.used ?? '—'}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap text-center">
+                        {offer.usageLimit ?? offer.userUsageLimit ?? '—'}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700'}`}>
+                          {isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                              <MoreVertical size={18} className="text-gray-600" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem
+                              onClick={() => handleToggleStatus(offer._id || offer.id)}
+                              className="cursor-pointer py-2 text-sm text-gray-700"
+                            >
+                              {isActive ? 'Deactivate' : 'Activate'}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center text-gray-500 py-8">
@@ -308,16 +318,14 @@ const Offer = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Starting Date
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="startingDate"
-                      value={formData.startingDate}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                  </div>
+                  <input
+                    type="date"
+                    name="startingDate"
+                    value={formData.startingDate}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                  />
                 </div>
 
                 {/* End Date */}
@@ -325,16 +333,14 @@ const Offer = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     End Date
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="endDate"
-                      value={formData.endDate}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                  </div>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleInputChange}
+                    min={formData.startingDate || new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
+                  />
                 </div>
               </div>
             </div>
@@ -364,9 +370,10 @@ const Offer = () => {
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors"
+              disabled={saving}
+              className="px-6 py-2.5 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors disabled:opacity-60"
             >
-              Save
+              {saving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>

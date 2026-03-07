@@ -25,22 +25,10 @@ import {
   Check,
 } from "lucide-react";
 
-// Generate more ticket data for pagination
-const generateTicketData = () => {
-  const data = [];
-  const statuses = ["On Hold", "In Progress", "Resolved"];
-  for (let i = 1; i <= 150; i++) {
-    data.push({
-      id: `#${String(i).padStart(3, "0")}`,
-      customer: "Kathryn Murphy",
-      subject: "Payment Is not Refund",
-      status: statuses[i % 3],
-      created: "Jun 10, 2016",
-      updated: "Jun 10, 2016",
-    });
-  }
-  return data;
-};
+const authHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  "Content-Type": "application/json",
+});
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -58,41 +46,36 @@ const getStatusColor = (status) => {
 const HelpCenter = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [allTickets, setAllTickets] = useState(generateTicketData());
+  const [allTickets, setAllTickets] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
   const itemsPerPage = 15;
 
-  const fetchHelpTickets = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/help-center?page=1&limit=10`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
-    const jsonResponse = await response.json();
-
-    console.log("Help Center Tickets:", jsonResponse);
+  // GET /help-center?page=:page&limit=:limit&status=open
+  const fetchHelpTickets = async (page = 1, search = "") => {
+    setLoading(true);
+    const params = new URLSearchParams({ page, limit: itemsPerPage, ...(search && { search }) });
+    const url = `${import.meta.env.VITE_API_URL}/help-center?${params.toString()}`;
+    console.log("[GET] Fetch Help Center Tickets:", url);
+    try {
+      const response = await fetch(url, { headers: authHeaders() });
+      const json = await response.json();
+      console.log("[GET] Fetch Help Center Tickets Response:", json);
+      if (json.success && json.data) {
+        setAllTickets(json.data.tickets || json.data || []);
+        setTotalPages(json.data.pagination?.totalPages || 1);
+      }
+    } catch (err) {
+      console.error("[GET] Fetch Help Center Tickets Error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchHelpTickets();
-  }, []);
-
-  // Filter tickets based on search term
-  const filteredTickets = allTickets.filter(
-    (ticket) =>
-      ticket.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTickets = filteredTickets.slice(startIndex, endIndex);
+    fetchHelpTickets(currentPage, searchTerm);
+  }, [currentPage, searchTerm]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages && typeof page === "number") {
@@ -100,98 +83,58 @@ const HelpCenter = () => {
     }
   };
 
-  const handleDelete = (ticketId) => {
-    if (window.confirm(`Are you sure you want to delete ticket ${ticketId}?`)) {
-      setAllTickets((prev) => {
-        const updated = prev.filter((ticket) => ticket.id !== ticketId);
-        // Adjust page if current page becomes empty after deletion
-        const newFiltered = updated.filter(
-          (ticket) =>
-            ticket.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
-        const newTotalPages = Math.ceil(newFiltered.length / itemsPerPage);
-        if (currentPage > newTotalPages && newTotalPages > 0) {
-          setCurrentPage(newTotalPages);
-        } else if (newTotalPages === 0) {
-          setCurrentPage(1);
-        }
-        return updated;
+  // PATCH /help-center/:ticketId/status
+  const handleStatusChange = async (ticketId, newStatus) => {
+    const url = `${import.meta.env.VITE_API_URL}/help-center/${ticketId}/status`;
+    console.log("[PATCH] Update Ticket Status:", url, { status: newStatus });
+    try {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ status: newStatus }),
       });
+      const json = await response.json();
+      console.log("[PATCH] Update Ticket Status Response:", json);
+      fetchHelpTickets(currentPage, searchTerm);
+    } catch (err) {
+      console.error("[PATCH] Update Ticket Status Error:", err);
     }
   };
 
-  const handleStatusChange = (ticketId, newStatus) => {
-    setAllTickets((prev) =>
-      prev.map((ticket) =>
-        ticket.id === ticketId
-          ? {
-              ...ticket,
-              status: newStatus,
-              updated: new Date().toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }),
-            }
-          : ticket,
-      ),
-    );
-  };
-
-  const handleMarkAsResolved = (ticketId) => {
-    handleStatusChange(ticketId, "Resolved");
-  };
-
-  const handleMarkAsApproved = (ticketId) => {
-    // For resolved tickets, we can mark them as approved
-    // This could be a separate status or just a confirmation
-    console.log("Marking ticket as approved:", ticketId);
-    // You can add additional logic here if needed
-  };
+  const handleMarkAsResolved = (ticketId) => handleStatusChange(ticketId, "resolved");
+  const handleMarkAsApproved = (ticketId) => handleStatusChange(ticketId, "closed");
 
   const handleEdit = (ticketId) => {
-    navigate(`/dashboard/admin/help/ticket/${ticketId.replace("#", "")}`);
+    navigate(`/dashboard/admin/help/ticket/${(ticketId || "").replace("#", "")}`);
   };
 
   // Get menu items based on ticket status
   const getMenuItems = (ticket) => {
+    const id = ticket._id || ticket.id;
+    const status = (ticket.status || "").toLowerCase();
     const items = [];
 
-    if (ticket.status !== "Resolved") {
-      // For tickets that are not resolved
+    if (status !== "resolved" && status !== "closed") {
       items.push({
         label: "Mark as Resolved",
         icon: Check,
-        onClick: () => handleMarkAsResolved(ticket.id),
+        onClick: () => handleMarkAsResolved(id),
         className: "cursor-pointer py-2 text-sm text-gray-700",
       });
     } else {
-      // For resolved tickets
       items.push({
-        label: "Approved",
+        label: "Mark as Closed",
         icon: Check,
-        onClick: () => handleMarkAsApproved(ticket.id),
+        onClick: () => handleMarkAsApproved(id),
         className: "cursor-pointer py-2 text-sm text-gray-700",
       });
     }
 
-    // Edit option (always available)
     items.push({
-      label: "Edit",
+      label: "View / Edit",
       icon: Edit,
-      onClick: () => handleEdit(ticket.id),
+      onClick: () => handleEdit(id),
       className: "cursor-pointer py-2 text-sm text-gray-700",
-    });
-
-    // Delete option (always available)
-    items.push({
-      label: "Delete",
-      icon: Trash2,
-      onClick: () => handleDelete(ticket.id),
-      className: "cursor-pointer py-2 text-sm text-red-600",
-      variant: "destructive",
     });
 
     return items;
@@ -297,80 +240,66 @@ const HelpCenter = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentTickets.length > 0 ? (
-                currentTickets.map((ticket, index) => (
-                  <TableRow
-                    key={`${ticket.id}-${startIndex + index}`}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() =>
-                      navigate(
-                        `/dashboard/admin/help/ticket/${ticket.id.replace("#", "")}`,
-                      )
-                    }
-                  >
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {ticket.id}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {ticket.customer}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {ticket.subject}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}
-                      >
-                        {ticket.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {ticket.created}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {ticket.updated}
-                    </TableCell>
-                    <TableCell
-                      className="whitespace-nowrap"
-                      onClick={(e) => e.stopPropagation()}
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-gray-500 py-10">Loading...</TableCell>
+                </TableRow>
+              ) : allTickets.length > 0 ? (
+                allTickets.map((ticket, index) => {
+                  const ticketId = ticket.ticketId || ticket._id || ticket.id || `#${index + 1}`;
+                  const displayId = ticketId.startsWith("#") ? ticketId : `#${ticketId}`;
+                  const customerName = ticket.user?.name || ticket.user?.firstName || ticket.customerName || ticket.customer || "—";
+                  const subject = ticket.subject || ticket.title || "—";
+                  const status = ticket.status || "open";
+                  const createdAt = ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+                  const updatedAt = ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+                  return (
+                    <TableRow
+                      key={ticket._id || index}
+                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/dashboard/admin/help/ticket/${ticket._id || ticketId}`)}
                     >
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                            <MoreVertical size={18} className="text-gray-600" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          {getMenuItems(ticket).map((item, idx) => {
-                            const IconComponent = item.icon;
-                            return (
-                              <DropdownMenuItem
-                                key={idx}
-                                variant={item.variant}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  item.onClick();
-                                }}
-                                className={item.className}
-                              >
-                                <IconComponent className="mr-2 h-4 w-4" />
-                                {item.label}
-                              </DropdownMenuItem>
-                            );
-                          })}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">{displayId}</TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">{customerName}</TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">{subject}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                          {status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, " ")}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">{createdAt}</TableCell>
+                      <TableCell className="text-sm text-gray-700 whitespace-nowrap">{updatedAt}</TableCell>
+                      <TableCell className="whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                              <MoreVertical size={18} className="text-gray-600" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            {getMenuItems(ticket).map((item, idx) => {
+                              const IconComponent = item.icon;
+                              return (
+                                <DropdownMenuItem
+                                  key={idx}
+                                  variant={item.variant}
+                                  onClick={(e) => { e.stopPropagation(); item.onClick(); }}
+                                  className={item.className}
+                                >
+                                  <IconComponent className="mr-2 h-4 w-4" />
+                                  {item.label}
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center text-gray-500 py-8"
-                  >
-                    No tickets found
-                  </TableCell>
+                  <TableCell colSpan={7} className="text-center text-gray-500 py-8">No tickets found</TableCell>
                 </TableRow>
               )}
             </TableBody>
