@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ChevronDown, ChevronRight, Search, MoreVertical } from 'lucide-react'
+import { ChevronDown, ChevronRight, Search, MoreVertical } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -16,96 +16,153 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 
+// ─── Helper ────────────────────────────────────────────────────────────────────
+const authHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  'Content-Type': 'application/json',
+})
+
+// ─── Main Owner Info + Form ─────────────────────────────────────────────────────
 const EditPropertyOwner = ({ ownerId }) => {
   const navigate = useNavigate()
+  const [ownerData, setOwnerData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  const fetchOwner = async () => {
-  
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        }
-      )
-      const jsonResponse = await response.json()
-  
-      console.log('Owner info by ownerId Bookings:', jsonResponse)
-    }
-  
-    useEffect(() => {
-      fetchOwner()
-    }, [])
-  
-  // Mock data - in real app, this would come from an API
   const [formData, setFormData] = useState({
-    firstName: 'Kamlesh',
-    lastName: 'Gandham',
-    phoneNumber: '+91 123 436 5647',
-    emailAddress: 'tim.jennings@example.com',
-    address: 'Delhi',
-    country: 'India',
-    state: 'Gujarat',
-    street: 'Surat',
-    pinCode: '235233',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    emailAddress: '',
+    address: '',
+    country: '',
+    state: '',
+    street: '',
+    pinCode: '',
   })
 
-  const ownerName = 'Leslie Alexander'
-  const ownerEmail = 'tim.jennings@example.com'
+  // GET /admin/property-owners/:ownerId
+  useEffect(() => {
+    const fetchOwner = async () => {
+      const url = `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`
+      console.log('[GET] Fetch Property Owner by ID:', url)
+      try {
+        const response = await fetch(url, { headers: authHeaders() })
+        const json = await response.json()
+        console.log('[GET] Fetch Property Owner Response:', json)
+
+        if (json.success && json.data) {
+          const owner = json.data.propertyOwner || json.data.owner || json.data
+          setOwnerData(owner)
+          setFormData({
+            firstName: owner.firstName || owner.name?.split(' ')[0] || '',
+            lastName: owner.lastName || owner.name?.split(' ').slice(1).join(' ') || '',
+            phoneNumber:
+              owner.phone
+                ? typeof owner.phone === 'object'
+                  ? `${owner.phone.countryCode || ''} ${owner.phone.number || ''}`.trim()
+                  : owner.phone
+                : '',
+            emailAddress: owner.email || '',
+            address: owner.address?.street || owner.address || '',
+            country: owner.address?.country || owner.country || '',
+            state: owner.address?.state || owner.state || '',
+            street: owner.address?.area || owner.street || '',
+            pinCode: owner.address?.pinCode || owner.pinCode || '',
+          })
+        }
+      } catch (err) {
+        console.error('[GET] Fetch Property Owner Error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (ownerId) fetchOwner()
+  }, [ownerId])
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleCancel = () => {
-    navigate('/dashboard/admin/property-owners')
+  const handleSave = async () => {
+    setSaving(true)
+    const url = `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.emailAddress,
+      phone: { number: formData.phoneNumber },
+      address: {
+        street: formData.address,
+        country: formData.country,
+        state: formData.state,
+        area: formData.street,
+        pinCode: formData.pinCode,
+      },
+    }
+    console.log('[PUT] Update Property Owner:', url, payload)
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      })
+      const json = await response.json()
+      console.log('[PUT] Update Property Owner Response:', json)
+      navigate('/dashboard/admin/property-owners')
+    } catch (err) {
+      console.error('[PUT] Update Property Owner Error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving property owner data:', formData)
-    // After saving, navigate back to list
-    navigate('/dashboard/admin/property-owners')
-  }
+  const getInitials = (first = '', last = '') =>
+    `${first[0] || ''}${last[0] || ''}`.toUpperCase() || 'PO'
 
-  // Get initials for profile picture
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase()
+  const ownerFullName = ownerData
+    ? `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() ||
+      ownerData.name ||
+      'Property Owner'
+    : 'Property Owner'
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <p className="text-gray-500 text-sm">Loading owner details...</p>
+      </div>
+    )
   }
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-      {/* Property Owners Details Section */}
+      {/* Header */}
       <div className="mb-8">
         <h1 className="text-lg font-semibold text-gray-800 mb-6">Property Owners Details</h1>
-        
-        {/* Profile Information */}
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
+            {ownerData?.profileImage ? (
+              <img src={ownerData.profileImage} alt={ownerFullName} className="w-full h-full object-cover" />
+            ) : (
               <span className="text-white text-2xl font-semibold">
-                {getInitials(ownerName)}
+                {getInitials(formData.firstName, formData.lastName)}
               </span>
-            </div>
+            )}
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">{ownerName}</h2>
-            <p className="text-gray-600 text-sm">{ownerEmail}</p>
+            <h2 className="text-lg font-semibold text-gray-800">{ownerFullName}</h2>
+            <p className="text-gray-600 text-sm">{formData.emailAddress}</p>
           </div>
         </div>
       </div>
 
-      {/* Personal Information Section */}
+      {/* Personal Information */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-6">Personal Information</h2>
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              First Name
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">First Name</label>
             <input
               type="text"
               value={formData.firstName}
@@ -114,9 +171,7 @@ const EditPropertyOwner = ({ ownerId }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Last Name
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Last Name</label>
             <input
               type="text"
               value={formData.lastName}
@@ -127,9 +182,7 @@ const EditPropertyOwner = ({ ownerId }) => {
         </div>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Phone Number
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Phone Number</label>
             <input
               type="text"
               value={formData.phoneNumber}
@@ -138,9 +191,7 @@ const EditPropertyOwner = ({ ownerId }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Email Address
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Email Address</label>
             <input
               type="email"
               value={formData.emailAddress}
@@ -151,14 +202,12 @@ const EditPropertyOwner = ({ ownerId }) => {
         </div>
       </div>
 
-      {/* Addition Information Section */}
+      {/* Additional Information */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-6">Addition Information</h2>
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Address
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Address</label>
             <input
               type="text"
               value={formData.address}
@@ -167,9 +216,7 @@ const EditPropertyOwner = ({ ownerId }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Country
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Country</label>
             <input
               type="text"
               value={formData.country}
@@ -180,9 +227,7 @@ const EditPropertyOwner = ({ ownerId }) => {
         </div>
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              State
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">State</label>
             <input
               type="text"
               value={formData.state}
@@ -191,9 +236,7 @@ const EditPropertyOwner = ({ ownerId }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Street / Area
-            </label>
+            <label className="block text-gray-700 font-medium text-sm mb-2">Street / Area</label>
             <input
               type="text"
               value={formData.street}
@@ -202,113 +245,166 @@ const EditPropertyOwner = ({ ownerId }) => {
             />
           </div>
         </div>
-        <div>
-          <div className="max-w-md">
-            <label className="block text-gray-700 font-medium text-sm mb-2">
-              Pin Code
-            </label>
-            <input
-              type="text"
-              value={formData.pinCode}
-              onChange={(e) => handleInputChange('pinCode', e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
-            />
-          </div>
+        <div className="max-w-md">
+          <label className="block text-gray-700 font-medium text-sm mb-2">Pin Code</label>
+          <input
+            type="text"
+            value={formData.pinCode}
+            onChange={(e) => handleInputChange('pinCode', e.target.value)}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+          />
         </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-8">
         <button
-          onClick={handleCancel}
+          onClick={() => navigate('/dashboard/admin/property-owners')}
           className="px-6 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
-          className="px-6 py-2.5 bg-green text-white rounded-lg text-sm font-medium hover:bg-darkGreen transition-colors"
+          disabled={saving}
+          className="px-6 py-2.5 bg-green text-white rounded-lg text-sm font-medium hover:bg-darkGreen transition-colors disabled:opacity-60"
         >
-          Save Changes
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>
   )
 }
 
-// KYC Verification Component
-export const KYCVerification = () => {
+// ─── KYC Verification Component ─────────────────────────────────────────────────
+export const KYCVerification = ({ ownerId }) => {
+  const [kycData, setKycData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState({})
+
+  // Fetch KYC info from owner details
+  useEffect(() => {
+    const fetchKYC = async () => {
+      const url = `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`
+      console.log('[GET] Fetch Owner KYC Data:', url)
+      try {
+        const response = await fetch(url, { headers: authHeaders() })
+        const json = await response.json()
+        console.log('[GET] Fetch Owner KYC Data Response:', json)
+        if (json.success && json.data) {
+          const owner = json.data.propertyOwner || json.data.owner || json.data
+          setKycData(owner.kyc || owner.kycDocuments || owner.documents || null)
+        }
+      } catch (err) {
+        console.error('[GET] Fetch Owner KYC Error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (ownerId) fetchKYC()
+  }, [ownerId])
+
+  // PATCH /admin/approve-kyc/:propertyId
+  const handleApproveKYC = async (propertyId, docType) => {
+    setActionLoading((prev) => ({ ...prev, [`approve-${docType}`]: true }))
+    const url = `${import.meta.env.VITE_API_URL}/admin/approve-kyc/${propertyId}`
+    console.log('[PATCH] Approve KYC:', url, { docType })
+    try {
+      const response = await fetch(url, { method: 'PATCH', headers: authHeaders() })
+      const json = await response.json()
+      console.log('[PATCH] Approve KYC Response:', json)
+    } catch (err) {
+      console.error('[PATCH] Approve KYC Error:', err)
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [`approve-${docType}`]: false }))
+    }
+  }
+
+  // PATCH /admin/reject-kyc/:propertyId
+  const handleRejectKYC = async (propertyId, docType) => {
+    setActionLoading((prev) => ({ ...prev, [`reject-${docType}`]: true }))
+    const url = `${import.meta.env.VITE_API_URL}/admin/reject-kyc/${propertyId}`
+    console.log('[PATCH] Reject KYC:', url, { docType })
+    try {
+      const response = await fetch(url, { method: 'PATCH', headers: authHeaders() })
+      const json = await response.json()
+      console.log('[PATCH] Reject KYC Response:', json)
+    } catch (err) {
+      console.error('[PATCH] Reject KYC Error:', err)
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [`reject-${docType}`]: false }))
+    }
+  }
+
+  const DocImages = ({ images = [], fallback }) => {
+    const imgs = images.length > 0 ? images : fallback ? [fallback] : []
+    return (
+      <div className="flex gap-2">
+        {imgs.length > 0 ? (
+          imgs.map((src, i) => (
+            <div key={i} className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
+              <img src={src} alt="document" className="w-full h-full object-cover" />
+            </div>
+          ))
+        ) : (
+          <div className="w-20 h-20 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+            <span className="text-gray-400 text-xs text-center px-1">No doc</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const VerifiedBadge = () => (
+    <div className="flex items-center gap-2">
+      <img src="/assets/admin/verify.svg" alt="verified" className="w-5 h-5" />
+      <span className="text-green font-medium text-sm">Verified</span>
+    </div>
+  )
+
+  const ActionButtons = ({ propertyId, docType, isVerified }) =>
+    isVerified ? (
+      <VerifiedBadge />
+    ) : (
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => handleApproveKYC(propertyId, docType)}
+          disabled={actionLoading[`approve-${docType}`]}
+          className="text-sm text-green font-medium hover:underline disabled:opacity-50"
+        >
+          {actionLoading[`approve-${docType}`] ? 'Verifying...' : 'Verify'}
+        </button>
+        <button
+          onClick={() => handleRejectKYC(propertyId, docType)}
+          disabled={actionLoading[`reject-${docType}`]}
+          className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50"
+        >
+          {actionLoading[`reject-${docType}`] ? 'Rejecting...' : 'Reject KYC'}
+        </button>
+      </div>
+    )
+
+  // Derive KYC sections from API data or show placeholders
+  const personalKyc = kycData?.personal || kycData?.personalKyc || {}
+  const propertyKyc = kycData?.property || kycData?.propertyKyc || {}
+  const propertyId = ownerId // fallback — use ownerId for KYC actions if no property-level ID
+
   return (
     <div className="space-y-6 mt-6">
-      {/* Personal KYC Section */}
+      {loading && (
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-500">Loading KYC data...</p>
+        </div>
+      )}
+
+      {/* Property KYC */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">Personal KYC</h2>
-            <p className="text-sm text-gray-600">Owner ID Card & Government Document</p>
-          </div>
-          <button className="px-4 py-2 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors">
-            Verified
-          </button>
-        </div>
-
-        {/* Aadhar Card */}
-        <div className="flex items-center justify-between py-4 border-b border-gray-200">
-          <div className="flex items-center gap-4 flex-1">
-            <span className="text-gray-800 font-medium min-w-[120px]">Aadhar card</span>
-            <div className="flex gap-2">
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Aadhar card front" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Aadhar card back" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-green">
-            <img src="/assets/admin/verify.svg" alt="verify" className="w-6 h-6" />
-            <span className="text-green font-medium">Verified</span>
-          </div>
-        </div>
-
-        {/* Pan Card */}
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-4 flex-1">
-            <span className="text-gray-800 font-medium min-w-[120px]">Pan Card</span>
-            <div className="flex gap-2">
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Pan card" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-          <button className="text-blue-600 font-medium hover:text-blue-700 transition-colors">
-            Verify
-          </button>
-        </div>
-      </div>
-
-      {/* Property KYC Section */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-        {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-800 mb-1">Property KYC</h2>
             <p className="text-sm text-gray-600">Owner ID Card & Government Document</p>
           </div>
-          <button className="px-4 py-2 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors">
+          <button className="px-4 py-2 bg-green text-white rounded-lg text-sm font-medium hover:bg-darkGreen transition-colors">
             Verified Document
           </button>
         </div>
@@ -316,95 +412,227 @@ export const KYCVerification = () => {
         {/* Utility Bills */}
         <div className="flex items-center justify-between py-4 border-b border-gray-200">
           <div className="flex items-center gap-4 flex-1">
-            <span className="text-gray-800 font-medium min-w-[120px]">Utility Bills</span>
-            <div className="flex gap-2">
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Utility bill 1" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Utility bill 2" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+            <span className="text-gray-800 font-medium min-w-[140px]">Utility Bills</span>
+            <DocImages images={propertyKyc.utilityBills || []} />
           </div>
-          <div className="flex items-center gap-2 text-green">
-          <img src="/assets/admin/verify.svg" alt="verify" className="w-6 h-6" />
-            <span className="text-green font-medium">Verified</span>
-          </div>
+          <ActionButtons
+            propertyId={propertyKyc.propertyId || propertyId}
+            docType="utility-bills"
+            isVerified={propertyKyc.utilityBillsVerified ?? true}
+          />
         </div>
 
         {/* Property Document */}
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center gap-4 flex-1">
-            <span className="text-sm text-gray-800 font-medium min-w-[120px]">Property Document</span>
-            <div className="flex gap-2">
-              <div className="w-20 h-20 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=200&h=200&fit=crop" 
-                  alt="Property document" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+            <span className="text-sm text-gray-800 font-medium min-w-[140px]">Property Document</span>
+            <DocImages images={propertyKyc.propertyDocuments || []} />
           </div>
-          <button className="text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors">
-            Verify
-          </button>
+          <ActionButtons
+            propertyId={propertyKyc.propertyId || propertyId}
+            docType="property-document"
+            isVerified={propertyKyc.propertyDocumentVerified ?? false}
+          />
+        </div>
+      </div>
+
+      {/* Personal KYC */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">Personal KYC</h2>
+            <p className="text-sm text-gray-600">Owner ID Card & Government Document</p>
+          </div>
+          <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            personalKyc.overallStatus === 'verified'
+              ? 'bg-green text-white'
+              : 'bg-gray-100 text-gray-600'
+          }`}>
+            {personalKyc.overallStatus === 'verified' ? 'Verified' : 'Pending'}
+          </span>
+        </div>
+
+        {/* Aadhar Card */}
+        <div className="flex items-center justify-between py-4 border-b border-gray-200">
+          <div className="flex items-center gap-4 flex-1">
+            <span className="text-gray-800 font-medium min-w-[140px]">Aadhar card</span>
+            <DocImages images={personalKyc.aadharImages || personalKyc.aadhar || []} />
+          </div>
+          <ActionButtons
+            propertyId={ownerId}
+            docType="aadhar"
+            isVerified={personalKyc.aadharVerified ?? false}
+          />
+        </div>
+
+        {/* Pan Card */}
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-4 flex-1">
+            <span className="text-gray-800 font-medium min-w-[140px]">Pan Card</span>
+            <DocImages images={personalKyc.panImages || personalKyc.pan || []} />
+          </div>
+          <ActionButtons
+            propertyId={ownerId}
+            docType="pan"
+            isVerified={personalKyc.panVerified ?? false}
+          />
         </div>
       </div>
     </div>
   )
 }
 
-// Property Details and Recent Booking Component
-export const PropertyDetailsAndBookings = () => {
+// ─── Property Details & Bookings Component ───────────────────────────────────────
+export const PropertyDetailsAndBookings = ({ ownerId }) => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [properties, setProperties] = useState([])
+  const [selectedPropertyId, setSelectedPropertyId] = useState('')
+  const [selectedProperty, setSelectedProperty] = useState(null)
+  const [bookings, setBookings] = useState([])
+  const [bookingsLoading, setBookingsLoading] = useState(false)
+  const [propertiesLoading, setPropertiesLoading] = useState(true)
 
-  // Booking data
-  const bookings = [
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'In Progress' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Upcoming' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-    { id: '#123', customerName: 'Kathryn Murphy', propertyName: 'Wed 3 Sep 2025', checkIn: 'Thu 4 Sep 2025', checkOut: 'Thu 4 Sep 2025', rooms: '2 Rooms', guests: '2 Adults', status: 'Completed' },
-  ]
+  // GET /admin/property-owners/:ownerId/properties — populate the dropdown
+  useEffect(() => {
+    const fetchOwnerProperties = async () => {
+      const url = `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}/properties?page=1&limit=50`
+      console.log('[GET] Fetch Owner Properties (dropdown):', url)
+      try {
+        const response = await fetch(url, { headers: authHeaders() })
+        const json = await response.json()
+        console.log('[GET] Fetch Owner Properties Response:', json)
+        if (json.success && json.data) {
+          setProperties(json.data.properties || json.data || [])
+        }
+      } catch (err) {
+        console.error('[GET] Fetch Owner Properties Error:', err)
+      } finally {
+        setPropertiesLoading(false)
+      }
+    }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'In Progress':
-        return 'bg-orange-500 text-white'
-      case 'Upcoming':
-        return 'bg-yellow-500 text-white'
-      case 'Completed':
-        return 'bg-green-500 text-white'
-      default:
-        return 'bg-gray-500 text-white'
+    // GET /property-owner/bookings?page=1&limit=10 — initial bookings list
+    const fetchBookings = async () => {
+      setBookingsLoading(true)
+      const url = `${import.meta.env.VITE_API_URL}/property-owner/bookings?page=1&limit=10`
+      console.log('[GET] Fetch Owner Bookings List:', url)
+      try {
+        const response = await fetch(url, { headers: authHeaders() })
+        const json = await response.json()
+        console.log('[GET] Fetch Owner Bookings Response:', json)
+        if (json.success && json.data) {
+          setBookings(json.data.bookings || json.data || [])
+        }
+      } catch (err) {
+        console.error('[GET] Fetch Owner Bookings Error:', err)
+      } finally {
+        setBookingsLoading(false)
+      }
+    }
+
+    if (ownerId) {
+      fetchOwnerProperties()
+      fetchBookings()
+    }
+  }, [ownerId])
+
+  // GET /property-owner/properties/:propertyId — fetch property detail when selected
+  const handlePropertySelect = async (propertyId) => {
+    setSelectedPropertyId(propertyId)
+    if (!propertyId) {
+      setSelectedProperty(null)
+      return
+    }
+    const url = `${import.meta.env.VITE_API_URL}/property-owner/properties/${propertyId}`
+    console.log('[GET] Fetch Selected Property Detail:', url)
+    try {
+      const response = await fetch(url, { headers: authHeaders() })
+      const json = await response.json()
+      console.log('[GET] Fetch Selected Property Detail Response:', json)
+      if (json.success && json.data) {
+        setSelectedProperty(json.data.property || json.data)
+      }
+    } catch (err) {
+      console.error('[GET] Fetch Selected Property Detail Error:', err)
     }
   }
 
+  // GET /property-owner/bookings/:bookingId — fetch booking detail on row click
+  const handleBookingClick = async (bookingId) => {
+    const url = `${import.meta.env.VITE_API_URL}/property-owner/bookings/${bookingId}`
+    console.log('[GET] Fetch Booking Detail:', url)
+    try {
+      const response = await fetch(url, { headers: authHeaders() })
+      const json = await response.json()
+      console.log('[GET] Fetch Booking Detail Response:', json)
+    } catch (err) {
+      console.error('[GET] Fetch Booking Detail Error:', err)
+    }
+  }
+
+  const getStatusColor = (status = '') => {
+    const s = status.toLowerCase()
+    if (s === 'confirmed' || s === 'completed') return 'bg-green-500 text-white'
+    if (s === 'pending' || s === 'upcoming') return 'bg-yellow-500 text-white'
+    if (s === 'in progress' || s === 'active') return 'bg-orange-500 text-white'
+    if (s === 'cancelled' || s === 'rejected') return 'bg-red-500 text-white'
+    return 'bg-gray-500 text-white'
+  }
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—'
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    } catch {
+      return dateStr
+    }
+  }
+
+  const stats = selectedProperty
+    ? {
+        revenue: selectedProperty.revenue || selectedProperty.totalRevenue || '—',
+        totalBooking: selectedProperty.totalBookings || '—',
+        activeBooking: selectedProperty.activeBookings || '—',
+        reserved: selectedProperty.reservedBookings || '—',
+        cancelBooking: selectedProperty.cancelledBookings || '—',
+      }
+    : { revenue: '—', totalBooking: '—', activeBooking: '—', reserved: '—', cancelBooking: '—' }
+
+  const filteredBookings = bookings.filter((b) => {
+    const term = searchTerm.toLowerCase()
+    return (
+      !term ||
+      (b.customerName || b.customer?.name || '').toLowerCase().includes(term) ||
+      (b.propertyName || b.property?.name || '').toLowerCase().includes(term) ||
+      (b._id || '').includes(term)
+    )
+  })
+
   return (
     <div className="space-y-6 mt-6">
-      {/* Property Details Section */}
+      {/* Property Details */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-        {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-800 mb-1">Property Details</h2>
             <p className="text-sm text-gray-600">Select any Property and get full information</p>
           </div>
           <div className="relative">
-            <select className="appearance-none border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green bg-white min-w-[180px]">
-              <option>Select Property</option>
+            <select
+              value={selectedPropertyId}
+              onChange={(e) => handlePropertySelect(e.target.value)}
+              className="appearance-none border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green bg-white min-w-[200px]"
+            >
+              <option value="">Select Property</option>
+              {propertiesLoading ? (
+                <option disabled>Loading...</option>
+              ) : (
+                properties.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name || p.propertyName || p._id}
+                  </option>
+                ))
+              )}
             </select>
             <ChevronDown
               size={18}
@@ -415,75 +643,35 @@ export const PropertyDetailsAndBookings = () => {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-5 gap-4">
-          {/* Revenue */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Revenue</p>
-                <p className="text-lg font-bold text-gray-800">$1,23,00.00</p>
+          {[
+            { label: 'Revenue', value: stats.revenue },
+            { label: 'Total Booking', value: stats.totalBooking },
+            { label: 'Active Booking', value: stats.activeBooking },
+            { label: 'Reserved', value: stats.reserved },
+            { label: 'Cancel Booking', value: stats.cancelBooking },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{label}</p>
+                  <p className="text-base font-bold text-gray-800 truncate">{value}</p>
+                </div>
+                <ChevronRight size={20} className="text-gray-400 shrink-0" />
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
             </div>
-          </div>
-
-          {/* Total Booking */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Booking</p>
-                <p className="text-lg font-bold text-gray-800">1,23,00</p>
-              </div>
-              <ChevronRight size={20} className="text-gray-400" />
-            </div>
-          </div>
-
-          {/* Active booking */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Active booking</p>
-                <p className="text-lg font-bold text-gray-800">30</p>
-              </div>
-              <ChevronRight size={20} className="text-gray-400" />
-            </div>
-          </div>
-
-          {/* Reserved */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Reserved</p>
-                <p className="text-lg font-bold text-gray-800">10</p>
-              </div>
-              <ChevronRight size={20} className="text-gray-400" />
-            </div>
-          </div>
-
-          {/* Cancel Booking */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Cancel Booking</p>
-                <p className="text-lg font-bold text-gray-800">11</p>
-              </div>
-              <ChevronRight size={20} className="text-gray-400" />
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Recent Booking Section */}
+      {/* Recent Bookings */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-semibold text-gray-800">Recent Booking</h2>
-          
-          {/* Search Bar */}
           <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2"
-              size={18}
-            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search Bookings"
@@ -494,7 +682,6 @@ export const PropertyDetailsAndBookings = () => {
           </div>
         </div>
 
-        {/* Booking Table */}
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -511,45 +698,73 @@ export const PropertyDetailsAndBookings = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {bookings.map((booking, index) => (
-                <TableRow key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.id}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.customerName}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.propertyName}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.checkIn}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.checkOut}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.rooms}</TableCell>
-                  <TableCell className="text-sm text-gray-700 whitespace-nowrap">{booking.guests}</TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                      {booking.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                          <MoreVertical size={18} className="text-gray-600" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuItem className="cursor-pointer py-2 text-sm text-gray-700">
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer py-2 text-sm text-gray-700">
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          variant="destructive"
-                          className="cursor-pointer py-2 text-sm text-red-600"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {bookingsLoading ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center text-gray-500 py-8 text-sm">
+                    Loading bookings...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : filteredBookings.length > 0 ? (
+                filteredBookings.map((booking, index) => (
+                  <TableRow
+                    key={booking._id || index}
+                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => handleBookingClick(booking._id)}
+                  >
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      #{(booking._id || '').slice(-6).toUpperCase()}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {booking.customerName || booking.customer?.name || '—'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {booking.propertyName || booking.property?.name || '—'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {formatDate(booking.checkIn || booking.checkInDate)}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {formatDate(booking.checkOut || booking.checkOutDate)}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {booking.rooms ?? booking.numberOfRooms ?? '—'}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 whitespace-nowrap">
+                      {booking.guests ?? booking.numberOfGuests ?? '—'}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+                      >
+                        {booking.status || '—'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                            <MoreVertical size={18} className="text-gray-600" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuItem
+                            onClick={() => handleBookingClick(booking._id)}
+                            className="cursor-pointer py-2 text-sm text-gray-700"
+                          >
+                            View Details
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center text-gray-500 py-8 text-sm">
+                    No bookings found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -559,4 +774,3 @@ export const PropertyDetailsAndBookings = () => {
 }
 
 export default EditPropertyOwner
-

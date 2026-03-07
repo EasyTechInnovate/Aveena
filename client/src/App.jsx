@@ -56,6 +56,7 @@ import AdminAllProperty from "./pages/adminDashboard/AllProperty";
 import EditProperty from "./pages/adminDashboard/EditProperty";
 import AllPropertyOwners from "./pages/adminDashboard/AllPropertyOwners";
 import EditPropertyOwner from "./pages/adminDashboard/EditPropertyOwner";
+import PendingKYCVerification from "./pages/adminDashboard/PendingKYCVerification";
 import AdminOffer from "./pages/adminDashboard/Offer";
 import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
@@ -193,6 +194,10 @@ const Layout = () => {
             <Route
               path="/dashboard/admin/property-owners/edit/:id"
               element={<EditPropertyOwner />}
+            />
+            <Route
+              path="/dashboard/admin/pending-kyc"
+              element={<PendingKYCVerification />}
             />
             <Route path="/dashboard/admin/offer" element={<AdminOffer />} />
             <Route
