@@ -93,7 +93,7 @@ const PropertyOwnerInformation = ({
       {/* Owner Profile Display */}
       <div className="flex items-center gap-4 mb-8">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
             {ownerData?.profilePicture || ownerData?.profileImage ? (
               <img
                 src={ownerData.profilePicture || ownerData.profileImage}
