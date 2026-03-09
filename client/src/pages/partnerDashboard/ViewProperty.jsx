@@ -22,8 +22,9 @@ const ViewProperty = () => {
   useEffect(() => {
     const fetchPropertyById = async () => {
       try {
+        // Use owner-specific endpoint so auth is scoped to the logged-in owner
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/properties/${id}`,
+          `${import.meta.env.VITE_API_URL}/property-owner/properties/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -32,26 +33,27 @@ const ViewProperty = () => {
         );
 
         const jsonResponse = await response.json();
-        const property = jsonResponse.data.property;
-        const propertyDetails = jsonResponse.data.propertyDetails;
+        // /property-owner/properties/:id returns { ...property, details }
+        const property = jsonResponse.data?.property ?? jsonResponse.data ?? {};
+        const propertyDetails = jsonResponse.data?.details ?? jsonResponse.data?.propertyDetails ?? {};
         console.log("Property By ID Data:", jsonResponse);
         setPropertyData({
-          id: property?._id || "123",
-          propertyName: property?.name || "Blah Blah Blah",
+          id: property?._id,
+          propertyName: property?.name,
           propertyType: property?.type,
-          country: "India",
-          address: `${property?.address?.fullAddress}, ${property?.address?.zipCode}`,
-          apt: "Suite 101",
-          city: "New Delhi",
-          state: "Delhi",
-          postalCode: property?.address?.zipCode,
-          minRentalIncome: property?.minimumRentalIncome || "N/A",
-          salesTarget: property?.saleTarget || "N/A",
-          basePrice : property?.basePrice,
-          description: property?.description || "",
-          amenties: property?.amenties || [],
-          propertyMedia: propertyDetails?.propertyMedia || [],
-          faqs: propertyDetails?.faqs || [],
+          country: property?.address?.country ?? "India",
+          address: property?.address?.fullAddress ?? "",
+          apt: "",
+          city: "",
+          state: "",
+          postalCode: property?.address?.zipCode ?? "",
+          minRentalIncome: property?.minimumRentalIncome ?? "N/A",
+          salesTarget: property?.saleTarget ?? "N/A",
+          basePrice: property?.basePrice,
+          description: property?.description ?? "",
+          amenties: property?.amenties ?? [],
+          propertyMedia: propertyDetails?.propertyMedia ?? [],
+          faqs: propertyDetails?.faqs ?? [],
         });
       } catch (error) {
         console.error("Error fetching property by ID:", error);

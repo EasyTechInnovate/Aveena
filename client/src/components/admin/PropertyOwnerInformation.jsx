@@ -1,18 +1,49 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Pencil } from 'lucide-react'
 
-const PropertyOwnerInformation = ({ propertyId, onCancel, onContinue }) => {
+const PropertyOwnerInformation = ({
+  propertyId,
+  ownerId,
+  ownerData,
+  propertyData,
+  loading = false,
+  onCancel,
+  onContinue,
+}) => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    firstName: 'Kamlesh',
-    lastName: 'Gandham',
-    phoneNumber: '+91 123 436 5647',
-    emailAddress: 'tim.jennings@example.com',
-    address: 'Delhi',
-    country: 'India',
-    state: 'Gujarat',
-    street: 'Surat',
-    pinCode: '235233',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    emailAddress: '',
+    address: '',
+    country: '',
+    state: '',
+    street: '',
+    pinCode: '',
   })
+
+  useEffect(() => {
+    if (!ownerData) return
+    const owner = ownerData
+    setFormData({
+      firstName: owner.firstName || owner.name?.split(' ')[0] || '',
+      lastName: owner.lastName || owner.name?.split(' ').slice(1).join(' ') || '',
+      phoneNumber:
+        owner.phone
+          ? typeof owner.phone === 'object'
+            ? `${owner.phone.countryCode || ''} ${owner.phone.number || ''}`.trim()
+            : String(owner.phone)
+          : '',
+      emailAddress: owner.email || '',
+      address: owner.address?.street || owner.address || '',
+      country: owner.address?.country || owner.country || '',
+      state: owner.address?.state || owner.state || '',
+      street: owner.address?.area || owner.street || '',
+      pinCode: owner.address?.pinCode || owner.pinCode || '',
+    })
+  }, [ownerData])
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -21,8 +52,25 @@ const PropertyOwnerInformation = ({ propertyId, onCancel, onContinue }) => {
     }))
   }
 
-  const ownerName = 'Leslie Alexander'
-  const ownerEmail = 'tim.jennings@example.com'
+  const ownerFullName =
+    ownerData
+      ? `${ownerData.firstName || ''} ${ownerData.lastName || ''}`.trim() ||
+        ownerData.name ||
+        'Property Owner'
+      : ''
+  const ownerName = ownerFullName || 'Property Owner'
+  const ownerEmail = formData.emailAddress || ownerData?.email || ''
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <p className="text-gray-500 text-sm">Loading property and owner details...</p>
+      </div>
+    )
+  }
+
+  const getInitials = (first = '', last = '') =>
+    `${first[0] || ''}${last[0] || ''}`.toUpperCase() || 'PO'
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
@@ -32,26 +80,52 @@ const PropertyOwnerInformation = ({ propertyId, onCancel, onContinue }) => {
           <h1 className="text-2xl font-bold text-gray-800 mb-1">Property Owner Information</h1>
           <p className="text-gray-600 text-sm">Please fill below details and upload your property.</p>
         </div>
-        <button className="text-blue hover:text-blue-800 text-sm font-medium">
-          Add New FAQ
-        </button>
+        {ownerId && (
+          <button
+            onClick={() => navigate(`/dashboard/admin/property-owners/edit/${ownerId}`)}
+            className="text-blue hover:text-blue-800 text-sm font-medium"
+          >
+            Edit Owner Profile
+          </button>
+        )}
       </div>
 
       {/* Owner Profile Display */}
       <div className="flex items-center gap-4 mb-8">
         <div className="relative">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden">
-            <span className="text-white text-2xl font-semibold">
-              {ownerName.split(' ').map(n => n[0]).join('').toUpperCase()}
-            </span>
+            {ownerData?.profilePicture || ownerData?.profileImage ? (
+              <img
+                src={ownerData.profilePicture || ownerData.profileImage}
+                alt={ownerName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-white text-2xl font-semibold">
+                {getInitials(formData.firstName, formData.lastName)}
+              </span>
+            )}
           </div>
-          <button className="absolute bottom-0 right-0 w-6 h-6 bg-green rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-darkGreen transition-colors">
-            <Pencil size={12} className="text-white" />
-          </button>
+          {ownerId && (
+            <button
+              onClick={() => navigate(`/dashboard/admin/property-owners/edit/${ownerId}`)}
+              className="absolute bottom-0 right-0 w-6 h-6 bg-green rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-darkGreen transition-colors"
+            >
+              <Pencil size={12} className="text-white" />
+            </button>
+          )}
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-800">{ownerName}</h2>
           <p className="text-gray-600 text-sm">{ownerEmail}</p>
+          {ownerId && (
+            <button
+              onClick={() => navigate(`/dashboard/admin/property-owners/edit/${ownerId}`)}
+              className="text-green text-sm font-medium mt-1 hover:underline"
+            >
+              View full owner details →
+            </button>
+          )}
         </div>
       </div>
 

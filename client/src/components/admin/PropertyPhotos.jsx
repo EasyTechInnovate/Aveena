@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Upload, X, GripVertical } from 'lucide-react'
 
-const PropertyPhotos = ({ propertyId, onCancel, onSave }) => {
-  const [uploadedPhotos, setUploadedPhotos] = useState([
-    { id: 1, url: '/assets/property/photo1.jpg' },
-    { id: 2, url: '/assets/property/photo2.jpg' },
-    { id: 3, url: '/assets/property/photo3.jpg' },
-    { id: 4, url: '/assets/property/photo4.jpg' },
-  ])
+const PropertyPhotos = ({ propertyId, propertyData, loading = false, onCancel, onSave }) => {
+  const [uploadedPhotos, setUploadedPhotos] = useState([])
+
+  // Load photos from propertyData (details.propertyMedia) and coverImage
+  useEffect(() => {
+    const media = propertyData?.details?.propertyMedia || []
+    const coverImage = propertyData?.coverImage
+    const photos = []
+    if (coverImage) {
+      photos.push({ id: 'cover', url: coverImage })
+    }
+    media.forEach((m, i) => {
+      if (m?.url) photos.push({ id: m._id || `media-${i}`, url: m.url })
+    })
+    if (photos.length > 0) setUploadedPhotos(photos)
+  }, [propertyData])
 
   const handleFileUpload = (e) => {
     const files = e.target.files
@@ -17,6 +26,14 @@ const PropertyPhotos = ({ propertyId, onCancel, onSave }) => {
 
   const handleDeletePhoto = (photoId) => {
     setUploadedPhotos((prev) => prev.filter((photo) => photo.id !== photoId))
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <p className="text-gray-500 text-sm">Loading property photos...</p>
+      </div>
+    )
   }
 
   return (
@@ -72,8 +89,12 @@ const PropertyPhotos = ({ propertyId, onCancel, onSave }) => {
                 className="relative bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden group"
               >
                 {/* Image */}
-                <div className="aspect-square bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">Photo {photo.id}</span>
+                <div className="aspect-square bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {photo.url ? (
+                    <img src={photo.url} alt="Property" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-gray-400 text-sm">Photo {photo.id}</span>
+                  )}
                 </div>
 
                 {/* Controls */}
