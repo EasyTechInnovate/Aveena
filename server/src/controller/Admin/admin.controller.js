@@ -505,6 +505,7 @@ export default {
                                     _id: 1,
                                     name: 1,
                                     type: 1,
+                                    ownerId: 1,
                                     minimumRentalIncome: 1,
                                     saleTarget: 1,
                                     isActive: 1,
