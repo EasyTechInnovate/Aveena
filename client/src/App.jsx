@@ -61,7 +61,9 @@ import AdminOffer from "./pages/adminDashboard/Offer";
 import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
+import AdminLogin from "./pages/adminDashboard/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import Test from "./pages/Test";
 import RefundPolicy from './components/booking/RefundPolicy'
 
@@ -160,54 +162,129 @@ const Layout = () => {
             <Route path="/dashboard/sign" element={<SignPatronDoc />} />
             <Route path="/dashboard/bookings" element={<MyBookings />} />
             <Route path="/dashboard/revenue" element={<Revenue />} />
+            {/* Admin login (frontend-only, hardcoded credentials) */}
+            <Route path="/admin-login" element={<AdminLogin />} />
 
-            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            {/* Admin routes protected by simple frontend admin gate */}
+            <Route
+              path="/dashboard/admin"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/analytics"
-              element={<AdminAnalytics />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAnalytics />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/help" element={<AdminHelpCenter />} />
+            <Route
+              path="/dashboard/admin/help"
+              element={
+                <AdminProtectedRoute>
+                  <AdminHelpCenter />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/help/ticket/:id"
-              element={<AdminTicketDetail />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminTicketDetail />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/bookings"
-              element={<AdminAllBookings />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllBookings />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/customers"
-              element={<AdminAllCustomers />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllCustomers />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property"
-              element={<AdminAllProperty />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllProperty />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property/edit/:id"
-              element={<EditProperty />}
+              element={
+                <AdminProtectedRoute>
+                  <EditProperty />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property-owners"
-              element={<AllPropertyOwners />}
+              element={
+                <AdminProtectedRoute>
+                  <AllPropertyOwners />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property-owners/edit/:id"
-              element={<EditPropertyOwner />}
+              element={
+                <AdminProtectedRoute>
+                  <EditPropertyOwner />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/pending-kyc"
-              element={<PendingKYCVerification />}
+              element={
+                <AdminProtectedRoute>
+                  <PendingKYCVerification />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/offer" element={<AdminOffer />} />
+            <Route
+              path="/dashboard/admin/offer"
+              element={
+                <AdminProtectedRoute>
+                  <AdminOffer />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/team"
-              element={<AdminTeamManagement />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminTeamManagement />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/profile" element={<AdminProfile />} />
+            <Route
+              path="/dashboard/admin/profile"
+              element={
+                <AdminProtectedRoute>
+                  <AdminProfile />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/settings"
-              element={<AdminSettings />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminSettings />
+                </AdminProtectedRoute>
+              }
             />
 
             <Route path="/test" element={<Test />} />

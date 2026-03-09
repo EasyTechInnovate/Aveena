@@ -8,50 +8,62 @@ import PropertyAmenities from '../../components/admin/PropertyAmenities'
 import PropertyPrice from '../../components/admin/PropertyPrice'
 import PropertyFAQs from '../../components/admin/PropertyFAQs'
 
+const authHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  'Content-Type': 'application/json',
+})
+
 const EditProperty = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeSection, setActiveSection] = useState(searchParams.get('section') || 'owner-info')
+  const [propertyData, setPropertyData] = useState(null)
+  const [ownerData, setOwnerData] = useState(null)
+  const [loading, setLoading] = useState(true)
 
+  // Fetch property via admin API (returns ownerId), then fetch owner using ownerId
   useEffect(() => {
-    console.log('Property ID from URL:', id)
-    const fetchProperty_OwnerById = async () => {
+    const fetchPropertyAndOwner = async () => {
+      if (!id) return
+      setLoading(true)
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/properties/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
+        // GET /admin/properties/:id - returns property with ownerId
+        const propertyRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/admin/properties/${id}`,
+          { headers: authHeaders() }
+        )
+        const propertyJson = await propertyRes.json()
+
+        if (!propertyJson.success || !propertyJson.data) {
+          setLoading(false)
+          return
+        }
+
+        const property = propertyJson.data.property || propertyJson.data
+        setPropertyData({ ...property, details: propertyJson.data.details })
+
+        // Property API returns ownerId - use it to fetch owner info
+        const ownerId = property.ownerId?._id ?? property.ownerId
+        if (ownerId) {
+          const ownerRes = await fetch(
+            `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}`,
+            { headers: authHeaders() }
+          )
+          const ownerJson = await ownerRes.json()
+          if (ownerJson.success && ownerJson.data) {
+            setOwnerData(ownerJson.data)
           }
-        );
-
-        const owner = await fetch(
-          `${import.meta.env.VITE_API_URL}/property-owner/properties/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-
-        
-
-        const jsonResponse = await response.json();
-        const jsonOwner = await owner.json();
-        console.log("Property By ID Data:", jsonResponse);
-        console.log("Owner By porperty ID :", jsonOwner);
-
+        }
       } catch (error) {
-        console.error("Error fetching property by ID:", error);
+        console.error('Error fetching property/owner:', error)
+      } finally {
+        setLoading(false)
       }
-    };
-
-    if (id) {
-      fetchProperty_OwnerById();
     }
-  }, [id]);
+
+    fetchPropertyAndOwner()
+  }, [id])
 
   const handleCancel = () => {
     navigate('/dashboard/admin/property')
@@ -95,6 +107,10 @@ const EditProperty = () => {
         return (
           <PropertyOwnerInformation
             propertyId={id}
+            ownerId={ownerData?._id ?? propertyData?.ownerId?._id ?? propertyData?.ownerId}
+            ownerData={ownerData}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onContinue={handleContinue}
           />
@@ -103,6 +119,8 @@ const EditProperty = () => {
         return (
           <PropertyPhotos
             propertyId={id}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onSave={handleSave}
           />
@@ -119,6 +137,8 @@ const EditProperty = () => {
         return (
           <PropertyPrice
             propertyId={id}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onContinue={handlePriceContinue}
           />
@@ -135,6 +155,10 @@ const EditProperty = () => {
         return (
           <PropertyOwnerInformation
             propertyId={id}
+            ownerId={ownerData?._id ?? propertyData?.ownerId?._id ?? propertyData?.ownerId}
+            ownerData={ownerData}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onContinue={handleContinue}
           />

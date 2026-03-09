@@ -1,11 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar } from 'lucide-react'
 
-const PropertyPrice = ({ propertyId, onCancel, onContinue }) => {
-  const [price, setPrice] = useState('37,000')
+const authHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  'Content-Type': 'application/json',
+})
+
+const PropertyPrice = ({ propertyId, propertyData, loading = false, onCancel, onContinue }) => {
+  const [basePrice, setBasePrice] = useState('')
+  const [minimumRentalIncome, setMinimumRentalIncome] = useState('')
+  const [saleTarget, setSaleTarget] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [cancellationDays, setCancellationDays] = useState('12')
   const [availabilityOption, setAvailabilityOption] = useState('specific-date')
   const [selectedDate, setSelectedDate] = useState('')
+
+  useEffect(() => {
+    if (propertyData) {
+      setBasePrice(String(propertyData.basePrice ?? ''))
+      setMinimumRentalIncome(String(propertyData.minimumRentalIncome ?? ''))
+      setSaleTarget(String(propertyData.saleTarget ?? ''))
+    }
+  }, [propertyData])
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <p className="text-gray-500 text-sm">Loading property price...</p>
+      </div>
+    )
+  }
 
   const cancellationOptions = [
     { value: '1', label: '1 Day' },
@@ -27,30 +52,46 @@ const PropertyPrice = ({ propertyId, onCancel, onContinue }) => {
         </button>
       </div>
 
-      {/* Property Price Section */}
+      {/* Admin sets Base Price, Minimum Rental Income, Sale Target */}
       <div className="mb-8">
         <h2 className="text-xl font-bold text-gray-800 mb-6">
-          How much do you want to charge per night?
+          Base Price, Minimum Rental & Sale Target
         </h2>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Price Guests Pay (Per room)
-          </label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-700 text-lg font-medium">
-              ₹
-            </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Base Price / Night (₹)</label>
             <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+              type="number"
+              min="0"
+              value={basePrice}
+              onChange={(e) => setBasePrice(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+              placeholder="e.g. 5000"
             />
           </div>
-          <p className="text-sm text-gray-600 mt-2">
-            including taxes, commissions, and fees.
-          </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Rental Income (₹)</label>
+            <input
+              type="number"
+              min="0"
+              value={minimumRentalIncome}
+              onChange={(e) => setMinimumRentalIncome(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+              placeholder="e.g. 50000"
+            />
+            <p className="text-xs text-amber-600 mt-1">Owner cannot change this once admin sets it.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Sale Target (₹)</label>
+            <input
+              type="number"
+              min="0"
+              value={saleTarget}
+              onChange={(e) => setSaleTarget(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green"
+              placeholder="e.g. 200000"
+            />
+          </div>
         </div>
       </div>
 
@@ -157,12 +198,43 @@ const PropertyPrice = ({ propertyId, onCancel, onContinue }) => {
           Cancel
         </button>
         <button
-          onClick={onContinue}
-          className="px-6 py-2.5 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors"
+          onClick={async () => {
+            setSaveError('')
+            setSaving(true)
+            try {
+              const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/admin/properties/${propertyId}`,
+                {
+                  method: 'PUT',
+                  headers: authHeaders(),
+                  body: JSON.stringify({
+                    basePrice: Number(basePrice) || 0,
+                    minimumRentalIncome: Number(minimumRentalIncome) || 0,
+                    saleTarget: Number(saleTarget) || 0,
+                  }),
+                }
+              )
+              const json = await res.json()
+              if (json.success) {
+                onContinue?.()
+              } else {
+                setSaveError('Save failed. Admin property update API may not be available yet.')
+              }
+            } catch (err) {
+              setSaveError('Save failed. Admin property update API may not be available yet.')
+            } finally {
+              setSaving(false)
+            }
+          }}
+          disabled={saving || loading}
+          className="px-6 py-2.5 bg-green text-white rounded-lg font-medium hover:bg-darkGreen transition-colors disabled:opacity-60"
         >
-          Continue
+          {saving ? 'Saving...' : 'Save & Continue'}
         </button>
       </div>
+      {saveError && (
+        <p className="text-amber-600 text-sm mt-3">{saveError}</p>
+      )}
     </div>
   )
 }

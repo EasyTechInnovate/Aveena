@@ -120,13 +120,13 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
         },
         noOfRooms: Number(formData.noOfRooms) || 1, 
         noOfBaths: Number(formData.noOfBaths) || 1,
-        basePrice: Number(formData.basePrice) || 0,
+        basePrice: 1, // placeholder - backend requires positive; admin adds real value later
         totalUnits: Number(formData.totalUnits) || 1,
         amenties: formData.amenties,
         description: formData.description || "New Property Listing",
         coverImage: formData.coverImage,
-        minimumRentalIncome: Number(formData.minRentalIncome),
-        saleTarget: Number(formData.salesTarget),
+        minimumRentalIncome: Number(formData.minRentalIncome) || 1, // backend requires positive
+        saleTarget: 1, // placeholder - backend requires positive; admin adds real value later
         kycDocument: formData.kycDocument || "https://example.com/kyc.pdf"
       };
 
@@ -363,19 +363,7 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
           </div>
 
           <h3 className="font-semibold mb-3 text-lg text-darkBlue">Financials</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            <div>
-              <label className="block font-semibold mb-1">Base Price / Night</label>
-              <input
-                name="basePrice"
-                type="number"
-                placeholder="5000"
-                value={formData.basePrice}
-                onChange={handleChange}
-                className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
-                required
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
             <div>
               <label className="block font-semibold mb-1">Minimum Rental Income</label>
               <input
@@ -385,21 +373,11 @@ const AddNewPropertyForm = ({ onCancel, onSuccess }) => {
                 value={formData.minRentalIncome}
                 onChange={handleChange}
                 className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
-                required
               />
             </div>
-            <div>
-              <label className="block font-semibold mb-1">Sales Target</label>
-              <input
-                name="salesTarget"
-                type="number"
-                placeholder="200000"
-                value={formData.salesTarget}
-                onChange={handleChange}
-                className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-green-500 outline-none"
-                required
-              />
-            </div>
+            <p className="text-gray-500 text-sm col-span-full">
+              Base Price and Sales Target are set by admin after review.
+            </p>
           </div>
 
           <h3 className="font-semibold mb-3 text-lg text-darkBlue">Media & Documents</h3>
