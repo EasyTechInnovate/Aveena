@@ -776,7 +776,7 @@ export default function GuestReviews({
         {/* Villa Amenities Section */}
         <div className="">
           <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
-            Villa Amenities
+            Amenities
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -997,7 +997,7 @@ export default function GuestReviews({
         {/* Villa Location Section */}
         <div className="mt-16 w-full">
           <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
-            Villa Location
+            Location
           </h3>
 
           {/* Location Card with Map */}
@@ -1107,7 +1107,7 @@ export default function GuestReviews({
         {/* FAQ Section */}
         <div className="mt-16">
           <h3 className="text-2xl font-bold mb-6 border-l-4 border-[#F5959E] pl-3">
-            FAQ's related to Pranaam - Alibaug
+            FAQ's
           </h3>
 
           <div className="flex flex-col">
