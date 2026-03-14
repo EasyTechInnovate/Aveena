@@ -11,7 +11,7 @@ const Cancellation = () => {
 
         <p className="text-md my-4">
           You can cancel your booking by calling our Customer Support helpline
-          on <span className="font-semibold text-darkGray">+0 8062179810</span>
+          on <span className="font-semibold text-darkGray">+91 8062179810</span>
         </p>
         <p>
           For reservations with fewer than 10 room-nights, if a cancellation
