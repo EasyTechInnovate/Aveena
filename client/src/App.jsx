@@ -123,45 +123,45 @@ const Layout = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route path="/career" element={<Career />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/security" element={<SecurityPage />} />
+            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="/security" element={<ProtectedRoute><SecurityPage /></ProtectedRoute>} />
             <Route
               path="/identity-verification"
-              element={<IdentityVerificationPage />}
+              element={<ProtectedRoute><IdentityVerificationPage /></ProtectedRoute>}
             />
-            <Route path="/customer-support" element={<CustomerSupportPage />} />
+            <Route path="/customer-support" element={<ProtectedRoute><CustomerSupportPage /></ProtectedRoute>} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
-            <Route path="/help-centre" element={<HelpCentre />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/rewards-wallet" element={<RewardsWallet />} />
-            <Route path="/payment-methods" element={<PaymentMethods />} />
-            <Route path="/trips-bookings" element={<TripsBookings />} />
-            <Route path="/saved-lists" element={<SavedLists />} />
-            <Route path="/my-reviews" element={<MyReviews />} />
+            <Route path="/help-centre" element={<ProtectedRoute><HelpCentre /></ProtectedRoute>} />
+            <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+            <Route path="/rewards-wallet" element={<ProtectedRoute><RewardsWallet /></ProtectedRoute>} />
+            <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethods /></ProtectedRoute>} />
+            <Route path="/trips-bookings" element={<ProtectedRoute><TripsBookings /></ProtectedRoute>} />
+            <Route path="/saved-lists" element={<ProtectedRoute><SavedLists /></ProtectedRoute>} />
+            <Route path="/my-reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />
 
             <Route
               path="/dashboard/partner"
               element={
-                // <ProtectedRoute>
+                <ProtectedRoute>
                   <Dashboard />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
 
-            <Route path="/dashboard/property" element={<MyProperty />} />
+            <Route path="/dashboard/property" element={<ProtectedRoute><MyProperty /></ProtectedRoute>} />
             <Route
               path="/dashboard/partner/view-property/:id"
-              element={<ViewProperty />}
+              element={<ProtectedRoute><ViewProperty /></ProtectedRoute>}
             />
             <Route
               path="/dashboard/partner/booking-details/:id"
-              element={<BookingDetailsPage />}
+              element={<ProtectedRoute><BookingDetailsPage /></ProtectedRoute>}
             />
-            <Route path="/dashboard/kyc" element={<KycDoc />} />
-            <Route path="/dashboard/sign" element={<SignPatronDoc />} />
-            <Route path="/dashboard/bookings" element={<MyBookings />} />
-            <Route path="/dashboard/revenue" element={<Revenue />} />
+            <Route path="/dashboard/kyc" element={<ProtectedRoute><KycDoc /></ProtectedRoute>} />
+            <Route path="/dashboard/sign" element={<ProtectedRoute><SignPatronDoc /></ProtectedRoute>} />
+            <Route path="/dashboard/bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+            <Route path="/dashboard/revenue" element={<ProtectedRoute><Revenue /></ProtectedRoute>} />
             {/* Admin login (frontend-only, hardcoded credentials) */}
             <Route path="/admin-login" element={<AdminLogin />} />
 

@@ -24,12 +24,48 @@ import { getProperties, getRandomProperties } from "../../services";
 //   );
 // }
 
+// Map amenity names (case-insensitive) to icon paths
+const AMENITY_ICONS = {
+  bbq: "/assets/booking/bbq.svg",
+  lawn: "/assets/booking/lawn1.svg",
+  "private pool": "/assets/booking/pool1.svg",
+  pool: "/assets/booking/pool1.svg",
+  "balcony/ terrace": "/assets/booking/balcony.svg",
+  balcony: "/assets/booking/balcony.svg",
+  terrace: "/assets/booking/balcony.svg",
+  ac: "/assets/booking/ac.svg",
+  "air conditioner": "/assets/booking/ac.svg",
+  "wi-fi": "/assets/booking/wifi1.svg",
+  wifi: "/assets/booking/wifi1.svg",
+  "free wifi": "/assets/booking/wifi1.svg",
+  "indoor/ outdoor games": "/assets/booking/indoor.svg",
+  "music system/ speaker": "/assets/booking/music.svg",
+  tv: "/assets/booking/tv.svg",
+  refrigerator: "/assets/booking/refrigerator.svg",
+  bar: "/assets/booking/bar1.svg",
+  "wheelchair friendly": "/assets/booking/wheelchair.svg",
+  parking: "/assets/booking/parking.svg",
+  "fire extinguisher": "/assets/booking/fire.svg",
+  "tea-coffee maker": "/assets/booking/bar1.svg",
+  "safety locker": "/assets/booking/fire.svg",
+  bathrobe: "/assets/booking/room.png",
+  "water dispenser": "/assets/booking/bar1.svg",
+  toiletries: "/assets/booking/room.png",
+};
+
+const getAmenityIcon = (name) => {
+  if (!name || typeof name !== "string") return "/assets/booking/room.png";
+  const key = name.trim().toLowerCase();
+  return AMENITY_ICONS[key] || "/assets/booking/room.png";
+};
+
 export default function GuestReviews({
   rating = 4.6,
   count = 63,
   summary = `The villa offers a serene ambience with beautiful decor, lush gardens,
   and fantastic amenities like pools, private dining, and thoughtful service.
   Great for families and groups who want a mix of relaxation and luxury.`,
+  amenities = [],
   photos = [
     "/assets/bedroom.png",
     "/assets/bedroom.png",
@@ -773,221 +809,42 @@ export default function GuestReviews({
           </div>
         </div> */}
 
-        {/* Villa Amenities Section */}
+        {/* Villa Amenities Section - Dynamic from property */}
         <div className="">
           <h3 className="text-2xl font-bold mb-8 border-l-4 border-[#F5959E] pl-3">
             Amenities
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {/* BBQ */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/bbq.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">BBQ</h4>
-                <p className="text-green text-sm font-medium">₹1,500</p>
-              </div>
-            </div>
-
-            {/* Lawn */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/lawn1.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Lawn</h4>
-              </div>
-            </div>
-
-            {/* Private Pool */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/pool1.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Private Pool</h4>
-              </div>
-            </div>
-
-            {/* Balcony/ Terrace */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/balcony.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Balcony/ Terrace</h4>
-              </div>
-            </div>
-
-            {/* AC */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/ac.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">AC</h4>
-              </div>
-            </div>
-
-            {/* Wi-Fi */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/wifi1.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Wi-Fi</h4>
-              </div>
-            </div>
-
-            {/* Indoor/ Outdoor Games */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/indoor.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Indoor/ Outdoor Games</h4>
-              </div>
-            </div>
-
-            {/* Music System/ Speaker */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/music.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Music System/ Speaker</h4>
-              </div>
-            </div>
-
-            {/* TV */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/tv.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">TV</h4>
-              </div>
-            </div>
-
-            {/* Refrigerator */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/refrigerator.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Refrigerator</h4>
-              </div>
-            </div>
-
-            {/* Bar */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/bar1.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Bar</h4>
-              </div>
-            </div>
-
-            {/* Wheelchair Friendly */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/wheelchair.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Wheelchair Friendly</h4>
-              </div>
-            </div>
-
-            {/* Parking */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/parking.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Parking</h4>
-              </div>
-            </div>
-
-            {/* Fire Extinguisher */}
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
-                <img
-                  src="/assets/booking/fire.svg"
-                  alt=""
-                  className="w-fill h-full"
-                />
-              </div>
-              <div>
-                <h4 className="text-lg text-darkGray">Fire Extinguisher</h4>
-              </div>
-            </div>
-
-            {/* +7 more */}
-            <div className="flex items-center gap-4 p-4">
-              <div>
-                <a
-                  href="#"
-                  className="text-blue-600 font-medium hover:underline"
-                >
-                  +7 more
-                </a>
-              </div>
-            </div>
+            {Array.isArray(amenities) && amenities.length > 0 ? (
+              amenities.map((amenity, idx) => {
+                const name = typeof amenity === "string" ? amenity : amenity?.name ?? String(amenity);
+                if (!name) return null;
+                const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+                const icon = getAmenityIcon(name);
+                return (
+                  <div key={idx} className="flex items-center gap-4 p-4">
+                    <div className="w-14 h-14 flex items-center justify-center shrink-0">
+                      <img
+                        src={icon}
+                        alt=""
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-lg text-darkGray">{displayName}</h4>
+                      {typeof amenity === "object" && amenity?.price != null && (
+                        <p className="text-green text-sm font-medium">
+                          ₹{Number(amenity.price).toLocaleString("en-IN")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-gray-500 col-span-full">No amenities listed.</p>
+            )}
           </div>
         </div>
 
@@ -1169,36 +1026,12 @@ export default function GuestReviews({
           </div>
         </div>
 
-        {/* Explore Your Stay Section */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-            <h3 className="text-2xl font-bold border-l-4 border-[#F5959E] pl-3">
-              Explore Your Stay
-            </h3>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <svg
-                className="w-5 h-5 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
         {/* Nearby Villas Section */}
         <div className="mt-16">
           {/* Section Header with Navigation */}
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-2xl font-bold border-l-4 border-[#F5959E] pl-3">
-              Nearby Villas
+              Nearby Properties
             </h3>
             <div className="flex items-center gap-4">
               <button

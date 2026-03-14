@@ -6,8 +6,6 @@ const CustomerSupport = () => {
 
   const categories = [
     { id: 'stays', name: 'Stays', icon: '/assets/account/stays.svg' },
-    { id: 'visa', name: 'Visa Service', icon: '/assets/account/visa.svg' },
-    { id: 'tour', name: 'Tour Package', icon: '/assets/account/tour.svg' }
   ];
 
   const faqItems = [

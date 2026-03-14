@@ -629,6 +629,7 @@ export default function BookingOverview({
             <GuestReviews
               propertyLocation={propertyData.location}
               propertyDetails={propertyDetails}
+              amenities={getAmenities()}
             />
           </div>
         </div>
