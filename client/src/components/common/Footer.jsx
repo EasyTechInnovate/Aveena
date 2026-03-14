@@ -64,7 +64,7 @@ const Footer = () => {
               <a href="#" className="text-gray-500 hover:text-red-600 transition"><FaYoutube size={22} /></a>
             </div>
             <span className="flex items-center gap-2 text-gray-700 font-medium whitespace-nowrap">
-              <FaHeadset /> +0 8062179810
+              <FaHeadset /> +91 8062179810
             </span>
           </div>
         </div>

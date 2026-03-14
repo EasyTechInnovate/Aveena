@@ -30,7 +30,7 @@ const HelpCentre = () => {
                 <h2 className="text-xl font-semibold text-darkGray">Connect With Call</h2>
                 <p className="text-darkGray mt-2">
                   Reach out to us via Call for detailed support and personalized assistance
-                  <span className="ml-2 font-semibold text-darkGray">+0 8062179810</span>
+                  <span className="ml-2 font-semibold text-darkGray">+91 8062179810</span>
                 </p>
               </div>
               <a href="tel:+911324574686" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl whitespace-nowrap">Call Us</a>
