@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import LogoutModal from './LogoutModal'
-import { clearAdminLoggedIn } from './AdminProtectedRoute'
 
 const Sidebar = () => {
   const location = useLocation()
@@ -23,10 +22,9 @@ const Sidebar = () => {
   }
 
   const handleLogoutConfirm = () => {
-    clearAdminLoggedIn()
     logout()
     setShowLogoutModal(false)
-    navigate('/admin-login')
+    navigate('/')
   }
 
   const MenuItem = ({ path, label, isRed = false }) => {
