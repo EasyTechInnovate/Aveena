@@ -37,7 +37,7 @@ const Hero = () => {
       </div>
 
       <div className="absolute bottom-2/5 flex flex-col gap-3 right-1/4">
-        <div className="p-2 pr-8 bg-[#020617] shadow-2xl flex gap-2 rounded-full">
+        <div className="p-2 pr-8 bg-[#020617] shadow-2xl flex gap-2 rounded-full lg:scale-90 lg:origin-bottom-right">
           <div className="bg-green p-4 rounded-full flex items-center justify-center">
             <img
               src="/assets/partner/occupancy.svg"
@@ -53,7 +53,7 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="max-md:left-20 p-2 pr-8 bg-[#020617] flex shadow-2xl relative -left-1/2 gap-2 rounded-full">
+        <div className="max-md:left-20 p-2 pr-8 bg-[#020617] flex shadow-2xl relative -left-1/2 gap-2 rounded-full lg:scale-90 lg:origin-bottom-left">
           <div className="bg-green p-3 rounded-full flex items-center justify-center">
             <img
               src="/assets/partner/earnings.svg"
