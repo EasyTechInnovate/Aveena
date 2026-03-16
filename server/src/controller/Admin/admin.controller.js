@@ -848,5 +848,23 @@ export default {
         } catch (error) {
             return httpError(next, error, req, 500);
         }
+    },
+    togglePropertyActive: async (req, res, next) => {
+        try {
+            const { propertyId } = req.body;
+
+            const property = await propertyModel.findById(propertyId);
+
+            if (!property) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
+            }
+
+            property.isActive = !property.isActive;
+            await property.save();
+
+            return httpResponse(req, res, 200, responseMessage.UPDATED, null);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
     }
 }
