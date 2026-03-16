@@ -1,41 +1,55 @@
-import React, { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { setAdminLoggedIn } from '../../components/admin/AdminProtectedRoute'
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { setAdminSession } from "../../components/admin/AdminProtectedRoute";
 
-const ADMIN_EMAIL = 'ajay07@aveena.co.in'
-const ADMIN_PASSWORD = 'ajay@aveena12345'
+const ADMIN_EMAIL = "ajay07@aveena.co.in";
+const ADMIN_PASSWORD = "ajay@aveena12345";
 
 const AdminLogin = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuth, user, loading } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+
+    // Must be signed in (with JWT) first, otherwise send to main site login
+    if (!isAuth) {
+      navigate("/", { replace: true, state: { from: location.pathname } });
+    }
+  }, [isAuth, loading, navigate, location.pathname]);
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
-    if (submitting) return
-    setSubmitting(true)
+    if (submitting) return;
+    setSubmitting(true);
 
-    // Hardcoded credentials check (frontend-only)
+    // Frontend-only extra credential gate (on top of JWT + user.type)
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setAdminLoggedIn()
-      const redirectTo = location.state?.from || '/dashboard/admin'
-      navigate(redirectTo, { replace: true })
+      setAdminSession();
+      const redirectTo = location.state?.from || "/dashboard/admin";
+      navigate(redirectTo, { replace: true });
     } else {
-      setError('Invalid admin email or password.')
+      setError("Invalid admin email or password.");
     }
 
-    setSubmitting(false)
-  }
+    setSubmitting(false);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
       <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Admin Login</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+          Admin Login
+        </h1>
         <p className="text-sm text-gray-600 mb-8 text-center">
           Enter your admin credentials to access the dashboard.
         </p>
@@ -69,22 +83,20 @@ const AdminLogin = () => {
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 mt-1">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
 
           <button
             type="submit"
             disabled={submitting}
             className="w-full mt-4 px-4 py-2.5 bg-green text-white rounded-lg text-sm font-medium hover:bg-darkGreen transition-colors disabled:opacity-60"
           >
-            {submitting ? 'Signing in...' : 'Sign in'}
+            {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;
 
