@@ -94,7 +94,7 @@ const Footer = () => {
         {/* --- Bottom Row: Copyright & Payments --- */}
         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6">
           <p className="text-xs text-gray-500 text-center md:text-left">
-            © 2025 Brise Hospitality Management Opc Pvt Ltd (Avenaa). All rights reserved.
+            © 2025 Avenaa Hospitality Management Opc Pvt Ltd. All rights reserved.
           </p>
 
           <div className="flex flex-col items-center md:items-end gap-2">
