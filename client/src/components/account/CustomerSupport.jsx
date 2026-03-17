@@ -11,7 +11,7 @@ const CustomerSupport = () => {
   const faqItems = [
     {
       question: "Should users be able to filter hotels (by price, location, star rating, amenities, etc.)?",
-      answer: "In this agreement \"aveenas\" refers to the corporate entity Brise Hospitality Management Opc Pvt Ltd as well as its website www.aveenas.com and mobile application and other services as the context provides."
+      answer: "In this agreement \"aveenas\" refers to the corporate entity Avenaa Hospitality Management Opc Pvt Ltd as well as its website www.aveenas.com and mobile application and other services as the context provides."
     },
     {
       question: "Will the website include user accounts for booking history, saved hotels, and loyalty rewards?",
