@@ -1,29 +1,37 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
 
-const PropertyFAQs = ({ propertyId, onCancel, onContinue }) => {
-  const [faqs, setFaqs] = useState([
-    {
-      id: 1,
-      question: 'Should users be able to filter hotels (by price, location, star rating, amenities, etc.)?',
-      answer: 'In this agreement "FabHotels" refers to the corporate entity Avenaa Hospitality Management Opc Pvt Ltd as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
-      expanded: true,
-      editing: false,
-    },
-    {
-      id: 2,
-      question: 'Should users be able to filter hotels (by price, location, star rating, amenities, etc.)?',
-      answer: 'In this agreement "FabHotels" refers to the corporate entity Avenaa Hospitality Management Opc Pvt Ltd as well as its website www.fabhotels.com and mobile application and other services as the context provides.',
-      expanded: false,
-      editing: false,
-    },
-  ])
+const PropertyFAQs = ({ propertyId, propertyData, loading, onCancel, onContinue }) => {
+  const [faqs, setFaqs] = useState([])
 
   const [newQuestion, setNewQuestion] = useState('')
   const [newAnswer, setNewAnswer] = useState('')
   const [editingFaq, setEditingFaq] = useState(null)
   const [editQuestion, setEditQuestion] = useState('')
   const [editAnswer, setEditAnswer] = useState('')
+
+  // Prefill FAQs from property data, so admin can see real content instead of static sample text
+  useEffect(() => {
+    const sourceFaqs =
+      propertyData?.details?.faqs ||
+      propertyData?.faqs ||
+      []
+
+    if (!Array.isArray(sourceFaqs) || sourceFaqs.length === 0) {
+      setFaqs([])
+      return
+    }
+
+    const mapped = sourceFaqs.map((faq, index) => ({
+      id: faq._id || faq.id || index + 1,
+      question: faq.question || '',
+      answer: faq.answer || '',
+      expanded: index === 0,
+      editing: false,
+    }))
+
+    setFaqs(mapped)
+  }, [propertyData])
 
   const toggleFaq = (id) => {
     setFaqs((prev) =>

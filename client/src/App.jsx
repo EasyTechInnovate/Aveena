@@ -62,6 +62,7 @@ import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
 import AdminLogin from "./pages/adminDashboard/AdminLogin";
+import Crm from "./pages/Crm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import Test from "./pages/Test";
@@ -123,6 +124,7 @@ const Layout = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route path="/career" element={<Career />} />
+            <Route path="/crm_avenaa_in" element={<Crm />} />
             <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
             <Route path="/security" element={<ProtectedRoute><SecurityPage /></ProtectedRoute>} />

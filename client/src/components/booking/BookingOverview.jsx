@@ -560,31 +560,6 @@ export default function BookingOverview({
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
-            {[
-              {
-                icon: "/assets/booking/user.svg",
-                text: `Up to ${propertyData.capacity?.adults || 10} Guests`,
-              },
-              {
-                icon: "/assets/booking/room.svg",
-                text: `${propertyData.noOfRooms || 3} Rooms`,
-              },
-              {
-                icon: "/assets/booking/bath.svg",
-                text: `${propertyData.noOfBaths || 2} Baths`,
-              },
-            ].map((tag, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-2 bg-blue-50 text-blue-900 px-3 py-1.5 rounded text-xs md:text-sm font-medium"
-              >
-                <img src={tag.icon} alt="" className="w-3.5 h-3.5 opacity-70" />
-                {tag.text}
-              </div>
-            ))}
-          </div>
-
           {/* <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-4 mt-8">
             {getAmenities()
               .slice(0, 5)

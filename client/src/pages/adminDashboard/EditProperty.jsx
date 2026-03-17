@@ -129,6 +129,8 @@ const EditProperty = () => {
         return (
           <PropertyAmenities
             propertyId={id}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onContinue={handleAmenitiesContinue}
           />
@@ -147,6 +149,8 @@ const EditProperty = () => {
         return (
           <PropertyFAQs
             propertyId={id}
+            propertyData={propertyData}
+            loading={loading}
             onCancel={handleCancel}
             onContinue={handleFAQsContinue}
           />
