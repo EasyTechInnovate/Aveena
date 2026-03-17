@@ -30,6 +30,7 @@ const AMENITY_ICONS = {
   lawn: "/assets/booking/lawn1.svg",
   "private pool": "/assets/booking/pool1.svg",
   pool: "/assets/booking/pool1.svg",
+  "open to sky plunge pool cold water": "/assets/booking/pool1.svg",
   "balcony/ terrace": "/assets/booking/balcony.svg",
   balcony: "/assets/booking/balcony.svg",
   terrace: "/assets/booking/balcony.svg",
@@ -47,16 +48,22 @@ const AMENITY_ICONS = {
   parking: "/assets/booking/parking.svg",
   "fire extinguisher": "/assets/booking/fire.svg",
   "tea-coffee maker": "/assets/booking/bar1.svg",
+  "french press coffee": "/assets/booking/bar1.svg",
   "safety locker": "/assets/booking/fire.svg",
-  bathrobe: "/assets/booking/room.png",
+  bathrobe: "/assets/booking/bath.svg",
+  "bath tub": "/assets/booking/bath.svg",
   "water dispenser": "/assets/booking/bar1.svg",
-  toiletries: "/assets/booking/room.png",
+  toiletries: "/assets/booking/bath.svg",
+  breakfast: "/assets/booking/meal.svg",
+  restaurant: "/assets/booking/meal.svg",
+  banquet: "/assets/booking/service.svg",
+  "welcome drink": "/assets/booking/bar1.svg",
 };
 
 const getAmenityIcon = (name) => {
-  if (!name || typeof name !== "string") return "/assets/booking/room.png";
+  if (!name || typeof name !== "string") return "/assets/booking/tag-tick.svg";
   const key = name.trim().toLowerCase();
-  return AMENITY_ICONS[key] || "/assets/booking/room.png";
+  return AMENITY_ICONS[key] || "/assets/booking/tag-tick.svg";
 };
 
 export default function GuestReviews({

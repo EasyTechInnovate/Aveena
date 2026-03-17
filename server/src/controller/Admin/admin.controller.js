@@ -735,7 +735,6 @@ export default {
 
             const propertyOwner = await userModel.findOne({
                 _id: id,
-                type: 'property_owner'
             });
 
             if (!propertyOwner) {
