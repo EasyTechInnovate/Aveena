@@ -203,11 +203,12 @@ const PropertyPrice = ({ propertyId, propertyData, loading = false, onCancel, on
             setSaving(true)
             try {
               const res = await fetch(
-                `${import.meta.env.VITE_API_URL}/admin/properties/${propertyId}`,
+                `${import.meta.env.VITE_API_URL}/properties`,
                 {
                   method: 'PUT',
                   headers: authHeaders(),
                   body: JSON.stringify({
+                    propertyId,
                     basePrice: Number(basePrice) || 0,
                     minimumRentalIncome: Number(minimumRentalIncome) || 0,
                     saleTarget: Number(saleTarget) || 0,
@@ -218,10 +219,10 @@ const PropertyPrice = ({ propertyId, propertyData, loading = false, onCancel, on
               if (json.success) {
                 onContinue?.()
               } else {
-                setSaveError('Save failed. Admin property update API may not be available yet.')
+                setSaveError(json.message || 'Save failed.')
               }
             } catch (err) {
-              setSaveError('Save failed. Admin property update API may not be available yet.')
+              setSaveError('Save failed.')
             } finally {
               setSaving(false)
             }
