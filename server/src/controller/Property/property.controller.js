@@ -138,7 +138,7 @@ export default {
             const { userId } = req.user;
             const { propertyId, propertyName, address, location, basePrice, totalUnits, amenties, description, coverImage, capacity, noOfRooms, noOfBaths, minimumRentalIncome, saleTarget, kycDocument } = req.body;
 
-            const property = await propertyModel.findOne({ _id: propertyId, ownerId: userId });
+            const property = await propertyModel.findOne({ _id: propertyId });
 
             if (!property) {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
