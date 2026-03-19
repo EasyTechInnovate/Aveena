@@ -84,7 +84,7 @@ const AllProperty = () => {
     try {
       // 2. Fire the API
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/properties/toggle-active`,
+        `${import.meta.env.VITE_API_URL}/admin/properties/toggle-active`,
         {
           method: "PATCH",
           headers: {

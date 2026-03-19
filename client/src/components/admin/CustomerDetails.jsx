@@ -10,23 +10,26 @@ import {
 
 const CustomerDetails = ({ customer, onClose }) => {
   const [bookings, setBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+
   // Safe data extraction
   const firstName = customer?.firstName || "";
   const lastName = customer?.lastName || "";
-  const email = customer?.email || "tim.jennings@example.com";
+  const email = customer?.email || "";
   
   const phoneNumber = customer?.phone
     ? `${customer.phone.countryCode} ${customer.phone.number}`
-    : "+91 123 436 5647";
+    : "";
 
   const address = customer?.address
-    ? `${customer.address.fullAddress} ${customer.address.city}, ${customer.address.state}, ${customer.address.zipCode}`
-    : "3517 W. Gray St. Utica, Pennsylvania 57867";
+    ? [customer.address.fullAddress, customer.address.city, customer.address.state, customer.address.zipCode]
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   const initials = `${firstName[0] || ""}${lastName[0] || ""}`.toUpperCase();
-  const fullName = `${firstName} ${lastName}`.trim() || "Leslie Alexander";
+  const fullName = `${firstName} ${lastName}`.trim();
 
-  // Configuration for Personal Info fields to keep JSX clean
   const personalInfoFields = [
     { label: "First Name", value: firstName, colSpan: 1 },
     { label: "Last Name", value: lastName, colSpan: 1 },
@@ -35,22 +38,33 @@ const CustomerDetails = ({ customer, onClose }) => {
     { label: "Address", value: address, colSpan: 2 },
   ];
 
-  // const fetchBookings = async() => {
-  //   const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/property-owners/65d8f9a2b1c3d4e5f6789012`,
-  //     {
-  //       headers: {
-  //         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //       },
-  //     }
-  //   )
-
-  //   const jsonResponse = await response.json();
-  //   console.log(jsonResponse)
-  // } 
-
-  // useEffect(() => {
-  //   fetchBookings();
-  // },[])
+  useEffect(() => {
+    if (!customer?.email) return;
+    const fetchBookings = async () => {
+      setBookingsLoading(true);
+      try {
+        // Search admin bookings by customer name/email to get their bookings
+        const params = new URLSearchParams({ page: 1, limit: 20, search: customer.email });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/admin/bookings?${params.toString()}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        const json = await response.json();
+        if (json.success && json.data?.bookings) {
+          setBookings(json.data.bookings);
+        }
+      } catch (err) {
+        console.error("CustomerDetails: failed to fetch bookings", err);
+      } finally {
+        setBookingsLoading(false);
+      }
+    };
+    fetchBookings();
+  }, [customer?.email]);
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
@@ -112,18 +126,66 @@ const CustomerDetails = ({ customer, onClose }) => {
                   <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Check in Date</TableHead>
                   <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Check out Date</TableHead>
                   <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Guests</TableHead>
-                  <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Payment Type</TableHead>
-                  <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Payment Category</TableHead>
-                  <TableHead className="font-semibold text-gray-800 text-left py-3 px-4 w-12"></TableHead>
+                  <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Status</TableHead>
+                  <TableHead className="font-semibold text-gray-800 text-left py-3 px-4">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* Table rows will go here when data is available */}
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-4 text-gray-500">
-                    No bookings found
-                  </TableCell>
-                </TableRow>
+                {bookingsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-4 text-gray-400">
+                      Loading bookings...
+                    </TableCell>
+                  </TableRow>
+                ) : bookings.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-4 text-gray-500">
+                      No bookings found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  bookings.map((booking) => {
+                    const placeName = booking.propertyId?.name ?? "—";
+                    const checkIn = booking.checkIn
+                      ? new Date(booking.checkIn).toLocaleDateString("en-IN", { dateStyle: "medium" })
+                      : "—";
+                    const checkOut = booking.checkOut
+                      ? new Date(booking.checkOut).toLocaleDateString("en-IN", { dateStyle: "medium" })
+                      : "—";
+                    const guests =
+                      typeof booking.guests === "object" && booking.guests
+                        ? `${booking.guests.adults ?? 0} Adults, ${booking.guests.childrens ?? booking.guests.children ?? 0} Children`
+                        : booking.guests ?? "—";
+                    const total = booking.priceBreakdown?.total
+                      ? `₹${booking.priceBreakdown.total.toLocaleString("en-IN")}`
+                      : "—";
+                    return (
+                      <TableRow key={booking._id} className="border-b border-gray-100">
+                        <TableCell className="py-3 px-4 text-sm font-mono text-gray-600">
+                          #{booking._id?.slice(-6).toUpperCase()}
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-700">{placeName}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-700">{checkIn}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-700">{checkOut}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-700">{guests}</TableCell>
+                        <TableCell className="py-3 px-4">
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full font-medium ${
+                              booking.status === "confirmed"
+                                ? "bg-green-100 text-green-700"
+                                : booking.status === "cancelled"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {booking.status ?? "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-sm font-medium text-gray-800">{total}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>

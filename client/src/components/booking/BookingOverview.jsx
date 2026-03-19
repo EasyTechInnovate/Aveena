@@ -208,13 +208,15 @@ export default function BookingOverview({
       "Nov",
       "Dec",
     ];
-    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+    // Show short weekday labels in a clearer format
+    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     const getDaysInMonth = (date) => {
       const year = date.getFullYear();
       const month = date.getMonth();
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
+      // Align Monday as first column (0 -> Monday, 6 -> Sunday)
       const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
       const days = [];
       for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
@@ -342,16 +344,14 @@ export default function BookingOverview({
             </button>
           </div>
           <div className="grid grid-cols-7 gap-1 mb-2">
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {daysOfWeek.map((d, i) => (
-                <div
-                  key={i}
-                  className="text-center text-xs font-bold text-gray-500"
-                >
-                  {d}
-                </div>
-              ))}
-            </div>
+            {daysOfWeek.map((d, i) => (
+              <div
+                key={i}
+                className="text-center text-[11px] font-semibold text-gray-500"
+              >
+                {d}
+              </div>
+            ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
             {getDaysInMonth(currentMonth).map((date, i) => (
@@ -560,31 +560,6 @@ export default function BookingOverview({
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
-            {[
-              {
-                icon: "/assets/booking/user.svg",
-                text: `Up to ${propertyData.capacity?.adults || 10} Guests`,
-              },
-              {
-                icon: "/assets/booking/room.svg",
-                text: `${propertyData.noOfRooms || 3} Rooms`,
-              },
-              {
-                icon: "/assets/booking/bath.svg",
-                text: `${propertyData.noOfBaths || 2} Baths`,
-              },
-            ].map((tag, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-2 bg-blue-50 text-blue-900 px-3 py-1.5 rounded text-xs md:text-sm font-medium"
-              >
-                <img src={tag.icon} alt="" className="w-3.5 h-3.5 opacity-70" />
-                {tag.text}
-              </div>
-            ))}
-          </div>
-
           {/* <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-4 mt-8">
             {getAmenities()
               .slice(0, 5)
@@ -629,6 +604,7 @@ export default function BookingOverview({
             <GuestReviews
               propertyLocation={propertyData.location}
               propertyDetails={propertyDetails}
+              amenities={getAmenities()}
             />
           </div>
         </div>

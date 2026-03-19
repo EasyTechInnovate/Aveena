@@ -3,20 +3,20 @@ import { FaLinkedin, FaInstagram, FaYoutube, FaHeadset } from "react-icons/fa";
 
 const TABS = [
   "Top cities",
-  "Budget hotels",
-  "Couple friendly hotels",
-  "Hotels near airport",
-  "Hotels near railway station",
+  "Budget Homestay",
+  "Couple friendly Homestay",
+  "Homestay near airport",
+  "Homestay near railway station",
 ];
 
 const CITIES = [
-  "Hotels Near me", "Hotels in Bangalore", "Hotels in Hyderabad", "Hotels in Chennai",
-  "Hotels in Nagpur", "Hotels in Varanasi", "Hotels in Coimbatore", "Hotels in New Delhi",
-  "Hotels in Kolkata", "Hotels in Jaipur", "Hotels in Ahmedabad", "Hotels in Udaipur",
-  "Hotels in Nashik", "Hotels in Bhubaneswar", "Hotels in Pune", "Hotels in Goa",
-  "Hotels in Indore", "Hotels in Noida", "Hotels in Kanpur", "Hotels in Manali",
-  "Hotels in Patna", "Hotels in Mumbai", "Hotels in Gurgaon", "Hotels in Bhopal",
-  "Hotels in Lucknow", "Hotels in Amritsar", "Hotels in Dehradun",
+  "Homestay Near me", "Homestay in Bangalore", "Homestay in Hyderabad", "Homestay in Chennai",
+  "Homestay in Nagpur", "Homestay in Varanasi", "Homestay in Coimbatore", "Homestay in New Delhi",
+  "Homestay in Kolkata", "Homestay in Jaipur", "Homestay in Ahmedabad", "Homestay in Udaipur",
+  "Homestay in Nashik", "Homestay in Bhubaneswar", "Homestay in Pune", "Homestay in Goa",
+  "Homestay in Indore", "Homestay in Noida", "Homestay in Kanpur", "Homestay in Manali",
+  "Homestay in Patna", "Homestay in Mumbai", "Homestay in Gurgaon", "Homestay in Bhopal",
+  "Homestay in Lucknow", "Homestay in Amritsar", "Homestay in Dehradun",
 ];
 
 const PAYMENT_ICONS = ["visa", "MasterCard", "Amex", "Paytm"];
@@ -64,7 +64,7 @@ const Footer = () => {
               <a href="#" className="text-gray-500 hover:text-red-600 transition"><FaYoutube size={22} /></a>
             </div>
             <span className="flex items-center gap-2 text-gray-700 font-medium whitespace-nowrap">
-              <FaHeadset /> +91 80621 77157
+              <FaHeadset /> +91 8062179810
             </span>
           </div>
         </div>
@@ -94,7 +94,7 @@ const Footer = () => {
         {/* --- Bottom Row: Copyright & Payments --- */}
         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6">
           <p className="text-xs text-gray-500 text-center md:text-left">
-            © 2025 Brise Hospitality Management Opc Pvt Ltd (Avenaa). All rights reserved.
+            © 2025 Avenaa Hospitality Management Opc Pvt Ltd. All rights reserved.
           </p>
 
           <div className="flex flex-col items-center md:items-end gap-2">

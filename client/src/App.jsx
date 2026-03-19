@@ -61,7 +61,10 @@ import AdminOffer from "./pages/adminDashboard/Offer";
 import AdminTeamManagement from "./pages/adminDashboard/TeamManagement";
 import AdminProfile from "./pages/adminDashboard/Profile";
 import AdminSettings from "./pages/adminDashboard/Settings";
+import AdminLogin from "./pages/adminDashboard/AdminLogin";
+import Crm from "./pages/Crm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import Test from "./pages/Test";
 import RefundPolicy from './components/booking/RefundPolicy'
 
@@ -121,93 +124,169 @@ const Layout = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route path="/career" element={<Career />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/security" element={<SecurityPage />} />
+            <Route path="/crm_avenaa_in" element={<Crm />} />
+            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="/security" element={<ProtectedRoute><SecurityPage /></ProtectedRoute>} />
             <Route
               path="/identity-verification"
-              element={<IdentityVerificationPage />}
+              element={<ProtectedRoute><IdentityVerificationPage /></ProtectedRoute>}
             />
-            <Route path="/customer-support" element={<CustomerSupportPage />} />
+            <Route path="/customer-support" element={<ProtectedRoute><CustomerSupportPage /></ProtectedRoute>} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
-            <Route path="/help-centre" element={<HelpCentre />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/rewards-wallet" element={<RewardsWallet />} />
-            <Route path="/payment-methods" element={<PaymentMethods />} />
-            <Route path="/trips-bookings" element={<TripsBookings />} />
-            <Route path="/saved-lists" element={<SavedLists />} />
-            <Route path="/my-reviews" element={<MyReviews />} />
+            <Route path="/help-centre" element={<ProtectedRoute><HelpCentre /></ProtectedRoute>} />
+            <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+            <Route path="/rewards-wallet" element={<ProtectedRoute><RewardsWallet /></ProtectedRoute>} />
+            <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethods /></ProtectedRoute>} />
+            <Route path="/trips-bookings" element={<ProtectedRoute><TripsBookings /></ProtectedRoute>} />
+            <Route path="/saved-lists" element={<ProtectedRoute><SavedLists /></ProtectedRoute>} />
+            <Route path="/my-reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />
 
             <Route
               path="/dashboard/partner"
               element={
-                // <ProtectedRoute>
+                <ProtectedRoute>
                   <Dashboard />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
 
-            <Route path="/dashboard/property" element={<MyProperty />} />
+            <Route path="/dashboard/property" element={<ProtectedRoute><MyProperty /></ProtectedRoute>} />
             <Route
               path="/dashboard/partner/view-property/:id"
-              element={<ViewProperty />}
+              element={<ProtectedRoute><ViewProperty /></ProtectedRoute>}
             />
             <Route
               path="/dashboard/partner/booking-details/:id"
-              element={<BookingDetailsPage />}
+              element={<ProtectedRoute><BookingDetailsPage /></ProtectedRoute>}
             />
-            <Route path="/dashboard/kyc" element={<KycDoc />} />
-            <Route path="/dashboard/sign" element={<SignPatronDoc />} />
-            <Route path="/dashboard/bookings" element={<MyBookings />} />
-            <Route path="/dashboard/revenue" element={<Revenue />} />
+            <Route path="/dashboard/kyc" element={<ProtectedRoute><KycDoc /></ProtectedRoute>} />
+            <Route path="/dashboard/sign" element={<ProtectedRoute><SignPatronDoc /></ProtectedRoute>} />
+            <Route path="/dashboard/bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+            <Route path="/dashboard/revenue" element={<ProtectedRoute><Revenue /></ProtectedRoute>} />
+            {/* Admin login (frontend-only, hardcoded credentials) */}
+            <Route path="/admin-login" element={<AdminLogin />} />
 
-            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            {/* Admin routes protected by simple frontend admin gate */}
+            <Route
+              path="/dashboard/admin"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/analytics"
-              element={<AdminAnalytics />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAnalytics />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/help" element={<AdminHelpCenter />} />
+            <Route
+              path="/dashboard/admin/help"
+              element={
+                <AdminProtectedRoute>
+                  <AdminHelpCenter />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/help/ticket/:id"
-              element={<AdminTicketDetail />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminTicketDetail />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/bookings"
-              element={<AdminAllBookings />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllBookings />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/customers"
-              element={<AdminAllCustomers />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllCustomers />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property"
-              element={<AdminAllProperty />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminAllProperty />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property/edit/:id"
-              element={<EditProperty />}
+              element={
+                <AdminProtectedRoute>
+                  <EditProperty />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property-owners"
-              element={<AllPropertyOwners />}
+              element={
+                <AdminProtectedRoute>
+                  <AllPropertyOwners />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/property-owners/edit/:id"
-              element={<EditPropertyOwner />}
+              element={
+                <AdminProtectedRoute>
+                  <EditPropertyOwner />
+                </AdminProtectedRoute>
+              }
             />
             <Route
               path="/dashboard/admin/pending-kyc"
-              element={<PendingKYCVerification />}
+              element={
+                <AdminProtectedRoute>
+                  <PendingKYCVerification />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/offer" element={<AdminOffer />} />
+            <Route
+              path="/dashboard/admin/offer"
+              element={
+                <AdminProtectedRoute>
+                  <AdminOffer />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/team"
-              element={<AdminTeamManagement />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminTeamManagement />
+                </AdminProtectedRoute>
+              }
             />
-            <Route path="/dashboard/admin/profile" element={<AdminProfile />} />
+            <Route
+              path="/dashboard/admin/profile"
+              element={
+                <AdminProtectedRoute>
+                  <AdminProfile />
+                </AdminProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/admin/settings"
-              element={<AdminSettings />}
+              element={
+                <AdminProtectedRoute>
+                  <AdminSettings />
+                </AdminProtectedRoute>
+              }
             />
 
             <Route path="/test" element={<Test />} />

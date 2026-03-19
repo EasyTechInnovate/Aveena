@@ -2,7 +2,7 @@ import { Router } from 'express';
 import adminController from '../controller/Admin/admin.controller.js';
 import authentication from '../middleware/authentication.js';
 
-import { getRandomPropertiesSchema, getPropertyByIdSchema } from '../schemas/property.schema.js';
+import { getRandomPropertiesSchema, getPropertyByIdSchema, toggleActiveSchema } from '../schemas/property.schema.js';
 import { createPropertyOwnerSchema } from '../schemas/admin.schema.js';
 import validator from '../middleware/validator.js';
 
@@ -23,5 +23,6 @@ router.post('/property-owners', validator(createPropertyOwnerSchema, "body"), ad
 router.patch('/approve-kyc/:id', validator(getPropertyByIdSchema, "params"), adminController.verifyKyc);
 router.patch('/reject-kyc/:id', validator(getPropertyByIdSchema, "params"), adminController.rejectKyc);
 router.get('/pending-kyc-properties', validator(getRandomPropertiesSchema, "query"), adminController.getPendingKycProperties);
+router.patch('/properties/toggle-active', validator(toggleActiveSchema, "body"), adminController.togglePropertyActive);
 
 export default router;

@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const tabs = [
   { name: "Stays", icon: "/assets/stays.svg" },
-  { name: "Tour Package", icon: "/assets/tour-package.svg", path: "/tour" },
-  { name: "Visa Service", icon: "/assets/visa-services.svg", path: "/visa" },
+  // { name: "Tour Package", icon: "/assets/tour-package.svg", path: "/tour" },
+  // { name: "Visa Service", icon: "/assets/visa-services.svg", path: "/visa" },
 ];
 
 const Search = () => {

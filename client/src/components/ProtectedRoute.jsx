@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) return null;
 
-  if (!isAuth) return <Navigate to="/" replace />;
+  if (!isAuth) return <Navigate to="/" replace state={{ from: location }} />;
 
   // Check if profile is complete - redirect to account page if not complete
   // Allow access to /account page even if profile is incomplete

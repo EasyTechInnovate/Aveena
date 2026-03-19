@@ -1,28 +1,77 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Check } from 'lucide-react'
 
-const PropertyAmenities = ({ propertyId, onCancel, onContinue }) => {
-  const [amenities, setAmenities] = useState({
-    lawn: false,
-    privatePool: false,
-    balcony: false,
-    ac: false,
-    wifi: false,
-    games: false,
-    musicSystem: false,
-    tv: false,
-    refrigerator: false,
-    bar: false,
-    wheelchairFriendly: false,
-    parking: false,
-    fireExtinguisher: false,
-    other: true, // This one is checked by default
-  })
+const initialAmenityState = {
+  lawn: false,
+  privatePool: false,
+  balcony: false,
+  ac: false,
+  wifi: false,
+  games: false,
+  musicSystem: false,
+  tv: false,
+  refrigerator: false,
+  bar: false,
+  wheelchairFriendly: false,
+  parking: false,
+  fireExtinguisher: false,
+  other: false,
+}
+
+const PropertyAmenities = ({ propertyId, propertyData, loading, onCancel, onContinue }) => {
+  const [amenities, setAmenities] = useState(initialAmenityState)
 
   const [newAmenity, setNewAmenity] = useState('')
   const [hasPaidAmenities, setHasPaidAmenities] = useState(false)
   const [newPaidAmenity, setNewPaidAmenity] = useState('')
   const [paidAmenityPrice, setPaidAmenityPrice] = useState('')
+
+  // Prefill amenities from existing property data (readonly for now – no save API wired)
+  useEffect(() => {
+    if (!propertyData || !Array.isArray(propertyData.amenties)) {
+      setAmenities(initialAmenityState)
+      return
+    }
+
+    const apiAmenities = propertyData.amenties.map((a) => String(a).toLowerCase())
+
+    const keyToLabels = {
+      lawn: ['lawn'],
+      privatePool: ['private pool', 'pool'],
+      balcony: ['balcony/ terrace', 'balcony', 'terrace'],
+      ac: ['ac', 'air conditioner'],
+      wifi: ['wi-fi', 'wifi', 'free wifi'],
+      games: ['indoor/ outdoor games', 'games'],
+      musicSystem: ['music system/ speaker', 'music', 'speaker'],
+      tv: ['tv'],
+      refrigerator: ['refrigerator', 'fridge'],
+      bar: ['bar'],
+      wheelchairFriendly: ['wheelchair friendly', 'wheelchair'],
+      parking: ['parking'],
+      fireExtinguisher: ['fire extinguisher'],
+    }
+
+    const next = { ...initialAmenityState }
+    const matched = new Set()
+
+    Object.entries(keyToLabels).forEach(([key, labels]) => {
+      const hasMatch = labels.some((label) => {
+        const lc = label.toLowerCase()
+        return apiAmenities.some((a) => a === lc)
+      })
+      next[key] = hasMatch
+      if (hasMatch) {
+        labels.forEach((l) => matched.add(l.toLowerCase()))
+      }
+    })
+
+    // Mark "other" if there are amenities that don't match the standard mapping
+    const hasOther =
+      apiAmenities.filter((a) => !matched.has(a)).length > 0
+
+    next.other = hasOther
+    setAmenities(next)
+  }, [propertyData])
 
   const handleAmenityChange = (amenity) => {
     setAmenities((prev) => ({

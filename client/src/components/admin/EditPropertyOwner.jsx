@@ -484,25 +484,51 @@ export const KYCVerification = ({ ownerId }) => {
 
 // ─── Property Details & Bookings Component ───────────────────────────────────────
 export const PropertyDetailsAndBookings = ({ ownerId }) => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [properties, setProperties] = useState([])
   const [selectedPropertyId, setSelectedPropertyId] = useState('')
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [bookings, setBookings] = useState([])
+  const [allBookings, setAllBookings] = useState([])
   const [bookingsLoading, setBookingsLoading] = useState(false)
   const [propertiesLoading, setPropertiesLoading] = useState(true)
+  const [aggregateStats, setAggregateStats] = useState({
+    revenue: 0,
+    totalBookings: 0,
+    activeBookings: 0,
+    reservedBookings: 0,
+    cancelledBookings: 0,
+  })
 
-  // GET /admin/property-owners/:ownerId/properties — populate the dropdown
+  // On mount: fetch all owner properties + all admin bookings
   useEffect(() => {
+    if (!ownerId) return
+
+    // GET /admin/property-owners/:ownerId/properties
     const fetchOwnerProperties = async () => {
       const url = `${import.meta.env.VITE_API_URL}/admin/property-owners/${ownerId}/properties?page=1&limit=50`
-      console.log('[GET] Fetch Owner Properties (dropdown):', url)
+      console.log('[GET] Fetch Owner Properties:', url)
       try {
-        const response = await fetch(url, { headers: authHeaders() })
-        const json = await response.json()
+        const res = await fetch(url, { headers: authHeaders() })
+        const json = await res.json()
         console.log('[GET] Fetch Owner Properties Response:', json)
         if (json.success && json.data) {
-          setProperties(json.data.properties || json.data || [])
+          const props = json.data.properties || json.data || []
+          setProperties(props)
+
+          // Aggregate revenue + booking counts across all owner properties
+          const totals = props.reduce(
+            (acc, p) => ({
+              revenue: acc.revenue + (p.totalRevenue || p.revenue || 0),
+              totalBookings: acc.totalBookings + (p.totalBookings || 0),
+              activeBookings: acc.activeBookings + (p.activeBookings || 0),
+              reservedBookings: acc.reservedBookings + (p.reservedBookings || 0),
+              cancelledBookings: acc.cancelledBookings + (p.cancelledBookings || 0),
+            }),
+            { revenue: 0, totalBookings: 0, activeBookings: 0, reservedBookings: 0, cancelledBookings: 0 }
+          )
+          setAggregateStats(totals)
         }
       } catch (err) {
         console.error('[GET] Fetch Owner Properties Error:', err)
@@ -511,63 +537,100 @@ export const PropertyDetailsAndBookings = ({ ownerId }) => {
       }
     }
 
-    // GET /property-owner/bookings?page=1&limit=10 — initial bookings list
-    const fetchBookings = async () => {
+    // GET /admin/bookings — fetch all bookings via admin endpoint
+    const fetchAdminBookings = async () => {
       setBookingsLoading(true)
-      const url = `${import.meta.env.VITE_API_URL}/property-owner/bookings?page=1&limit=10`
-      console.log('[GET] Fetch Owner Bookings List:', url)
+      const url = `${import.meta.env.VITE_API_URL}/admin/bookings?page=1&limit=50`
+      console.log('[GET] Fetch Admin Bookings:', url)
       try {
-        const response = await fetch(url, { headers: authHeaders() })
-        const json = await response.json()
-        console.log('[GET] Fetch Owner Bookings Response:', json)
+        const res = await fetch(url, { headers: authHeaders() })
+        const json = await res.json()
+        console.log('[GET] Fetch Admin Bookings Response:', json)
         if (json.success && json.data) {
-          setBookings(json.data.bookings || json.data || [])
+          const list = json.data.bookings || json.data || []
+          setAllBookings(list)
+          setBookings(list)
         }
       } catch (err) {
-        console.error('[GET] Fetch Owner Bookings Error:', err)
+        console.error('[GET] Fetch Admin Bookings Error:', err)
       } finally {
         setBookingsLoading(false)
       }
     }
 
-    if (ownerId) {
-      fetchOwnerProperties()
-      fetchBookings()
-    }
+    fetchOwnerProperties()
+    fetchAdminBookings()
   }, [ownerId])
 
-  // GET /property-owner/properties/:propertyId — fetch property detail when selected
+  // When a property is selected:
+  // 1. Fetch full property details (stats, revenue) from admin endpoint
+  // 2. Filter the bookings table to that property
   const handlePropertySelect = async (propertyId) => {
     setSelectedPropertyId(propertyId)
+
     if (!propertyId) {
       setSelectedProperty(null)
+      setBookings(allBookings)
       return
     }
-    const url = `${import.meta.env.VITE_API_URL}/property-owner/properties/${propertyId}`
-    console.log('[GET] Fetch Selected Property Detail:', url)
+
+    // GET /admin/properties/:propertyId
+    const url = `${import.meta.env.VITE_API_URL}/admin/properties/${propertyId}`
+    console.log('[GET] Fetch Selected Property Details (admin):', url)
     try {
-      const response = await fetch(url, { headers: authHeaders() })
-      const json = await response.json()
-      console.log('[GET] Fetch Selected Property Detail Response:', json)
+      const res = await fetch(url, { headers: authHeaders() })
+      const json = await res.json()
+      console.log('[GET] Fetch Selected Property Details Response:', json)
       if (json.success && json.data) {
         setSelectedProperty(json.data.property || json.data)
       }
     } catch (err) {
-      console.error('[GET] Fetch Selected Property Detail Error:', err)
+      console.error('[GET] Fetch Selected Property Details Error:', err)
+    }
+
+    // Filter bookings for the selected property from the already-fetched list
+    const filtered = allBookings.filter(
+      (b) =>
+        (b.propertyId || b.property?._id || b.property) === propertyId
+    )
+    setBookings(filtered)
+
+    // Also re-fetch bookings scoped to this property from admin
+    setBookingsLoading(true)
+    const bookingsUrl = `${import.meta.env.VITE_API_URL}/admin/bookings?page=1&limit=50&search=${propertyId}`
+    console.log('[GET] Fetch Bookings for Property (admin):', bookingsUrl)
+    try {
+      const res = await fetch(bookingsUrl, { headers: authHeaders() })
+      const json = await res.json()
+      console.log('[GET] Fetch Bookings for Property Response:', json)
+      if (json.success && json.data) {
+        setBookings(json.data.bookings || json.data || [])
+      }
+    } catch (err) {
+      console.error('[GET] Fetch Bookings for Property Error:', err)
+    } finally {
+      setBookingsLoading(false)
     }
   }
 
-  // GET /property-owner/bookings/:bookingId — fetch booking detail on row click
+  // GET /admin/bookings/:bookingId — view booking detail on row click
   const handleBookingClick = async (bookingId) => {
-    const url = `${import.meta.env.VITE_API_URL}/property-owner/bookings/${bookingId}`
-    console.log('[GET] Fetch Booking Detail:', url)
+    const url = `${import.meta.env.VITE_API_URL}/admin/bookings/${bookingId}`
+    console.log('[GET] Fetch Booking Detail (admin):', url)
     try {
-      const response = await fetch(url, { headers: authHeaders() })
-      const json = await response.json()
+      const res = await fetch(url, { headers: authHeaders() })
+      const json = await res.json()
       console.log('[GET] Fetch Booking Detail Response:', json)
     } catch (err) {
       console.error('[GET] Fetch Booking Detail Error:', err)
     }
+  }
+
+  const formatCurrency = (val) => {
+    if (!val && val !== 0) return '—'
+    return typeof val === 'number'
+      ? `₹${val.toLocaleString('en-IN')}`
+      : val
   }
 
   const getStatusColor = (status = '') => {
@@ -588,15 +651,22 @@ export const PropertyDetailsAndBookings = ({ ownerId }) => {
     }
   }
 
+  // When a property is selected show its individual stats, otherwise show owner aggregate
   const stats = selectedProperty
     ? {
-        revenue: selectedProperty.revenue || selectedProperty.totalRevenue || '—',
-        totalBooking: selectedProperty.totalBookings || '—',
-        activeBooking: selectedProperty.activeBookings || '—',
-        reserved: selectedProperty.reservedBookings || '—',
-        cancelBooking: selectedProperty.cancelledBookings || '—',
+        revenue: formatCurrency(selectedProperty.totalRevenue || selectedProperty.revenue),
+        totalBooking: selectedProperty.totalBookings ?? '—',
+        activeBooking: selectedProperty.activeBookings ?? '—',
+        reserved: selectedProperty.reservedBookings ?? '—',
+        cancelBooking: selectedProperty.cancelledBookings ?? '—',
       }
-    : { revenue: '—', totalBooking: '—', activeBooking: '—', reserved: '—', cancelBooking: '—' }
+    : {
+        revenue: formatCurrency(aggregateStats.revenue),
+        totalBooking: aggregateStats.totalBookings || '—',
+        activeBooking: aggregateStats.activeBookings || '—',
+        reserved: aggregateStats.reservedBookings || '—',
+        cancelBooking: aggregateStats.cancelledBookings || '—',
+      }
 
   const filteredBookings = bookings.filter((b) => {
     const term = searchTerm.toLowerCase()
@@ -615,29 +685,43 @@ export const PropertyDetailsAndBookings = ({ ownerId }) => {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-lg font-semibold text-gray-800 mb-1">Property Details</h2>
-            <p className="text-sm text-gray-600">Select any Property and get full information</p>
+            <p className="text-sm text-gray-600">
+              {selectedPropertyId
+                ? 'Showing stats for selected property'
+                : `Showing aggregated stats across all ${properties.length} properties`}
+            </p>
           </div>
-          <div className="relative">
-            <select
-              value={selectedPropertyId}
-              onChange={(e) => handlePropertySelect(e.target.value)}
-              className="appearance-none border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green bg-white min-w-[200px]"
-            >
-              <option value="">Select Property</option>
-              {propertiesLoading ? (
-                <option disabled>Loading...</option>
-              ) : (
-                properties.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name || p.propertyName || p._id}
-                  </option>
-                ))
-              )}
-            </select>
-            <ChevronDown
-              size={18}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <select
+                value={selectedPropertyId}
+                onChange={(e) => handlePropertySelect(e.target.value)}
+                className="appearance-none border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green focus:border-green bg-white min-w-[220px]"
+              >
+                <option value="">All Properties (Aggregate)</option>
+                {propertiesLoading ? (
+                  <option disabled>Loading...</option>
+                ) : (
+                  properties.map((p) => (
+                    <option key={p._id} value={p._id}>
+                      {p.name || p.propertyName || p._id}
+                    </option>
+                  ))
+                )}
+              </select>
+              <ChevronDown
+                size={18}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+              />
+            </div>
+            {selectedPropertyId && (
+              <button
+                onClick={() => navigate(`/dashboard/admin/property/edit/${selectedPropertyId}`)}
+                className="text-green text-sm font-medium hover:underline whitespace-nowrap"
+              >
+                Edit Property →
+              </button>
+            )}
           </div>
         </div>
 
@@ -730,7 +814,9 @@ export const PropertyDetailsAndBookings = ({ ownerId }) => {
                       {booking.rooms ?? booking.numberOfRooms ?? '—'}
                     </TableCell>
                     <TableCell className="text-sm text-gray-700 whitespace-nowrap">
-                      {booking.guests ?? booking.numberOfGuests ?? '—'}
+                      {typeof booking.guests === 'object' && booking.guests != null
+                        ? `${booking.guests.adults ?? 0} Adults, ${booking.guests.childrens ?? booking.guests.children ?? 0} Children`
+                        : (booking.numberOfGuests ?? booking.guests ?? '—')}
                     </TableCell>
                     <TableCell className="whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       <span
