@@ -31,7 +31,8 @@ export default {
 
             const token = quicker.generateToken({
                 id: user._id,
-                isProfileComplete: user.isProfileComplete
+                isProfileComplete: user.isProfileComplete,
+                role: user.type
             });
 
             return httpResponse(req, res, 200, responseMessage.SUCCESS, {

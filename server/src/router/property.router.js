@@ -16,5 +16,6 @@ router.post('/', validator(createPropertySchema, "body"), propertyController.cre
 router.put('/details', validator(propertyDetailsSchema, "body"), propertyController.updatePropertyDetails);
 router.put('/', validator(updatePropertySchema, "body"), propertyController.updateProperty);
 router.patch('/toggle-active', validator(toggleActiveSchema, "body"), propertyController.toggleActive);
+router.delete('/:id', validator(getPropertyByIdSchema, "params"), propertyController.deleteProperty);
 
 export default router;

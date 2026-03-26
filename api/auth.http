@@ -86,3 +86,12 @@ Content-Type: application/json
 {
   "code": "auth_code_from_google"
 }
+
+### Login with Password
+POST {{baseUrl}}{{apiPrefix}}/auth/login-password
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "securepassword123"
+}

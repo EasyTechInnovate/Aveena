@@ -378,7 +378,7 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
             }
 
-            const property = await propertyModel.findById(id);
+            const property = await propertyModel.findOne({ _id: id, isDeleted: { $ne: true } });
 
             if (!property) {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
@@ -427,6 +427,33 @@ export default {
             await property.save();
 
             return httpResponse(req, res, 200, responseMessage.UPDATED, null);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+    deleteProperty: async (req, res, next) => {
+        try {
+            const { userId, role } = req.user;
+            const { id } = req.params;
+
+            let property;
+
+            if (role === 'admin') {
+                property = await propertyModel.findOne({ _id: id, isDeleted: { $ne: true } });
+            } else {
+                property = await propertyModel.findOne({ _id: id, ownerId: userId, isDeleted: { $ne: true } });
+            }
+
+            if (!property) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('Property')), req, 404);
+            }
+
+            property.isDeleted = true;
+            property.deletedAt = new Date();
+            property.isActive = false;
+            await property.save();
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, null);
         } catch (error) {
             return httpError(next, error, req, 500);
         }

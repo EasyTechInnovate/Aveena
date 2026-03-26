@@ -1,0 +1,111 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+@accessToken = your_access_token_here
+@memberId = member_id_here
+
+### ─────────────────────────────────────────────
+###  TEAM MANAGEMENT
+###  Base: /v1/team
+###  All routes require: Authorization: Bearer <token>
+###  Only users with teamManagement permissions can access these.
+###  Non-team-member users (admin, property_owner) bypass permission checks.
+### ─────────────────────────────────────────────
+
+
+### Get All Team Members
+### Requires: teamManagement.read = true
+GET {{baseUrl}}{{apiPrefix}}/team/members
+Authorization: Bearer {{accessToken}}
+
+
+### Add Team Member
+### Requires: teamManagement.edit = true
+### Creates a new user with type: 'team_member', linked to the caller via teamId.
+### All permissions default to false — explicitly set only what is needed.
+POST {{baseUrl}}{{apiPrefix}}/team/member
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "password": "securepassword123",
+  "permissions": {
+    "dashboard": { "read": true, "edit": false },
+    "analytics": { "read": true, "edit": false },
+    "allBookings": { "read": true, "edit": true },
+    "allCustomers": { "read": true, "edit": false },
+    "allProperty": { "read": true, "edit": false },
+    "propertyOwner": { "read": false, "edit": false },
+    "pendingKYC": { "read": true, "edit": true },
+    "offer": { "read": false, "edit": false },
+    "teamManagement": { "read": false, "edit": false },
+    "helpCenter": { "read": true, "edit": true },
+    "profile": { "read": true, "edit": true }
+  }
+}
+
+
+### Add Team Member - Minimal Permissions (read-only access)
+POST {{baseUrl}}{{apiPrefix}}/team/member
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@example.com",
+  "password": "securepassword123",
+  "permissions": {
+    "dashboard": { "read": true, "edit": false }
+  }
+}
+
+
+### Update Team Member
+### Requires: teamManagement.edit = true
+### Can update: firstName, lastName, permissions
+### Only the team owner can update their own members (teamId must match).
+PUT {{baseUrl}}{{apiPrefix}}/team/member/{{memberId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Updated",
+  "permissions": {
+    "dashboard": { "read": true, "edit": true },
+    "analytics": { "read": true, "edit": false },
+    "allBookings": { "read": true, "edit": true },
+    "allCustomers": { "read": true, "edit": true },
+    "allProperty": { "read": true, "edit": false },
+    "propertyOwner": { "read": false, "edit": false },
+    "pendingKYC": { "read": true, "edit": false },
+    "offer": { "read": true, "edit": true },
+    "teamManagement": { "read": true, "edit": false },
+    "helpCenter": { "read": true, "edit": true },
+    "profile": { "read": true, "edit": true }
+  }
+}
+
+
+### Update Team Member - Permissions Only
+PUT {{baseUrl}}{{apiPrefix}}/team/member/{{memberId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "permissions": {
+    "allBookings": { "read": true, "edit": false },
+    "helpCenter": { "read": true, "edit": true }
+  }
+}
+
+
+### Delete Team Member
+### Requires: teamManagement.edit = true
+### Permanently deletes the team member user document.
+### Only the team owner can delete their own members (teamId must match).
+DELETE {{baseUrl}}{{apiPrefix}}/team/member/{{memberId}}
+Authorization: Bearer {{accessToken}}

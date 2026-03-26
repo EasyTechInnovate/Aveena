@@ -87,7 +87,8 @@ export default {
 
             const token = quicker.generateToken({
                 id: user._id,
-                isProfileComplete: user.isProfileComplete
+                isProfileComplete: user.isProfileComplete,
+                role: user.type
             });
 
             return httpResponse(req, res, 200, responseMessage.customMessage('OTP verified successfully'), {
@@ -160,7 +161,8 @@ export default {
 
             const token = quicker.generateToken({
                 id: user._id,
-                isProfileComplete: user.isProfileComplete
+                isProfileComplete: user.isProfileComplete,
+                role: user.type
             })
 
             return httpResponse(req, res, 200, responseMessage.customMessage('Profile completed successfully'), {
@@ -183,7 +185,31 @@ export default {
                 return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
             }
 
-            return httpResponse(req, res, 200, responseMessage.customMessage('Profile fetched successfully'), user);
+            const FULL_ACCESS = {
+                dashboard:      { read: true, edit: true },
+                analytics:      { read: true, edit: true },
+                allBookings:    { read: true, edit: true },
+                allCustomers:   { read: true, edit: true },
+                allProperty:    { read: true, edit: true },
+                propertyOwner:  { read: true, edit: true },
+                pendingKYC:     { read: true, edit: true },
+                offer:          { read: true, edit: true },
+                teamManagement: { read: true, edit: true },
+                helpCenter:     { read: true, edit: true },
+                profile:        { read: true, edit: true }
+            };
+
+            let permissions = null;
+            if (user.type === 'admin') {
+                permissions = FULL_ACCESS;
+            } else if (user.type === 'team_member') {
+                permissions = user.permissions;
+            }
+
+            return httpResponse(req, res, 200, responseMessage.customMessage('Profile fetched successfully'), {
+                ...user,
+                permissions
+            });
 
         } catch (error) {
             return httpError(next, error, req, 500);

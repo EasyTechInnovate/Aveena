@@ -96,3 +96,7 @@ Authorization: Bearer {{accessToken}}
 {
   "propertyId": "{{propertyId}}"
 }
+
+### Delete Property (soft delete - property owner)
+DELETE {{baseUrl}}{{apiPrefix}}/properties/{{propertyId}}
+Authorization: Bearer {{accessToken}}

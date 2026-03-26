@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import teamController from '../controller/User/team.controller.js';
 import authentication from '../middleware/authentication.js';
+import isPropertyOwnerOrTeamMember from '../middleware/isPropertyOwnerOrTeamMember.js';
 import { checkPermission } from '../middleware/authorization.js';
 import validator from '../middleware/validator.js';
 import { addTeamMemberSchema, updateTeamMemberSchema } from '../schemas/team.schema.js';
@@ -9,6 +10,7 @@ const router = Router();
 
 
 router.use(authentication);
+router.use(isPropertyOwnerOrTeamMember);
 
 
 router.get('/members', checkPermission('teamManagement', 'read'), teamController.getTeamMembers);

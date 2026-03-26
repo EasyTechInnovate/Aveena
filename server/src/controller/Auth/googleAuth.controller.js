@@ -86,7 +86,8 @@ export default {
             // Generate JWT token
             const token = quicker.generateToken({
                 id: user._id,
-                isProfileComplete: user.isProfileComplete
+                isProfileComplete: user.isProfileComplete,
+                role: user.type
             });
 
             return httpResponse(req, res, 200, responseMessage.customMessage('Google login successful'), {
@@ -170,7 +171,8 @@ export default {
 
             const token = quicker.generateToken({
                 id: user._id,
-                isProfileComplete: user.isProfileComplete
+                isProfileComplete: user.isProfileComplete,
+                role: user.type
             });
 
             return httpResponse(req, res, 200, responseMessage.customMessage('Google authentication successful'), {

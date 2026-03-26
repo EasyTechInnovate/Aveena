@@ -13,7 +13,7 @@ export default {
     create: async (req, res, next) => {
         try {
             const { subject, message, mediaUrls } = req.body;
-            const userId = req.user._id;
+            const userId = req.user.userId;
 
             const ticketId = generateTicketId();
 
@@ -37,8 +37,8 @@ export default {
         try {
             const { page = 1, limit = 10, status, search } = req.query;
             const skip = (Number(page) - 1) * Number(limit);
-            const userId = req.user._id;
-            const userType = req.user.type;
+            const userId = req.user.userId;
+            const userType = req.user.role;
 
             let query = {};
             if (userType === 'customer' || userType === 'property_owner') {
@@ -77,8 +77,8 @@ export default {
     getById: async (req, res, next) => {
         try {
             const { id } = req.params;
-            const userId = req.user._id;
-            const userType = req.user.type;
+            const userId = req.user.userId;
+            const userType = req.user.role;
 
             const ticket = await ticketModel.findById(id)
                 .populate('user', 'firstName lastName email profilePicture')
@@ -101,8 +101,8 @@ export default {
         try {
             const { id } = req.params;
             const { message, mediaUrls } = req.body;
-            const userId = req.user._id;
-            const userType = req.user.type;
+            const userId = req.user.userId;
+            const userType = req.user.role;
 
             const ticket = await ticketModel.findById(id);
             if (!ticket) {
@@ -157,8 +157,8 @@ export default {
     close: async (req, res, next) => {
         try {
             const { id } = req.params;
-            const userId = req.user._id;
-            const userType = req.user.type;
+            const userId = req.user.userId;
+            const userType = req.user.role;
 
             const ticket = await ticketModel.findById(id);
 
@@ -184,8 +184,8 @@ export default {
         try {
             const { id } = req.params;
             const { page = 1, limit = 20 } = req.query;
-            const userId = req.user._id;
-            const userType = req.user.type;
+            const userId = req.user.userId;
+            const userType = req.user.role;
 
             const skip = (Number(page) - 1) * Number(limit);
 

@@ -82,3 +82,16 @@ Authorization: Bearer {{accessToken}}
 ### Admin Get Properties By Property Owner ID
 GET {{baseUrl}}{{apiPrefix}}/admin/property-owners/{{propertyOwnerId}}/properties?page=1&limit=10
 Authorization: Bearer {{accessToken}}
+
+### Admin Toggle Property Active Status
+PATCH {{baseUrl}}{{apiPrefix}}/admin/properties/toggle-active
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "propertyId": "{{propertyId}}"
+}
+
+### Admin Delete Property (soft delete)
+DELETE {{baseUrl}}{{apiPrefix}}/admin/properties/{{propertyId}}
+Authorization: Bearer {{accessToken}}

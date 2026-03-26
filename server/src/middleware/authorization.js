@@ -19,7 +19,7 @@ export const checkPermission = (section, action) => {
             }
 
 
-            if (user.teamId) {
+            if (user.type === 'team_member') {
                 const sectionPermissions = user.permissions?.[section];
                 if (!sectionPermissions || !sectionPermissions[action]) {
                     return httpError(next, new Error(responseMessage.customMessage(`You do not have permission to ${action} ${section}.`)), req, 403);

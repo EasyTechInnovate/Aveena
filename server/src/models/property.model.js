@@ -71,6 +71,14 @@ const propertySchema = new Schema({
         type: Boolean,
         default: false
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default: null
+    },
     locationId: {
         type: Types.ObjectId,
         ref: 'Location',

@@ -8,7 +8,7 @@ export default {
     toggleWishlist: async (req, res, next) => {
         try {
             const { propertyId } = req.params;
-            const userId = req.user._id;
+            const userId = req.user.userId;
 
             const property = await Property.findById(propertyId);
             if (!property) {
@@ -41,7 +41,7 @@ export default {
 
     getWishlist: async (req, res, next) => {
         try {
-            const userId = req.user._id;
+            const userId = req.user.userId;
             const { page = 1, limit = 10 } = req.query;
 
             const user = await User.findById(userId);

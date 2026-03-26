@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import propertyOwnerController from '../controller/PropertyOwner/propertyOwner.controller.js';
 import authentication from '../middleware/authentication.js';
+import isPropertyOwner from '../middleware/isPropertyOwner.js';
 import validator from '../middleware/validator.js';
 import { getRandomPropertiesSchema, getPropertyByIdSchema } from '../schemas/property.schema.js';
 
