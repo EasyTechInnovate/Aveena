@@ -95,3 +95,27 @@ Content-Type: application/json
 ### Admin Delete Property (soft delete)
 DELETE {{baseUrl}}{{apiPrefix}}/admin/properties/{{propertyId}}
 Authorization: Bearer {{accessToken}}
+
+
+### ─── IDENTITY VERIFICATION ──────────────────────────────────────────────────
+
+### Admin Approve Identity
+@userId = your_user_id_here
+POST {{baseUrl}}{{apiPrefix}}/admin/identity/{{userId}}/approve
+Authorization: Bearer {{accessToken}}
+
+### Admin Reject Identity (clears all submitted documents)
+POST {{baseUrl}}{{apiPrefix}}/admin/identity/{{userId}}/reject
+Authorization: Bearer {{accessToken}}
+
+
+### ─── FEEDBACKS ──────────────────────────────────────────────────────────────
+
+### Admin Get All Feedbacks
+GET {{baseUrl}}{{apiPrefix}}/admin/feedbacks?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Admin Get Feedbacks - Filter by Type
+# type: "bug" | "suggestion" | "complaint" | "other"
+GET {{baseUrl}}{{apiPrefix}}/admin/feedbacks?page=1&limit=10&type=suggestion
+Authorization: Bearer {{accessToken}}

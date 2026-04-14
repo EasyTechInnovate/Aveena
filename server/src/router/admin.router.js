@@ -5,8 +5,10 @@ import isAdminOrTeamMember from '../middleware/isAdminOrTeamMember.js';
 import { checkPermission } from '../middleware/authorization.js';
 
 import propertyController from '../controller/Property/property.controller.js';
+import walletController from '../controller/Wallet/wallet.controller.js';
 import { getRandomPropertiesSchema, getPropertyByIdSchema, toggleActiveSchema } from '../schemas/property.schema.js';
 import { createPropertyOwnerSchema } from '../schemas/admin.schema.js';
+import { adminCreditSchema } from '../schemas/wallet.schema.js';
 import validator from '../middleware/validator.js';
 
 const router = Router();
@@ -34,5 +36,11 @@ router.post('/property-owners', checkPermission('propertyOwner', 'edit'), valida
 router.get('/pending-kyc-properties', checkPermission('pendingKYC', 'read'), validator(getRandomPropertiesSchema, "query"), adminController.getPendingKycProperties);
 router.patch('/approve-kyc/:id', checkPermission('pendingKYC', 'edit'), validator(getPropertyByIdSchema, "params"), adminController.verifyKyc);
 router.patch('/reject-kyc/:id', checkPermission('pendingKYC', 'edit'), validator(getPropertyByIdSchema, "params"), adminController.rejectKyc);
+
+router.get('/feedbacks', adminController.getFeedbacks);
+router.post('/identity/:userId/approve', validator(getPropertyByIdSchema, "params"), adminController.approveIdentity);
+router.post('/identity/:userId/reject', validator(getPropertyByIdSchema, "params"), adminController.rejectIdentity);
+
+router.post('/wallet/credit', validator(adminCreditSchema, "body"), walletController.adminCredit);
 
 export default router;

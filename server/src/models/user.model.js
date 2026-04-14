@@ -84,9 +84,11 @@ const userSchema = new Schema({
         enum: ['customer', 'admin', 'property_owner', 'team_member'],
         default: 'customer'
     },
-    aadhaarCard: {
-        type: String,
-        default: null
+    identityDocuments: {
+        aadhaar: { type: String, default: null },
+        pan: { type: String, default: null },
+        passport: { type: String, default: null },
+        drivingLicence: { type: String, default: null }
     },
     isProfileComplete: {
         type: Boolean,

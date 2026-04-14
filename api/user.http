@@ -11,3 +11,114 @@ Authorization: Bearer {{accessToken}}
 ### Get Wishlist
 GET {{baseUrl}}{{apiPrefix}}/user/wishlist?page=1&limit=10
 Authorization: Bearer {{accessToken}}
+
+
+### ─── SECURITY SETTINGS ───────────────────────────────────────────────────────
+
+### Change Password
+# Note: Only works for accounts with a password set (not Google/OTP-only accounts)
+POST {{baseUrl}}{{apiPrefix}}/user/change-password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "oldPassword123",
+  "newPassword": "newPassword456"
+}
+
+
+### Update Contact (Email or Phone)
+# Step 1: Call POST /auth/send-otp with the new email/phone to receive an OTP
+# Step 2: Call this endpoint with the OTP + new contact details
+POST {{baseUrl}}{{apiPrefix}}/user/update-contact
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "verificationCode": "123456",
+  "email": "newemail@example.com"
+}
+
+### Update Contact - Phone
+POST {{baseUrl}}{{apiPrefix}}/user/update-contact
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "verificationCode": "123456",
+  "phone": {
+    "countryCode": "+91",
+    "number": "9876543210"
+  }
+}
+
+
+### ─── IDENTITY VERIFICATION ──────────────────────────────────────────────────
+
+### Upload Identity Document
+# documentType: "aadhaar" | "pan" | "passport" | "drivingLicence"
+# documentUrl: upload file via POST /media first, then pass the returned URL here
+POST {{baseUrl}}{{apiPrefix}}/user/identity/upload
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "documentType": "passport",
+  "documentUrl": "https://res.cloudinary.com/example/image/upload/doc.jpg"
+}
+
+### Upload Identity Document - Aadhaar
+POST {{baseUrl}}{{apiPrefix}}/user/identity/upload
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "documentType": "aadhaar",
+  "documentUrl": "https://res.cloudinary.com/example/image/upload/aadhaar.jpg"
+}
+
+### Upload Identity Document - PAN
+POST {{baseUrl}}{{apiPrefix}}/user/identity/upload
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "documentType": "pan",
+  "documentUrl": "https://res.cloudinary.com/example/image/upload/pan.jpg"
+}
+
+### Upload Identity Document - Driving Licence
+POST {{baseUrl}}{{apiPrefix}}/user/identity/upload
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "documentType": "drivingLicence",
+  "documentUrl": "https://res.cloudinary.com/example/image/upload/licence.jpg"
+}
+
+### Get Identity Verification Status
+# Returns all submitted documents + overall verification status
+GET {{baseUrl}}{{apiPrefix}}/user/identity/status
+Authorization: Bearer {{accessToken}}
+
+
+### ─── FEEDBACK ───────────────────────────────────────────────────────────────
+
+### Submit Feedback
+# type: "bug" | "suggestion" | "complaint" | "other"
+POST {{baseUrl}}{{apiPrefix}}/user/feedback
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "type": "suggestion",
+  "message": "It would be great to have a dark mode option in the app."
+}
+
+
+### ─── MY REVIEWS ─────────────────────────────────────────────────────────────
+
+### Get My Reviews (reviews submitted by the logged-in user)
+GET {{baseUrl}}{{apiPrefix}}/user/my-reviews?page=1&limit=10
+Authorization: Bearer {{accessToken}}

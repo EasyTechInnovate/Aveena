@@ -49,7 +49,13 @@ export const createBookingSchema = z.object({
     .string({
       invalid_type_error: "Coupon code must be a string."
     })
+    .optional(),
+  useWallet: z
+    .boolean({
+      invalid_type_error: "useWallet must be a boolean."
+    })
     .optional()
+    .default(false)
 });
 
 export const paymentSuccessSchema = z.object({

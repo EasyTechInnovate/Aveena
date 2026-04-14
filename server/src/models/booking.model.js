@@ -19,8 +19,10 @@ const bookingSchema = new Schema({
     base: Number,
     taxes: Number,
     discount: Number,
+    walletDiscount: { type: Number, default: 0 },
     total: Number
   },
+  walletAmountUsed: { type: Number, default: 0 },
 
   couponCode: {
     type: String,

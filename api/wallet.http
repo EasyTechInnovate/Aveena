@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:5000
+@apiPrefix = /v1
+@accessToken = your_access_token_here
+@adminToken = your_admin_token_here
+@userId = your_user_id_here
+
+### Get My Wallet (balance + transaction history)
+GET {{baseUrl}}{{apiPrefix}}/wallet?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+
+### Get My Wallet - Page 2
+GET {{baseUrl}}{{apiPrefix}}/wallet?page=2&limit=10
+Authorization: Bearer {{accessToken}}
+
+
+### ─── ADMIN ───────────────────────────────────────────────────────────────────
+
+### Admin Credit Wallet (reward a user)
+POST {{baseUrl}}{{apiPrefix}}/admin/wallet/credit
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": "{{userId}}",
+  "amount": 500,
+  "reason": "Welcome bonus"
+}
+
+### Admin Credit Wallet - Referral Reward
+POST {{baseUrl}}{{apiPrefix}}/admin/wallet/credit
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "userId": "{{userId}}",
+  "amount": 250,
+  "reason": "Referral reward"
+}

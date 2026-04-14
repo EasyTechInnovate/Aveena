@@ -2,6 +2,7 @@ import bookingModel from "../../models/booking.model.js";
 import propertyModel from "../../models/property.model.js";
 import userModel from "../../models/user.model.js";
 import propertyDetailsModel from "../../models/propertyDetails.model.js";
+import feedbackModel from "../../models/feedback.model.js";
 import mongoose from "mongoose";
 import httpError from "../../util/httpError.js";
 import httpResponse from "../../util/httpResponse.js";
@@ -862,6 +863,86 @@ export default {
             await property.save();
 
             return httpResponse(req, res, 200, responseMessage.UPDATED, null);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+
+    getFeedbacks: async (req, res, next) => {
+        try {
+            const { page = 1, limit = 10, type } = req.query;
+            const skip = (Number(page) - 1) * Number(limit);
+
+            const filter = { isActive: true };
+            if (type) filter.type = type;
+
+            const [total, feedbacks] = await Promise.all([
+                feedbackModel.countDocuments(filter),
+                feedbackModel.find(filter)
+                    .populate('userId', 'firstName lastName email profilePicture')
+                    .select('type message createdAt userId')
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(Number(limit))
+                    .lean()
+            ]);
+
+            return httpResponse(req, res, 200, responseMessage.SUCCESS, {
+                feedbacks,
+                pagination: {
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(total / Number(limit)),
+                    hasNextPage: (parseInt(page) - 1) * Number(limit) + feedbacks.length < total
+                }
+            });
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+
+    approveIdentity: async (req, res, next) => {
+        try {
+            const { userId } = req.params;
+
+            const user = await userModel.findById(userId).select('identityDocuments isIdentityVerified');
+            if (!user) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
+            }
+
+            const docs = user.identityDocuments || {};
+            const hasAnyDoc = Object.values(docs).some(v => !!v);
+            if (!hasAnyDoc) {
+                const err = new Error('No identity document submitted by this user.');
+                err.statusCode = 400;
+                return httpError(next, err, req, 400);
+            }
+
+            user.isIdentityVerified = true;
+            await user.save();
+
+            return httpResponse(req, res, 200, responseMessage.customMessage('Identity verified successfully'), null);
+        } catch (error) {
+            return httpError(next, error, req, 500);
+        }
+    },
+
+    rejectIdentity: async (req, res, next) => {
+        try {
+            const { userId } = req.params;
+
+            const user = await userModel.findById(userId).select('identityDocuments isIdentityVerified');
+            if (!user) {
+                return httpError(next, new Error(responseMessage.ERROR.NOT_FOUND('User')), req, 404);
+            }
+
+            user.identityDocuments = { aadhaar: null, pan: null, passport: null, drivingLicence: null };
+            user.isIdentityVerified = false;
+            user.markModified('identityDocuments');
+            await user.save();
+
+            return httpResponse(req, res, 200, responseMessage.customMessage('Identity documents rejected and cleared'), null);
         } catch (error) {
             return httpError(next, error, req, 500);
         }

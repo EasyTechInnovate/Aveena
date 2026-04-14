@@ -7,6 +7,7 @@ import { startSession } from "mongoose";
 import userModel from "../../models/user.model.js";
 import bookingModel from "../../models/booking.model.js";
 import transactionModel from "../../models/transaction.model.js";
+import Wallet from "../../models/wallet.model.js";
 import config from "../../config/config.js";
 import crypto from "crypto";
 import axios from "axios";
@@ -22,7 +23,7 @@ export default {
 
             const { userId } = req.user;
 
-            const { propertyId, checkInDate, checkOutDate, adults, childrens, noOfRooms, couponCode } = req.body;
+            const { propertyId, checkInDate, checkOutDate, adults, childrens, noOfRooms, couponCode, useWallet } = req.body;
 
             if (!propertyId || !checkInDate || !checkOutDate || !adults || !noOfRooms) {
                 return httpError(next, new Error(responseMessage.COMMON.INVALID_PARAMETERS()), req, 400);
@@ -160,10 +161,98 @@ export default {
                 }
             }
 
-            const finalAmount = base + taxes - discount;
+            let amountAfterCoupon = base + taxes - discount;
+
+            let walletDiscount = 0;
+            let walletBalance = 0;
+
+            if (useWallet) {
+                const wallet = await Wallet.findOne({ userId }).lean();
+                walletBalance = wallet ? wallet.balance : 0;
+                walletDiscount = Math.min(walletBalance, amountAfterCoupon);
+                walletDiscount = Math.round(walletDiscount * 100) / 100;
+            }
+
+            const finalAmount = Math.round((amountAfterCoupon - walletDiscount) * 100) / 100;
 
             const session = await startSession();
             session.startTransaction();
+
+            if (finalAmount === 0 && walletDiscount > 0) {
+                const wallet = await Wallet.findOneAndUpdate(
+                    { userId, balance: { $gte: walletDiscount } },
+                    {
+                        $inc: { balance: -walletDiscount },
+                        $push: {
+                            transactions: {
+                                amount: walletDiscount,
+                                type: 'debit',
+                                reason: 'Booking payment (full wallet)',
+                                balanceAfter: Math.round((walletBalance - walletDiscount) * 100) / 100
+                            }
+                        }
+                    },
+                    { new: true, session }
+                );
+
+                if (!wallet) {
+                    await session.abortTransaction();
+                    await session.endSession();
+                    const err = new Error('Insufficient wallet balance. Please try again.');
+                    err.statusCode = 400;
+                    return httpError(next, err, req, 400);
+                }
+
+                const booking = await bookingModel.create([{
+                    userId,
+                    propertyId,
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    nights: noOfNights,
+                    guests: { adults, childrens },
+                    priceBreakdown: {
+                        base,
+                        taxes,
+                        discount: Math.round(discount * 100) / 100,
+                        walletDiscount,
+                        total: 0
+                    },
+                    walletAmountUsed: walletDiscount,
+                    couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+                    couponId: appliedCoupon ? appliedCoupon._id : undefined,
+                    status: 'confirmed'
+                }], { session }).then(docs => docs[0]);
+
+                for (let i = 0; i < noOfNights; i++) {
+                    await bookedDatesModel.create([{
+                        entityType: 'property',
+                        entityId: propertyId,
+                        date: new Date(new Date(checkIn).setDate(new Date(checkIn).getDate() + i)),
+                        bookingId: booking._id,
+                        unitsBooked: 1
+                    }], { session });
+                }
+
+                if (appliedCoupon) {
+                    await couponUsageModel.create([{
+                        couponId: appliedCoupon._id,
+                        userId,
+                        bookingId: booking._id,
+                        discountAmount: Math.round(discount * 100) / 100
+                    }], { session });
+                    await couponModel.updateOne({ _id: appliedCoupon._id }, { $inc: { usageCount: 1 } }, { session });
+                }
+
+                await session.commitTransaction();
+                await session.endSession();
+
+                return httpResponse(req, res, 200, responseMessage.customMessage('Booking confirmed via wallet'), {
+                    bookingId: booking._id,
+                    walletAmountUsed: walletDiscount,
+                    totalPaid: 0,
+                    paidVia: 'wallet'
+                });
+            }
 
             const booking = await bookingModel.create([{
                 userId,
@@ -179,8 +268,10 @@ export default {
                     base,
                     taxes,
                     discount: Math.round(discount * 100) / 100,
+                    walletDiscount,
                     total: Math.round(finalAmount * 100) / 100
                 },
+                walletAmountUsed: walletDiscount,
                 couponCode: appliedCoupon ? appliedCoupon.code : undefined,
                 couponId: appliedCoupon ? appliedCoupon._id : undefined
             }], { session }).then(docs => docs[0]);
@@ -309,8 +400,7 @@ export default {
                     bookingId: booking._id,
                     unitsBooked: 1
                 }], { session });
-
-            };
+            }
 
             if (booking.couponId) {
                 await couponUsageModel.create([{
@@ -325,6 +415,29 @@ export default {
                     { $inc: { usageCount: 1 } },
                     { session }
                 );
+            }
+
+            if (booking.walletAmountUsed > 0) {
+                const currentWallet = await Wallet.findOne({ userId: booking.userId }).session(session);
+                if (currentWallet && currentWallet.balance >= booking.walletAmountUsed) {
+                    const balanceAfter = Math.round((currentWallet.balance - booking.walletAmountUsed) * 100) / 100;
+                    await Wallet.findOneAndUpdate(
+                        { userId: booking.userId, balance: { $gte: booking.walletAmountUsed } },
+                        {
+                            $inc: { balance: -booking.walletAmountUsed },
+                            $push: {
+                                transactions: {
+                                    amount: booking.walletAmountUsed,
+                                    type: 'debit',
+                                    reason: 'Booking payment (partial wallet)',
+                                    bookingId: booking._id,
+                                    balanceAfter
+                                }
+                            }
+                        },
+                        { session }
+                    );
+                }
             }
 
             await session.commitTransaction();
@@ -361,6 +474,29 @@ export default {
 
             await bookingModel.updateOne({ _id: booking._id }, { $set: { status: 'cancelled' } }, { session });
             await transactionModel.updateOne({ _id: transaction._id }, { $set: { status: 'failed', addedOn: new Date() } }, { session });
+
+            if (booking.walletAmountUsed > 0) {
+                const currentWallet = await Wallet.findOne({ userId: booking.userId }).session(session);
+                const currentBalance = currentWallet ? currentWallet.balance : 0;
+                const balanceAfter = Math.round((currentBalance + booking.walletAmountUsed) * 100) / 100;
+
+                await Wallet.findOneAndUpdate(
+                    { userId: booking.userId },
+                    {
+                        $inc: { balance: booking.walletAmountUsed },
+                        $push: {
+                            transactions: {
+                                amount: booking.walletAmountUsed,
+                                type: 'credit',
+                                reason: 'Refund — payment failed',
+                                bookingId: booking._id,
+                                balanceAfter
+                            }
+                        }
+                    },
+                    { upsert: true, session }
+                );
+            }
 
             await session.commitTransaction();
             await session.endSession();

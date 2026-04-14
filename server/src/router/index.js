@@ -13,6 +13,7 @@ import userRouter from './user.router.js';
 import enquiryRouter from './enquiry.router.js';
 import teamRouter from './team.router.js';
 import helpCenterRouter from './helpCenter.router.js';
+import walletRouter from './wallet.router.js';
 
 const router = Router()
 
@@ -33,5 +34,6 @@ router.use('/user', userRouter);
 router.use('/enquiries', enquiryRouter);
 router.use('/team', teamRouter);
 router.use('/help-center', helpCenterRouter);
+router.use('/wallet', walletRouter);
 
 export default router
